@@ -1,0 +1,24 @@
+Undo with history
+generate datapack
+-   might not cover everything we need to change
+
+delete recipe
+edit recipe
+new recipe
+-   items
+    -   damage
+    -   and/or/not
+    -   NBT? (full/partial)
+-   amount
+-   tags
+-   fuel / energy
+-   output chance
+
+item properties (Item.java)
+delete item
+switch one item with another
+
+item drops from blocks
+mob drops
+loot tables
+-   fisching

@@ -1,0 +1,6 @@
+{
+    "commands.live_edit.list": "Recipe list: %s",
+    "commands.live_edit.recipe.marked_for_deletion": "Recipe %s marked for deletion",
+    "commands.live_edit.recipe_type_not_found": "Unknown recipe type %s",
+    "commands.live_edit.item.marked_for_replacement": "Marked item %s for replacement with item %s"
+}
