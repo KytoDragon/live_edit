@@ -2,14 +2,13 @@ package de.kytodragon.live_edit;
 
 import com.mojang.logging.LogUtils;
 import de.kytodragon.live_edit.command.Command;
-import de.kytodragon.live_edit.integration.VanillaIntegration;
+import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
-
-import de.kytodragon.live_edit.recipe.RecipeReloader;
 
 @Mod(LiveEditMod.MODID)
 public class LiveEditMod {
@@ -18,6 +17,9 @@ public class LiveEditMod {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public LiveEditMod() {
+        Integration.addAllIntegration(RecipeManager.instance);
+
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStopping);
         MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
         MinecraftForge.EVENT_BUS.addListener(Command::onRegisterCommandEvent);
     }
@@ -25,7 +27,11 @@ public class LiveEditMod {
     public void onServerStarting(ServerStartedEvent event) {
         LOGGER.info("HELLO from server started");
 
-        new VanillaIntegration().registerManipulators(RecipeManager.instance);
-        //RecipeReloader.changeRecipes(event.getServer());
+        RecipeManager.instance.initServer(event.getServer());
+        RecipeManager.instance.manipulateAllRecipesAndReload();
+    }
+
+    public void onServerStopping(ServerStoppedEvent event) {
+        RecipeManager.instance.shutdownServer();
     }
 }

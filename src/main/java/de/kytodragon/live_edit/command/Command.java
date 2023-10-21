@@ -40,7 +40,7 @@ public class Command {
     private static ArgumentBuilder<CommandSourceStack, ?> reloadCommand() {
         return Commands.literal("reload")
             .executes(ctx -> {
-                RecipeReloader.changeRecipes(ctx.getSource().getServer());
+                RecipeManager.instance.manipulateAllRecipesAndReload();
                 return 0;
             });
     }
@@ -53,12 +53,12 @@ public class Command {
                         Item item = ItemArgument.getItem(ctx, "item").getItem();
 
                         net.minecraft.world.item.crafting.RecipeManager recipeManager = ctx.getSource().getServer().getRecipeManager();
-                        Stream<Recipe<?>> all_recipes = RecipeManager.instance.manipulators.values().stream().filter(IRecipeManipulator::isRealImplementation)
-                                                        .map(s -> s.getCurrentRecipes(recipeManager)).flatMap(Collection::stream);
-                        Stream<ResourceLocation> matching_recipes = all_recipes.filter(s -> s.getResultItem().is(item)).map(Recipe::getId);
-                        String list = matching_recipes.map(ResourceLocation::toString)
+                        Stream<?> all_recipes = RecipeManager.instance.manipulators.values().stream().filter(IRecipeManipulator::isRealImplementation)
+                                                        .map(IRecipeManipulator::getCurrentRecipes).flatMap(Collection::stream);
+                        //Stream<ResourceLocation> matching_recipes = all_recipes.filter(s -> s.getResultItem().is(item)).map(Recipe::getId);
+                        /*String list = matching_recipes.map(ResourceLocation::toString)
                                             .collect(Collectors.joining("\n\u2022 ","\n\u2022 ", ""));
-                        ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.list", list), false);
+                        ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.list", list), false);*/
                         return 0;
                     })
                 )
@@ -71,10 +71,10 @@ public class Command {
                 .then(Commands.argument("recipe", new RecipeArgument())
                     .executes(ctx -> {
                         RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
-                        Recipe<?> recipe = RecipeArgument.getRecipe(ctx, type, "recipe");
-                        RecipeManager.instance.markRecipeForDeletion(type, recipe.getId());
+                        ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
+                        RecipeManager.instance.markRecipeForDeletion(type, recipe_key);
 
-                        ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.recipe.marked_for_deletion", recipe.getId().toString()), false);
+                        ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.recipe.marked_for_deletion", recipe_key.toString()), false);
                         return 0;
                     })
                 )
