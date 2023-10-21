@@ -1,8 +1,9 @@
 package de.kytodragon.live_edit.recipe;
 
-import de.kytodragon.live_edit.mixin_interfaces.CompoundIngredientInterface;
-import de.kytodragon.live_edit.mixin_interfaces.DifferenceIngredientInterface;
-import de.kytodragon.live_edit.mixin_interfaces.IngredientInterface;
+import de.kytodragon.live_edit.mixins.CompoundIngredientMixin;
+import de.kytodragon.live_edit.mixins.DifferenceIngredientMixin;
+import de.kytodragon.live_edit.mixins.IngredientMixin;
+import de.kytodragon.live_edit.mixins.IntersectionIngredientMixin;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -50,18 +51,18 @@ public class IngredientReplacer {
         ingredient.checkInvalidation();
         if (ingredient instanceof AbstractIngredient) {
             if (ingredient instanceof IntersectionIngredient intersection) {
-                return ((CompoundIngredientInterface)intersection).live_edit_mixin_getChildren().stream().flatMap(IngredientReplacer::streamIngredients);
+                return ((IntersectionIngredientMixin)intersection).live_edit_mixin_getChildren().stream().flatMap(IngredientReplacer::streamIngredients);
             } else if (ingredient instanceof DifferenceIngredient difference) {
-                DifferenceIngredientInterface diff = (DifferenceIngredientInterface)difference;
+                DifferenceIngredientMixin diff = (DifferenceIngredientMixin)difference;
                 return Stream.concat(streamIngredients(diff.live_edit_mixin_getBase()), streamIngredients(diff.live_edit_mixin_getSubtracted()));
             } else if (ingredient instanceof CompoundIngredient compound) {
-                return ((CompoundIngredientInterface)compound).live_edit_mixin_getChildren().stream().flatMap(IngredientReplacer::streamIngredients);
+                return ((CompoundIngredientMixin)compound).live_edit_mixin_getChildren().stream().flatMap(IngredientReplacer::streamIngredients);
             } else{
                 // TODO we do not check ingredients with NBT-Matching at this moment
                 return Stream.of();
             }
         } else {
-            return Arrays.stream(((IngredientInterface)ingredient).live_edit_mixin_getRawIngrediants());
+            return Arrays.stream(((IngredientMixin)ingredient).live_edit_mixin_getRawIngrediants());
         }
     }
 
@@ -77,20 +78,20 @@ public class IngredientReplacer {
     public static Ingredient replace(Ingredient ingredient, GeneralManipulationData data) {
         if (ingredient instanceof AbstractIngredient) {
             if (ingredient instanceof IntersectionIngredient intersection) {
-                return IntersectionIngredient.of(((CompoundIngredientInterface)intersection).live_edit_mixin_getChildren().stream()
+                return IntersectionIngredient.of(((CompoundIngredientMixin)intersection).live_edit_mixin_getChildren().stream()
                         .map(s -> replace(s, data)).toArray(Ingredient[]::new));
             } else if (ingredient instanceof DifferenceIngredient difference) {
-                DifferenceIngredientInterface diff = (DifferenceIngredientInterface)difference;
+                DifferenceIngredientMixin diff = (DifferenceIngredientMixin)difference;
                 return DifferenceIngredient.of(replace(diff.live_edit_mixin_getBase(), data), replace(diff.live_edit_mixin_getSubtracted(), data));
             } else if (ingredient instanceof CompoundIngredient compound) {
-                return CompoundIngredient.of(((CompoundIngredientInterface)compound).live_edit_mixin_getChildren().stream()
+                return CompoundIngredient.of(((CompoundIngredientMixin)compound).live_edit_mixin_getChildren().stream()
                         .map(s -> replace(s, data)).toArray(Ingredient[]::new));
             } else{
                 // TODO we do not check ingredients with NBT-Matching at this moment
                 return ingredient;
             }
         } else {
-            return Ingredient.fromValues(Arrays.stream(((IngredientInterface) ingredient).live_edit_mixin_getRawIngrediants()).map(s -> replace(s, data)));
+            return Ingredient.fromValues(Arrays.stream(((IngredientMixin) ingredient).live_edit_mixin_getRawIngrediants()).map(s -> replace(s, data)));
         }
     }
 
