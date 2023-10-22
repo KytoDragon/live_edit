@@ -70,4 +70,8 @@ public class RecipeManager {
         integrations.forEach(Integration::shutdownServer);
         data = new GeneralManipulationData();
     }
+
+    public void handleClientPacket(Object o) {
+        integrations.forEach(integration -> integration.acceptClientPacket(o));
+    }
 }

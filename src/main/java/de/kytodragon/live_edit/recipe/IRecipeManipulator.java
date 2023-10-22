@@ -40,6 +40,7 @@ public abstract class IRecipeManipulator<K, R, I extends Integration> {
     }
 
     public void manipulateRecipesAndPrepareReload(GeneralManipulationData data) {
+        // TODO this needs to be synchronized to prevent parallel usage of the recipes
         Collection<R> old_recipes = getCurrentRecipes();
         List<R> new_recipes = manipulateRecipes(old_recipes, data);
         prepareReload(new_recipes);

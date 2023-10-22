@@ -1,23 +1,28 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
 import de.kytodragon.live_edit.integration.Integration;
+import de.kytodragon.live_edit.integration.PacketRegistry;
 import de.kytodragon.live_edit.mixin_interfaces.BrewingRecipeRegistryInterface;
-import de.kytodragon.live_edit.mixin_interfaces.ForgeRegistryInterface;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagNetworkSerialization;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITagManager;
 
@@ -29,7 +34,6 @@ public class VanillaIntegration implements Integration {
     public ITagManager<Item> forge_tag_manager;
 
     private Registry<Item> vanilla_item_registry;
-    private ForgeRegistryInterface<Item> forge_item_registry;
     private MinecraftServer server;
 
     private NewServerData server_data;
@@ -59,15 +63,16 @@ public class VanillaIntegration implements Integration {
         manager.addRecipeManipulator(this, RecipeType.COMPOSTING, new CompostManipulator());
 
         MinecraftForge.EVENT_BUS.addListener(this::onFuelBurnTimeRequest);
+
+        VanillaUpdatePacket.registerPacketHandler();
     }
 
     @Override
-    @SuppressWarnings({"deprecation", "unchecked"})
+    @SuppressWarnings({"deprecation"})
     public void initServer(MinecraftServer server) {
         this.server = server;
         vanilla_recipe_manager = server.getRecipeManager();
         vanilla_item_registry = Registry.ITEM;
-        forge_item_registry = ((ForgeRegistryInterface<Item>) ForgeRegistries.ITEMS);
 
         forge_tag_manager = ForgeRegistries.ITEMS.tags();
         Objects.requireNonNull(forge_tag_manager);
@@ -80,7 +85,6 @@ public class VanillaIntegration implements Integration {
         server_data = null;
 
         forge_tag_manager = null;
-        forge_item_registry = null;
         vanilla_item_registry = null;
         vanilla_recipe_manager = null;
         server = null;
@@ -105,39 +109,46 @@ public class VanillaIntegration implements Integration {
 
     @Override
     public void reload() {
-        Map<TagKey<Item>, HolderSet.Named<Item>> forge_tags = new HashMap<>();
         Map<TagKey<Item>, List<Holder<Item>>> vanilla_map = new HashMap<>();
         server_data.new_tags.forEach(tag -> {
-            List<Holder<Item>> list = tag.content.stream().map(forge_item_registry::getHolder).map(Optional::orElseThrow).toList();
-
-            HolderSet.Named<Item> set = new HolderSet.Named<>(vanilla_item_registry, tag.key);
-            set.bind(list);
-            forge_tags.put(tag.key, set);
+            List<Holder<Item>> list = tag.content.stream().map(ForgeRegistries.ITEMS::getHolder).map(Optional::orElseThrow).toList();
             vanilla_map.put(tag.key, list);
         });
-        forge_item_registry.live_edit_mixin_replaceTags(forge_tags);
         vanilla_item_registry.bindTags(vanilla_map);
+        Blocks.rebuildCache();
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.TagsUpdatedEvent(server.registryAccess(), false, false));
 
-        Ingredient.invalidateAll();
-
-        vanilla_recipe_manager.replaceRecipes(server_data.new_recipes);
+        if (FMLEnvironment.dist.isDedicatedServer()) {
+            // In single-player this is already done via the ClientboundUpdateRecipesPacket
+            vanilla_recipe_manager.replaceRecipes(server_data.new_recipes);
+        }
         PlayerList player_list = server.getPlayerList();
-        player_list.saveAll();
-        player_list.reloadResources();
+        player_list.broadcastAll(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registryAccess())));
+        player_list.broadcastAll(new ClientboundUpdateRecipesPacket(server_data.new_recipes));
 
-        // TODO We need a custom packet to send that data to all players
-        Map<Item, Integer> burn_time = new HashMap<>();
-        server_data.new_burn_times.forEach(burn -> burn_time.put(burn.item(), burn.burn_time()));
-        current_burn_times = burn_time;
-
-        // TODO We need a custom packet to send that data to all players
-        ComposterBlock.COMPOSTABLES.clear();
-        server_data.new_compostables.forEach(compost -> ComposterBlock.COMPOSTABLES.put(compost.item(), compost.compastChance()));
-
-        // TODO We need a custom packet to send that data to all players
-        ((BrewingRecipeRegistryInterface)new BrewingRecipeRegistry()).live_edit_mixin_setRecipes(server_data.new_potions);
+        VanillaUpdatePacket client_packet = new VanillaUpdatePacket(server_data.new_burn_times, server_data.new_compostables, server_data.new_potions);
+        if (FMLEnvironment.dist.isDedicatedServer()) {
+            // Burn times, compostables and new potion recipes are updates the same between client and server,
+            // so just accept the packet on the server side to update these settings.
+            acceptClientPacket(client_packet);
+        }
+        PacketRegistry.INSTANCE.send(PacketDistributor.ALL.noArg(), client_packet);
 
         server_data = null;
+    }
+
+    public void acceptClientPacket(Object o) {
+        if (o instanceof VanillaUpdatePacket packet) {
+
+            Map<Item, Integer> burn_time = new HashMap<>();
+            packet.new_burn_times().forEach(burn -> burn_time.put(burn.item(), burn.burn_time()));
+            current_burn_times = burn_time;
+
+            ComposterBlock.COMPOSTABLES.clear();
+            packet.new_compostables().forEach(compost -> ComposterBlock.COMPOSTABLES.put(compost.item(), compost.compastChance()));
+
+            ((BrewingRecipeRegistryInterface)new BrewingRecipeRegistry()).live_edit_mixin_setRecipes(packet.new_potions());
+        }
     }
 
     public void addNewRecipes(Collection<? extends Recipe<?>> recipes) {

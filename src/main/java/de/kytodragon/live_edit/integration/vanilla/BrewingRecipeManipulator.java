@@ -68,8 +68,11 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
             if (recipe instanceof VanillaBrewingRecipe) {
                 // Swap the vanilla placeholder with a list of single recipes.
                 return getVanillaRepolacementREcipes().stream();
-            } else {
+            } else if (recipe instanceof BrewingRecipe) {
                 return Stream.of(recipe);
+            } else {
+                // IBrewingRecipe does not have serializer so do not even touch recipes that we can't handle
+                return Stream.empty();
             }
         }).toList();
         return recipes;

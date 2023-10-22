@@ -16,6 +16,8 @@ public interface Integration {
 
     void reload();
 
+    void acceptClientPacket(Object o);
+
     static void addAllIntegration(RecipeManager manager) {
         manager.addIntegration(new VanillaIntegration());
     }

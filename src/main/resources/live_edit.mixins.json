@@ -7,7 +7,6 @@
         "BrewingRecipeRegistryMixin",
         "CompoundIngredientMixin",
         "DifferenceIngredientMixin",
-        "ForgeRegistryMixin",
         "IngredientMixin",
         "IngredientTagValueMixin",
         "IntersectionIngredientMixin",
