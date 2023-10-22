@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -58,7 +59,7 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
     }
 
     private static <T> Stream<ResourceLocation> getRecipes(IRecipeManipulator<ResourceLocation, T, ?> manipulator) {
-        return manipulator.getCurrentRecipes().stream().map(manipulator::getKey);
+        return manipulator.getCurrentRecipes().stream().map(manipulator::getKey).filter(Objects::nonNull);
     }
 
     @Override

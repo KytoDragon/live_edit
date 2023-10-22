@@ -4,6 +4,7 @@
     "compatibilityLevel": "JAVA_17",
     "refmap": "live_edit.refmap.json",
     "mixins": [
+        "BrewingRecipeRegistryMixin",
         "CompoundIngredientMixin",
         "DifferenceIngredientMixin",
         "ForgeRegistryMixin",

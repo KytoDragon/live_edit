@@ -11,6 +11,8 @@ public record RecipeType(String name, net.minecraft.world.item.crafting.RecipeTy
     public static final RecipeType SMITHING = new RecipeType("SMITHING", net.minecraft.world.item.crafting.RecipeType.SMITHING);
     public static final RecipeType TAGS = new RecipeType("TAGS", null);
     public static final RecipeType BURN_TIME = new RecipeType("BURN_TIME", null);
+    public static final RecipeType BREWING = new RecipeType("BREWING", null);
+    public static final RecipeType COMPOSTING = new RecipeType("COMPOSTING", null);
 
     /**
      * Two types with the same vanilla type override each other in order to replace the dummy-implementations set at startup.

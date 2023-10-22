@@ -50,6 +50,11 @@ public abstract class IRecipeManipulator<K, R, I extends Integration> {
         List<R> new_recipes = new ArrayList<>(old_recipes.size());
         for (R recipe : old_recipes) {
             K key = getKey(recipe);
+            if (key == null) {
+                // If the recipe can not be handled by us and vanilla minecraft does not assign it an id already
+                new_recipes.add(recipe);
+                continue;
+            }
             if (recipes_to_delete.contains(key)) {
                 continue;
             }

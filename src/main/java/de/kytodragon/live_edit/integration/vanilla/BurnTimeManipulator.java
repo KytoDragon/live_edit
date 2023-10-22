@@ -16,7 +16,7 @@ import java.util.Optional;
 public class BurnTimeManipulator extends IRecipeManipulator<ResourceLocation, BurnTime, VanillaIntegration> {
     @Override
     public ResourceLocation getKey(BurnTime burnTime) {
-        return integration.forge_item_registry.getKey(burnTime.item());
+        return ForgeRegistries.ITEMS.getKey(burnTime.item());
     }
 
     @Override
@@ -30,7 +30,7 @@ public class BurnTimeManipulator extends IRecipeManipulator<ResourceLocation, Bu
     @Override
     public Collection<BurnTime> getCurrentRecipes() {
         List<BurnTime> result = new ArrayList<>();
-        for (Item item : integration.forge_item_registry.getValues()) {
+        for (Item item : ForgeRegistries.ITEMS.getValues()) {
 
             int burnTime = ForgeHooks.getBurnTime(new ItemStack(item), null);
             if (burnTime > 0)
@@ -41,7 +41,7 @@ public class BurnTimeManipulator extends IRecipeManipulator<ResourceLocation, Bu
 
     @Override
     public Optional<BurnTime> getRecipe(ResourceLocation key) {
-        Item item = integration.forge_item_registry.getValue(key);
+        Item item = ForgeRegistries.ITEMS.getValue(key);
         if (item == null)
             return Optional.empty();
         return Optional.of(new BurnTime(item, ForgeHooks.getBurnTime(new ItemStack(item), null)));
