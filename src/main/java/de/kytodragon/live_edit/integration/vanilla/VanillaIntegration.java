@@ -1,6 +1,7 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
 import de.kytodragon.live_edit.integration.Integration;
+import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import de.kytodragon.live_edit.mixin_interfaces.BrewingRecipeRegistryInterface;
 import de.kytodragon.live_edit.recipe.RecipeManager;
@@ -10,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagNetworkSerialization;
@@ -37,6 +39,7 @@ public class VanillaIntegration implements Integration {
     private MinecraftServer server;
 
     private NewServerData server_data;
+    private VanillaUpdatePacket last_client_packet;
 
     private Map<Item, Integer> current_burn_times;
 
@@ -64,7 +67,7 @@ public class VanillaIntegration implements Integration {
 
         MinecraftForge.EVENT_BUS.addListener(this::onFuelBurnTimeRequest);
 
-        VanillaUpdatePacket.registerPacketHandler();
+        PacketRegistry.registerClientPacket(VanillaUpdatePacket.class, VanillaUpdatePacket::new);
     }
 
     @Override
@@ -83,6 +86,7 @@ public class VanillaIntegration implements Integration {
 
         current_burn_times = null;
         server_data = null;
+        last_client_packet = null;
 
         forge_tag_manager = null;
         vanilla_item_registry = null;
@@ -116,7 +120,6 @@ public class VanillaIntegration implements Integration {
         });
         vanilla_item_registry.bindTags(vanilla_map);
         Blocks.rebuildCache();
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.TagsUpdatedEvent(server.registryAccess(), false, false));
 
         if (FMLEnvironment.dist.isDedicatedServer()) {
             // In single-player this is already done via the ClientboundUpdateRecipesPacket
@@ -126,28 +129,43 @@ public class VanillaIntegration implements Integration {
         player_list.broadcastAll(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registryAccess())));
         player_list.broadcastAll(new ClientboundUpdateRecipesPacket(server_data.new_recipes));
 
-        VanillaUpdatePacket client_packet = new VanillaUpdatePacket(server_data.new_burn_times, server_data.new_compostables, server_data.new_potions);
+        VanillaUpdatePacket client_packet = new VanillaUpdatePacket();
+        client_packet.new_burn_times = server_data.new_burn_times;
+        client_packet.new_compostables = server_data.new_compostables;
+        client_packet.new_potions = server_data.new_potions;
         if (FMLEnvironment.dist.isDedicatedServer()) {
+            // In single player this hapens via the ClientboundUpdateTagsPacket
+            MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.TagsUpdatedEvent(server.registryAccess(), false, false));
             // Burn times, compostables and new potion recipes are updates the same between client and server,
             // so just accept the packet on the server side to update these settings.
             acceptClientPacket(client_packet);
         }
         PacketRegistry.INSTANCE.send(PacketDistributor.ALL.noArg(), client_packet);
 
+        last_client_packet = client_packet;
         server_data = null;
     }
 
-    public void acceptClientPacket(Object o) {
+    @Override
+    public void acceptClientPacket(LiveEditPacket o) {
         if (o instanceof VanillaUpdatePacket packet) {
 
             Map<Item, Integer> burn_time = new HashMap<>();
-            packet.new_burn_times().forEach(burn -> burn_time.put(burn.item(), burn.burn_time()));
+            packet.new_burn_times.forEach(burn -> burn_time.put(burn.item(), burn.burn_time()));
             current_burn_times = burn_time;
 
             ComposterBlock.COMPOSTABLES.clear();
-            packet.new_compostables().forEach(compost -> ComposterBlock.COMPOSTABLES.put(compost.item(), compost.compastChance()));
+            packet.new_compostables.forEach(compost -> ComposterBlock.COMPOSTABLES.put(compost.item(), compost.compastChance()));
 
-            ((BrewingRecipeRegistryInterface)new BrewingRecipeRegistry()).live_edit_mixin_setRecipes(packet.new_potions());
+            ((BrewingRecipeRegistryInterface)new BrewingRecipeRegistry()).live_edit_mixin_setRecipes(packet.new_potions);
+        }
+    }
+
+    @Override
+    public void informNewPlayer(ServerPlayer player) {
+        VanillaUpdatePacket client_packet = last_client_packet;
+        if (client_packet != null) {
+            PacketRegistry.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), client_packet);
         }
     }
 

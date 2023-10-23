@@ -4,7 +4,9 @@ import com.mojang.logging.LogUtils;
 import de.kytodragon.live_edit.command.Command;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.recipe.RecipeManager;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,16 +24,19 @@ public class LiveEditMod {
         MinecraftForge.EVENT_BUS.addListener(this::onServerStopping);
         MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
         MinecraftForge.EVENT_BUS.addListener(Command::onRegisterCommandEvent);
+        MinecraftForge.EVENT_BUS.addListener(this::onPlayerLogin);
     }
 
     public void onServerStarting(ServerStartedEvent event) {
-        LOGGER.info("HELLO from server started");
-
         RecipeManager.instance.initServer(event.getServer());
         RecipeManager.instance.manipulateAllRecipesAndReload();
     }
 
     public void onServerStopping(ServerStoppedEvent event) {
         RecipeManager.instance.shutdownServer();
+    }
+
+    public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        RecipeManager.instance.informNewPlayer((ServerPlayer) event.getEntity());
     }
 }

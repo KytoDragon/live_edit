@@ -1,9 +1,11 @@
 package de.kytodragon.live_edit.recipe;
 
 import de.kytodragon.live_edit.integration.Integration;
+import de.kytodragon.live_edit.integration.LiveEditPacket;
 import net.minecraft.resources.ResourceLocation;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 
 import java.util.*;
@@ -68,10 +70,14 @@ public class RecipeManager {
     public void shutdownServer() {
         manipulators.forEach((k, s) -> s.shutdownServer());
         integrations.forEach(Integration::shutdownServer);
-        data = new GeneralManipulationData();
+        data = null;
     }
 
-    public void handleClientPacket(Object o) {
-        integrations.forEach(integration -> integration.acceptClientPacket(o));
+    public void handleClientPacket(LiveEditPacket packet) {
+        integrations.forEach(integration -> integration.acceptClientPacket(packet));
+    }
+
+    public void informNewPlayer(ServerPlayer player) {
+        integrations.forEach(integration -> integration.informNewPlayer(player));
     }
 }

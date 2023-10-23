@@ -1,9 +1,16 @@
 package de.kytodragon.live_edit.integration;
 
 import de.kytodragon.live_edit.LiveEditMod;
+import de.kytodragon.live_edit.recipe.RecipeManager;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public class PacketRegistry {
     private static final String PROTOCOL_VERSION = "1";
@@ -14,4 +21,25 @@ public class PacketRegistry {
         PROTOCOL_VERSION::equals
     );
     public static int PACKET_ID = 1;
+
+    public static <T extends LiveEditPacket> void registerClientPacket(Class<T> clazz, Supplier<T> constuctor) {
+        PacketRegistry.INSTANCE.registerMessage(PacketRegistry.PACKET_ID++, clazz,
+            PacketRegistry::encodeMessage, (buf) -> {
+                T packet = constuctor.get();
+                packet.decode(buf);
+                return packet;
+            },
+            PacketRegistry::handleClientMessage, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+    }
+
+    public static void encodeMessage(LiveEditPacket packet, FriendlyByteBuf buf) {
+        packet.encode(buf);
+    }
+
+    public static void handleClientMessage(LiveEditPacket packet, Supplier<NetworkEvent.Context> context) {
+        context.get().enqueueWork(() -> {
+            RecipeManager.instance.handleClientPacket(packet);
+        });
+        context.get().setPacketHandled(true);
+    }
 }
