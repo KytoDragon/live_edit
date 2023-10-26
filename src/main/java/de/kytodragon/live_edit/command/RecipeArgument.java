@@ -45,16 +45,32 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
         return resourcelocation;
     }
 
+    public static ResourceLocation getRecipeOrNull(CommandContext<CommandSourceStack> ctx, RecipeType type, String name) {
+        IRecipeManipulator<ResourceLocation, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
+        ResourceLocation resourcelocation = ctx.getArgument(name, ResourceLocation.class);
+        if (manipulator.getRecipe(resourcelocation).isEmpty()) {
+            resourcelocation = null;
+        }
+        return resourcelocation;
+    }
+
+    public static void throwError(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
+        ResourceLocation resourcelocation = ctx.getArgument(name, ResourceLocation.class);
+        throw ERROR_UNKNOWN_RECIPE.create(resourcelocation);
+    }
+
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> ctx, SuggestionsBuilder builder) {
 
         RecipeType type = ctx.getArgument("type", RecipeType.class);
-        IRecipeManipulator<ResourceLocation, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
-        Stream<ResourceLocation> recipes = Stream.empty();
-        if (manipulator.isRealImplementation()) {
-            recipes = getRecipes(manipulator);
+        Stream<IRecipeManipulator<ResourceLocation, ?, ?>> manipulators;
+        if (type == RecipeType.ALL) {
+            manipulators = RecipeManager.instance.manipulators.values().stream();
+        } else {
+            manipulators = Stream.of(RecipeManager.instance.manipulators.get(type));
         }
 
+        Stream<ResourceLocation> recipes = manipulators.filter(IRecipeManipulator::isRealImplementation).flatMap(RecipeArgument::getRecipes);
         return SharedSuggestionProvider.suggestResource(recipes, builder);
     }
 

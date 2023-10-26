@@ -1,8 +1,13 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.editing.MyRecipe;
+import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.recipe.GeneralManipulationData;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
 import de.kytodragon.live_edit.recipe.IngredientReplacer;
+import de.kytodragon.live_edit.recipe.RecipeType;
+import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +27,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
 
 public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocation, IBrewingRecipe, VanillaIntegration> {
 
@@ -67,7 +74,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
         recipes = recipes.stream().flatMap(recipe -> {
             if (recipe instanceof VanillaBrewingRecipe) {
                 // Swap the vanilla placeholder with a list of single recipes.
-                return getVanillaRepolacementREcipes().stream();
+                return getVanillaReplacementRecipes().stream();
             } else if (recipe instanceof BrewingRecipe) {
                 return Stream.of(recipe);
             } else {
@@ -88,10 +95,36 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
         integration.addNewPotions(recipes);
     }
 
+    @Override
+    public MyRecipe encodeRecipe(IBrewingRecipe recipe) {
+        if (recipe instanceof BrewingRecipe brew) {
+            MyIngredient input = encodeIngredient(brew.getInput());
+            MyIngredient additive = encodeIngredient(brew.getIngredient());
+            if (input == null || additive == null) {
+                return null;
+            }
+
+            MyRecipe result = new MyRecipe();
+            result.id = getKey(recipe);
+            result.ingredients = List.of(input, additive);
+            result.result = List.of(new MyResult.ItemResult(brew.getOutput()));
+            result.type = RecipeType.BREWING;
+            return result;
+        }
+        return null;
+    }
+
+    @Override
+    public IBrewingRecipe decodeRecipe(MyRecipe recipe) {
+        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
+        NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients);
+        return new BrewingRecipe(ingredients.get(0), ingredients.get(1), result);
+    }
+
     /**
      * Get a list of brewing recipes that is equivalent to the vanilla potion recipe.
      */
-    private static List<BrewingRecipe> getVanillaRepolacementREcipes() {
+    private static List<BrewingRecipe> getVanillaReplacementRecipes() {
         // Get list of all vanilla potions
         List<Potion> all_potions = ForgeRegistries.POTIONS.getValues().stream()
             .filter(potion -> potion == Potions.WATER || PotionBrewing.isBrewablePotion(potion))

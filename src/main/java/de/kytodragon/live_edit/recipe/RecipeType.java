@@ -14,6 +14,9 @@ public record RecipeType(String name, net.minecraft.world.item.crafting.RecipeTy
     public static final RecipeType BREWING = new RecipeType("BREWING", null);
     public static final RecipeType COMPOSTING = new RecipeType("COMPOSTING", null);
 
+    /** Dummy type used to refer to all recipe types */
+    public static final RecipeType ALL = new RecipeType("ALL", null);
+
     /**
      * Two types with the same vanilla type override each other in order to replace the dummy-implementations set at startup.
      */

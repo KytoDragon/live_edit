@@ -1,7 +1,11 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.editing.MyRecipe;
+import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.recipe.GeneralManipulationData;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
+import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -40,6 +44,30 @@ public class TagManipulator extends IRecipeManipulator<ResourceLocation, Tag<Ite
     @Override
     public void prepareReload(Collection<Tag<Item>> tags) {
         integration.addNewTags(tags);
+    }
+
+    @Override
+    public MyRecipe encodeRecipe(Tag<Item> tag) {
+        List<MyIngredient> tag_values = new ArrayList<>(tag.content.size());
+        tag.content.forEach(item -> tag_values.add(new MyIngredient.ItemIngredient(item)));
+
+        MyRecipe result = new MyRecipe();
+        result.id = tag.key.location();
+        result.ingredients = tag_values;
+        result.result = List.of(new MyResult.TagResult(tag.key));
+        result.type = RecipeType.TAGS;
+        return result;
+    }
+
+    @Override
+    public Tag<Item> decodeRecipe(MyRecipe recipe) {
+        Set<Item> items = new HashSet<>(recipe.ingredients.size());
+        recipe.ingredients.forEach(ingredient -> items.add(((MyIngredient.ItemIngredient)ingredient).item.getItem()));
+
+        Tag<Item> new_tag = new Tag<>();
+        new_tag.key = ((MyResult.TagResult)recipe.result.get(0)).tag;
+        new_tag.content = items;
+        return new_tag;
     }
 
     private Tag<Item> createTag(TagKey<Item> key) {

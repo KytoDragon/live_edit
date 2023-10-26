@@ -113,6 +113,19 @@ public class VanillaIntegration implements Integration {
 
     @Override
     public void reload() {
+
+        VanillaUpdatePacket client_packet = new VanillaUpdatePacket();
+        client_packet.new_burn_times = server_data.new_burn_times;
+        client_packet.new_compostables = server_data.new_compostables;
+        client_packet.new_potions = server_data.new_potions;
+        if (FMLEnvironment.dist.isDedicatedServer()) {
+            // Burn times, compostables and new potion recipes are updates the same between client and server,
+            // so just accept the packet on the server side to update these settings.
+            acceptClientPacket(client_packet);
+        }
+        PacketRegistry.INSTANCE.send(PacketDistributor.ALL.noArg(), client_packet);
+        last_client_packet = client_packet;
+
         Map<TagKey<Item>, List<Holder<Item>>> vanilla_map = new HashMap<>();
         server_data.new_tags.forEach(tag -> {
             List<Holder<Item>> list = tag.content.stream().map(ForgeRegistries.ITEMS::getHolder).map(Optional::orElseThrow).toList();
@@ -122,27 +135,15 @@ public class VanillaIntegration implements Integration {
         Blocks.rebuildCache();
 
         if (FMLEnvironment.dist.isDedicatedServer()) {
-            // In single-player this is already done via the ClientboundUpdateRecipesPacket
+            // In single player this hapens via the ClientboundUpdateTagsPacket
+            MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.TagsUpdatedEvent(server.registryAccess(), false, false));
+            // In single player this is already done via the ClientboundUpdateRecipesPacket
             vanilla_recipe_manager.replaceRecipes(server_data.new_recipes);
         }
         PlayerList player_list = server.getPlayerList();
         player_list.broadcastAll(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registryAccess())));
         player_list.broadcastAll(new ClientboundUpdateRecipesPacket(server_data.new_recipes));
 
-        VanillaUpdatePacket client_packet = new VanillaUpdatePacket();
-        client_packet.new_burn_times = server_data.new_burn_times;
-        client_packet.new_compostables = server_data.new_compostables;
-        client_packet.new_potions = server_data.new_potions;
-        if (FMLEnvironment.dist.isDedicatedServer()) {
-            // In single player this hapens via the ClientboundUpdateTagsPacket
-            MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.TagsUpdatedEvent(server.registryAccess(), false, false));
-            // Burn times, compostables and new potion recipes are updates the same between client and server,
-            // so just accept the packet on the server side to update these settings.
-            acceptClientPacket(client_packet);
-        }
-        PacketRegistry.INSTANCE.send(PacketDistributor.ALL.noArg(), client_packet);
-
-        last_client_packet = client_packet;
         server_data = null;
     }
 

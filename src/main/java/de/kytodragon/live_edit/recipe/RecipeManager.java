@@ -35,6 +35,7 @@ public class RecipeManager {
 
     public <I extends Integration> void addRecipeManipulator(I integration, RecipeType type, IRecipeManipulator<ResourceLocation, ?, I> manipulator) {
         manipulator.setIntegration(integration);
+        manipulator.setRecipeType(type);
         manipulators.put(type, manipulator);
     }
 

@@ -1,13 +1,18 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.editing.MyRecipe;
+import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.recipe.GeneralManipulationData;
+import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 
-import static de.kytodragon.live_edit.recipe.IngredientReplacer.isToReplace;
-import static de.kytodragon.live_edit.recipe.IngredientReplacer.replace;
+import java.util.List;
+
+import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
 
 public class CraftingRecipeManipulator extends StandardRecipeManipulator<CraftingRecipe, CraftingContainer> {
 
@@ -43,9 +48,41 @@ public class CraftingRecipeManipulator extends StandardRecipeManipulator<Craftin
 
             } else {
                 // CustonRecipe, we can not change these as they use hardcoded ingredients
+                // NOTE TippedArrowRecipe, ShulkerBoxColoring and SuspiciousStewRecipe could be changed into a list of recipes,
+                // but this list would not take new potions, colors or flowers into account.
                 return _recipe;
             }
         }
         return _recipe;
+    }
+
+    @Override
+    public MyRecipe encodeRecipe(CraftingRecipe recipe) {
+
+        if (recipe instanceof CustomRecipe || recipe instanceof MapExtendingRecipe)
+            return null;
+
+        List<MyIngredient> ingredients = encodeIngredients(recipe.getIngredients());
+        if (ingredients == null)
+            return null;
+
+        MyRecipe result = new MyRecipe();
+        result.id = recipe.getId();
+        result.group = recipe.getGroup();
+        result.ingredients = encodeIngredients(recipe.getIngredients());
+        result.result = List.of(new MyResult.ItemResult(recipe.getResultItem()));
+        result.type = RecipeType.CRAFTING;
+        result.is_shaped = recipe instanceof ShapedRecipe;
+        return result;
+    }
+
+    @Override
+    public CraftingRecipe decodeRecipe(MyRecipe recipe) {
+        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
+        if (recipe.is_shaped) {
+            return new ShapedRecipe(recipe.id, recipe.group, 3, 3, decodeIngredients(recipe.ingredients), result);
+        } else {
+            return new ShapelessRecipe(recipe.id, recipe.group, result, decodeIngredients(recipe.ingredients));
+        }
     }
 }

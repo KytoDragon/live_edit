@@ -1,9 +1,7 @@
 package de.kytodragon.live_edit.recipe;
 
-import de.kytodragon.live_edit.mixins.CompoundIngredientMixin;
-import de.kytodragon.live_edit.mixins.DifferenceIngredientMixin;
-import de.kytodragon.live_edit.mixins.IngredientMixin;
-import de.kytodragon.live_edit.mixins.IntersectionIngredientMixin;
+import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.mixins.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -12,9 +10,12 @@ import net.minecraftforge.common.crafting.AbstractIngredient;
 import net.minecraftforge.common.crafting.CompoundIngredient;
 import net.minecraftforge.common.crafting.DifferenceIngredient;
 import net.minecraftforge.common.crafting.IntersectionIngredient;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class IngredientReplacer {
@@ -101,5 +102,63 @@ public class IngredientReplacer {
         }
         // Don't need to replace tags
         return value;
+    }
+
+    @Nullable
+    public static List<MyIngredient> encodeIngredients(NonNullList<Ingredient> ingredients) {
+        List<MyIngredient> result = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            MyIngredient myIngredient = encodeIngredient(ingredient);
+            if (myIngredient == null)
+                return null;
+            result.add(myIngredient);
+        }
+        return result;
+    }
+
+    @Nullable
+    public static MyIngredient encodeIngredient(Ingredient ingredient) {
+        if (ingredient instanceof AbstractIngredient)
+            return null;
+
+        Ingredient.Value[] values = ((IngredientMixin) ingredient).live_edit_mixin_getRawIngrediants();
+        if (values.length != 1)
+            return null;
+
+        Ingredient.Value value = values[0];
+        if (value instanceof Ingredient.ItemValue itemValue) {
+            return new MyIngredient.ItemIngredient(itemValue.getItems().stream().findAny().orElseThrow());
+        } else if (value instanceof Ingredient.TagValue tagValue) {
+            return new MyIngredient.TagIngredient(((IngredientTagValueMixin)tagValue).live_edit_mixin_getTag());
+        } else {
+            // no item lists for now
+            return null;
+        }
+    }
+
+    public static NonNullList<Ingredient> decodeIngredients(List<MyIngredient> ingredients) {
+        return decodeIngredients(ingredients, ingredients.size());
+    }
+
+    public static NonNullList<Ingredient> decodeIngredients(List<MyIngredient> ingredients, int max_ingredients) {
+        if (max_ingredients < 0)
+            max_ingredients = ingredients.size() + max_ingredients;
+        NonNullList<Ingredient> result = NonNullList.withSize(max_ingredients, Ingredient.EMPTY);
+        for (int i = 0; i < max_ingredients; i++) {
+            result.set(i++, decodeIngredient(ingredients.get(i)));
+        }
+        return result;
+    }
+
+    public static Ingredient decodeIngredient(MyIngredient ingredient) {
+        if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
+            return Ingredient.of(itemIngredient.item);
+        } else if (ingredient instanceof MyIngredient.TagIngredient tagIngredient) {
+            if (tagIngredient.tag_amount != 1)
+                throw new IllegalStateException("tag with amount != 1");
+            return Ingredient.of(tagIngredient.tag);
+        } else {
+            throw new IllegalStateException("illegal ingredient type for base crafting recipe");
+        }
     }
 }

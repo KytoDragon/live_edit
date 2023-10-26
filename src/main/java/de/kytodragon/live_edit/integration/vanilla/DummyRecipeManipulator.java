@@ -1,5 +1,6 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.recipe.GeneralManipulationData;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
 import net.minecraft.resources.ResourceLocation;
@@ -51,5 +52,15 @@ public class DummyRecipeManipulator<T extends Recipe<?>> extends IRecipeManipula
     @Override
     public void prepareReload(Collection<T> recipes) {
         integration.addNewRecipes(recipes);
+    }
+
+    @Override
+    public MyRecipe encodeRecipe(T recipe) {
+        return null;
+    }
+
+    @Override
+    public T decodeRecipe(MyRecipe recipe) {
+        throw new IllegalStateException("Can not instantiate dummy recipe type " + vanilla_type.toString());
     }
 }

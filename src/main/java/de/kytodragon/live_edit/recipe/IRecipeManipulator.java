@@ -1,6 +1,8 @@
 package de.kytodragon.live_edit.recipe;
 
+import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.integration.Integration;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -10,6 +12,7 @@ public abstract class IRecipeManipulator<K, R, I extends Integration> {
     private final HashMap<K, R> recipes_to_replace = new HashMap<>();
     private final HashMap<K, R> recipes_to_add = new HashMap<>();
     protected I integration;
+    protected RecipeType my_type;
 
     public abstract K getKey(R recipe);
 
@@ -21,12 +24,20 @@ public abstract class IRecipeManipulator<K, R, I extends Integration> {
 
     public abstract void prepareReload(Collection<R> recipes);
 
+    @Nullable
+    public abstract MyRecipe encodeRecipe(R recipe);
+
+    public abstract R decodeRecipe(MyRecipe recipe);
+
     public boolean isRealImplementation() {
         return true;
     }
 
     public void setIntegration(I integration) {
         this.integration = integration;
+    }
+    public void setRecipeType(RecipeType my_type) {
+        this.my_type = my_type;
     }
 
     public void markRecipeForDeletion(K recipeKey) {

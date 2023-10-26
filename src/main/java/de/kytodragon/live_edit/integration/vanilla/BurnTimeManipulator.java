@@ -1,7 +1,11 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.editing.MyRecipe;
+import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.recipe.GeneralManipulationData;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
+import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -50,5 +54,22 @@ public class BurnTimeManipulator extends IRecipeManipulator<ResourceLocation, Bu
     @Override
     public void prepareReload(Collection<BurnTime> burnTimes) {
         integration.addNewBurnTimes(burnTimes);
+    }
+
+    @Override
+    public MyRecipe encodeRecipe(BurnTime recipe) {
+        MyRecipe result = new MyRecipe();
+        result.id = getKey(recipe);
+        result.ingredients = List.of(new MyIngredient.ItemIngredient(recipe.item()));
+        result.result = List.of(new MyResult.AmountResult(recipe.burn_time()));
+        result.type = RecipeType.BURN_TIME;
+        return result;
+    }
+
+    @Override
+    public BurnTime decodeRecipe(MyRecipe recipe) {
+        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
+        int burn_time = ((MyResult.AmountResult)recipe.result.get(0)).output_amount;
+        return new BurnTime(result.getItem(), burn_time);
     }
 }
