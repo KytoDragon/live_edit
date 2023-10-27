@@ -5,6 +5,7 @@ import de.kytodragon.live_edit.mixins.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.crafting.AbstractIngredient;
 import net.minecraftforge.common.crafting.CompoundIngredient;
@@ -122,6 +123,8 @@ public class IngredientReplacer {
             return null;
 
         Ingredient.Value[] values = ((IngredientMixin) ingredient).live_edit_mixin_getRawIngrediants();
+        if (values.length == 0)
+            return new MyIngredient.ItemIngredient(Items.AIR); // Dummy item for shaped crafting
         if (values.length != 1)
             return null;
 
@@ -152,7 +155,11 @@ public class IngredientReplacer {
 
     public static Ingredient decodeIngredient(MyIngredient ingredient) {
         if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
-            return Ingredient.of(itemIngredient.item);
+            if (itemIngredient.item.getItem() == Items.AIR) {
+                return Ingredient.of();
+            } else {
+                return Ingredient.of(itemIngredient.item);
+            }
         } else if (ingredient instanceof MyIngredient.TagIngredient tagIngredient) {
             if (tagIngredient.tag_amount != 1)
                 throw new IllegalStateException("tag with amount != 1");

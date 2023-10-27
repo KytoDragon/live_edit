@@ -58,14 +58,14 @@ public class SmithingRecipeManipulator extends StandardRecipeManipulator<Upgrade
         MyRecipe result = new MyRecipe();
         result.id = getKey(recipe);
         result.ingredients = List.of(base, addition);
-        result.result = List.of(new MyResult.ItemResult(recipe.getResultItem()));
+        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()));
         result.type = RecipeType.SMITHING;
         return result;
     }
 
     @Override
     public UpgradeRecipe decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
+        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
         NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients);
         return new UpgradeRecipe(recipe.id, ingredients.get(0), ingredients.get(1), result);
     }

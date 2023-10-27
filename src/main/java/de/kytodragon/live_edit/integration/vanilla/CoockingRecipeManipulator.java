@@ -59,15 +59,15 @@ public class CoockingRecipeManipulator <T extends AbstractCookingRecipe> extends
         result.id = recipe.getId();
         result.group = recipe.getGroup();
         result.ingredients = encodeIngredients(recipe.getIngredients());
-        result.result = List.of(new MyResult.ItemResult(recipe.getResultItem()), new MyResult.ExperienceResult(recipe.getExperience()));
+        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()), new MyResult.ExperienceResult(recipe.getExperience()));
         result.type = my_type;
         return result;
     }
 
     @Override
     public T decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
-        float experience = ((MyResult.ExperienceResult)recipe.result.get(1)).experience;
+        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
+        float experience = ((MyResult.ExperienceResult)recipe.results.get(1)).experience;
         NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients, 1);
         int coocking_time = ((MyIngredient.TimeIngredient)recipe.ingredients.get(1)).processing_time;
         return constructor.create(recipe.id, recipe.group, ingredients.get(0), result, experience, coocking_time);

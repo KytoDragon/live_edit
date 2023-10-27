@@ -36,6 +36,8 @@ public class RecipeManager {
     public <I extends Integration> void addRecipeManipulator(I integration, RecipeType type, IRecipeManipulator<ResourceLocation, ?, I> manipulator) {
         manipulator.setIntegration(integration);
         manipulator.setRecipeType(type);
+        // Remove dummy manipulators. Just a put is not enough, as the recipe type in the key will still be set to "Dummy".
+        manipulators.remove(type);
         manipulators.put(type, manipulator);
     }
 

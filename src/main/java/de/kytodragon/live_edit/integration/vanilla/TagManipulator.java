@@ -54,7 +54,7 @@ public class TagManipulator extends IRecipeManipulator<ResourceLocation, Tag<Ite
         MyRecipe result = new MyRecipe();
         result.id = tag.key.location();
         result.ingredients = tag_values;
-        result.result = List.of(new MyResult.TagResult(tag.key));
+        result.results = List.of(new MyResult.TagResult(tag.key));
         result.type = RecipeType.TAGS;
         return result;
     }
@@ -65,7 +65,7 @@ public class TagManipulator extends IRecipeManipulator<ResourceLocation, Tag<Ite
         recipe.ingredients.forEach(ingredient -> items.add(((MyIngredient.ItemIngredient)ingredient).item.getItem()));
 
         Tag<Item> new_tag = new Tag<>();
-        new_tag.key = ((MyResult.TagResult)recipe.result.get(0)).tag;
+        new_tag.key = ((MyResult.TagResult)recipe.results.get(0)).tag;
         new_tag.content = items;
         return new_tag;
     }

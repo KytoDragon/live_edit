@@ -63,15 +63,15 @@ public class CompostManipulator extends IRecipeManipulator<ResourceLocation, Com
         MyRecipe result = new MyRecipe();
         result.id = getKey(recipe);
         result.ingredients = List.of(new MyIngredient.ItemIngredient(recipe.item()));
-        result.result = List.of(new MyResult.ChanceResult(recipe.compastChance()));
+        result.results = List.of(new MyResult.ChanceResult(recipe.compastChance()));
         result.type = RecipeType.COMPOSTING;
         return result;
     }
 
     @Override
     public CompostChance decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
-        float compost_chance = ((MyResult.ChanceResult)recipe.result.get(0)).output_chance;
+        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
+        float compost_chance = ((MyResult.ChanceResult)recipe.results.get(0)).output_chance;
         return new CompostChance(result.getItem(), compost_chance);
     }
 }

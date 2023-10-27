@@ -1,5 +1,8 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.editing.MyRecipe;
+import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
@@ -45,6 +48,17 @@ public class VanillaIntegration implements Integration {
 
     @Override
     public void registerManipulators(RecipeManager manager) {
+        MyRecipe.ingredient_deserializers.put("item", MyIngredient.ItemIngredient::fromJson);
+        MyRecipe.ingredient_deserializers.put("tag", MyIngredient.TagIngredient::fromJson);
+        MyRecipe.ingredient_deserializers.put("fluid", MyIngredient.FluidIngredient::fromJson);
+        MyRecipe.ingredient_deserializers.put("time", MyIngredient.TimeIngredient::fromJson);
+
+        MyRecipe.result_deserializers.put("item", MyResult.ItemResult::fromJson);
+        MyRecipe.result_deserializers.put("amount", MyResult.AmountResult::fromJson);
+        MyRecipe.result_deserializers.put("chance", MyResult.ChanceResult::fromJson);
+        MyRecipe.result_deserializers.put("experience", MyResult.ExperienceResult::fromJson);
+        MyRecipe.result_deserializers.put("tag", MyResult.TagResult::fromJson);
+
         // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
         // This makes shure we do not delete recipes we do not know about.
         for (net.minecraft.world.item.crafting.RecipeType<?> recipeType : ForgeRegistries.RECIPE_TYPES.getValues()) {

@@ -61,15 +61,15 @@ public class BurnTimeManipulator extends IRecipeManipulator<ResourceLocation, Bu
         MyRecipe result = new MyRecipe();
         result.id = getKey(recipe);
         result.ingredients = List.of(new MyIngredient.ItemIngredient(recipe.item()));
-        result.result = List.of(new MyResult.AmountResult(recipe.burn_time()));
+        result.results = List.of(new MyResult.AmountResult(recipe.burn_time()));
         result.type = RecipeType.BURN_TIME;
         return result;
     }
 
     @Override
     public BurnTime decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
-        int burn_time = ((MyResult.AmountResult)recipe.result.get(0)).output_amount;
+        ItemStack result = ((MyIngredient.ItemIngredient)recipe.ingredients.get(0)).item;
+        int burn_time = ((MyResult.AmountResult)recipe.results.get(1)).output_amount;
         return new BurnTime(result.getItem(), burn_time);
     }
 }

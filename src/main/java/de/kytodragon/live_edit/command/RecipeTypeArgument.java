@@ -25,7 +25,14 @@ public class RecipeTypeArgument implements ArgumentType<RecipeType> {
         return Component.translatable("commands.live_edit.recipe_type_not_found", name);
     });
 
+    private final boolean allow_all;
+
     public RecipeTypeArgument() {
+        this(false);
+    }
+
+    public RecipeTypeArgument(boolean allow_all) {
+        this.allow_all = allow_all;
     }
 
     public static RecipeType getRecipeType(final CommandContext<?> context, final String name) {
@@ -36,7 +43,7 @@ public class RecipeTypeArgument implements ArgumentType<RecipeType> {
     public RecipeType parse(StringReader reader) throws CommandSyntaxException {
         int start = reader.getCursor();
 
-        while(reader.canRead() && Character.isAlphabetic(reader.peek())) {
+        while(reader.canRead() && (Character.isAlphabetic(reader.peek()) || reader.peek() == '_')) {
             reader.skip();
         }
 
@@ -55,7 +62,9 @@ public class RecipeTypeArgument implements ArgumentType<RecipeType> {
 
     private Stream<RecipeType> getRealRecipeTypes() {
         return RecipeManager.instance.manipulators.entrySet().stream()
-                .filter(s -> s.getValue().isRealImplementation()).map(Map.Entry::getKey);
+                .filter(s -> s.getValue().isRealImplementation())
+                .filter(s -> allow_all || s.getKey() != RecipeType.ALL)
+                .map(Map.Entry::getKey);
     }
 
     @Override

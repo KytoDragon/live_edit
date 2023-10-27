@@ -1,6 +1,11 @@
 package de.kytodragon.live_edit.recipe;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public record RecipeType(String name, net.minecraft.world.item.crafting.RecipeType<?> vanilla_type) {
+
+    public static final Map<String, RecipeType> ALL_TYPES = new HashMap<>();
 
     public static final RecipeType CRAFTING = new RecipeType("CRAFTING", net.minecraft.world.item.crafting.RecipeType.CRAFTING);
     public static final RecipeType SMOKING = new RecipeType("SMOKING", net.minecraft.world.item.crafting.RecipeType.SMOKING);
@@ -16,6 +21,14 @@ public record RecipeType(String name, net.minecraft.world.item.crafting.RecipeTy
 
     /** Dummy type used to refer to all recipe types */
     public static final RecipeType ALL = new RecipeType("ALL", null);
+
+    public RecipeType(String name, net.minecraft.world.item.crafting.RecipeType<?> vanilla_type) {
+        this.name = name;
+        this.vanilla_type = vanilla_type;
+        if (!"Dummy".equals(name) && ALL_TYPES.put(name, this) != null) {
+            throw new IllegalStateException("Duplicate recipe type " + name);
+        }
+    }
 
     /**
      * Two types with the same vanilla type override each other in order to replace the dummy-implementations set at startup.

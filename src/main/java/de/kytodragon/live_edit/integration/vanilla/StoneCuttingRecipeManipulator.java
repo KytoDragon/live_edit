@@ -49,14 +49,14 @@ public class StoneCuttingRecipeManipulator extends StandardRecipeManipulator<Sto
         result.id = recipe.getId();
         result.group = recipe.getGroup();
         result.ingredients = encodeIngredients(recipe.getIngredients());
-        result.result = List.of(new MyResult.ItemResult(recipe.getResultItem()));
+        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()));
         result.type = RecipeType.STONECUTTING;
         return result;
     }
 
     @Override
     public StonecutterRecipe decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
+        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
         return new StonecutterRecipe(recipe.id, recipe.group, decodeIngredient(recipe.ingredients.get(0)), result);
     }
 }

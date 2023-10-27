@@ -107,7 +107,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
             MyRecipe result = new MyRecipe();
             result.id = getKey(recipe);
             result.ingredients = List.of(input, additive);
-            result.result = List.of(new MyResult.ItemResult(brew.getOutput()));
+            result.results = List.of(new MyResult.ItemResult(brew.getOutput()));
             result.type = RecipeType.BREWING;
             return result;
         }
@@ -116,7 +116,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
 
     @Override
     public IBrewingRecipe decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.result.get(0)).item;
+        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
         NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients);
         return new BrewingRecipe(ingredients.get(0), ingredients.get(1), result);
     }
