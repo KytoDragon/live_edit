@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
+import de.kytodragon.live_edit.editing.gui.RecipeEditingMenu;
 import de.kytodragon.live_edit.recipe.*;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -15,8 +16,11 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.network.NetworkHooks;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Optional;
@@ -39,6 +43,7 @@ public class Command {
             .then(deleteRecipesCommand())
             .then(replaceItemCommand(event.getBuildContext()))
             .then(encodeRecipesCommand())
+            .then(openGUICommand())
         );
     }
 
@@ -164,5 +169,19 @@ public class Command {
             return null;
 
         return manipulator.encodeRecipe(recipe.get());
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> openGUICommand() {
+        return Commands.literal("edit")
+            .executes(ctx -> {
+                ServerPlayer serverPlayer = ctx.getSource().getPlayer();
+                if (serverPlayer != null) {
+                    NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                        RecipeEditingMenu::new,
+                        Component.translatable("commands.live_edit.recipe_menu_title")
+                    ));
+                }
+                return 0;
+            });
     }
 }

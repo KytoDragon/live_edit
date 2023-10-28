@@ -19,7 +19,7 @@ minecraft {
             workingDirectory project.file('run')
             jvmArg "-XX:+AllowEnhancedClassRedefinition"
             property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.console.level', 'warn'
             property 'forge.enabledGameTestNamespaces', 'live_edit'
 
             mods {
@@ -33,7 +33,7 @@ minecraft {
             workingDirectory project.file('run')
             jvmArg "-XX:+AllowEnhancedClassRedefinition"
             property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.console.level', 'warn'
             property 'forge.enabledGameTestNamespaces', 'live_edit'
 
             mods {
@@ -93,6 +93,12 @@ repositories {
     maven {
         url 'https://cursemaven.com'
     }
+
+    maven {
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
 }
 
 dependencies {
@@ -104,7 +110,11 @@ dependencies {
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
     // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
 
-    implementation fg.deobf('curse.maven:jei-238222:4712866')
+    // compile against the JEI API but do not include it at runtime
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
+    // at runtime, use the full JEI jar for Forge
+    runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
 }
 
 jar {
