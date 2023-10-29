@@ -18,6 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.network.NetworkHooks;
@@ -173,15 +175,23 @@ public class Command {
 
     private static ArgumentBuilder<CommandSourceStack, ?> openGUICommand() {
         return Commands.literal("edit")
-            .executes(ctx -> {
-                ServerPlayer serverPlayer = ctx.getSource().getPlayer();
-                if (serverPlayer != null) {
-                    NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
-                        RecipeEditingMenu::new,
-                        Component.translatable("commands.live_edit.recipe_menu_title")
-                    ));
-                }
-                return 0;
-            });
+            .then(Commands.argument("type", new RecipeTypeArgument())
+                .then(Commands.argument("recipe", new RecipeArgument())
+                    .executes(ctx -> {
+                        ServerPlayer serverPlayer = ctx.getSource().getPlayer();
+                        if (serverPlayer != null) {
+                            RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
+                            ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
+                            NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                                (int containerId, Inventory inventory, Player player) -> {
+                                    return new RecipeEditingMenu(containerId, inventory, type, recipe_key);
+                                },
+                                Component.translatable("commands.live_edit.recipe_menu_title")
+                            ));
+                        }
+                        return 0;
+                    })
+                )
+            );
     }
 }
