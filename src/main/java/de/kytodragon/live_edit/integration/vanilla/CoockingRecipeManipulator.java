@@ -58,7 +58,7 @@ public class CoockingRecipeManipulator <T extends AbstractCookingRecipe> extends
         MyRecipe result = new MyRecipe();
         result.id = recipe.getId();
         result.group = recipe.getGroup();
-        result.ingredients = encodeIngredients(recipe.getIngredients());
+        result.ingredients = ingredients;
         result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()), new MyResult.ExperienceResult(recipe.getExperience()));
         result.type = my_type;
         return result;

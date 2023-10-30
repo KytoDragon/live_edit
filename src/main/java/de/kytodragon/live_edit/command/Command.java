@@ -186,7 +186,7 @@ public class Command {
                                 (int containerId, Inventory inventory, Player player) -> {
                                     return new RecipeEditingMenu(containerId, inventory, type, recipe_key);
                                 },
-                                Component.translatable("commands.live_edit.recipe_menu_title")
+                                Component.translatable("commands.live_edit.recipe_menu_title", recipe_key.toString())
                             ));
                         }
                         return 0;

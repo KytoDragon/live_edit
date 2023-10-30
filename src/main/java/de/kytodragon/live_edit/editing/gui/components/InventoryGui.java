@@ -2,7 +2,6 @@ package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.editing.gui.VanillaTextures;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 

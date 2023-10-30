@@ -48,19 +48,28 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
 
     @Override
     public void render(PoseStack pose, int mouseX, int mouseY, float partialTick) {
+        RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         super.renderBackground(pose);
         super.render(pose, mouseX, mouseY, partialTick);
 
+        RenderSystem.disableDepthTest();
         pose.pushPose();
         pose.translate(this.leftPos, this.topPos, 0);
         for (MyGuiComponent component : components) {
-            component.renderForeground(pose, partialTick, mouseX, mouseY);
+            component.renderForeground(pose, partialTick, mouseX - this.leftPos, mouseY - this.topPos);
         }
         pose.popPose();
 
         super.renderTooltip(pose, mouseX, mouseY);
+
+        pose.pushPose();
+        pose.translate(this.leftPos, this.topPos, 0);
+        for (MyGuiComponent component : components) {
+            component.renderOverlay(pose, partialTick, mouseX - this.leftPos, mouseY - this.topPos);
+        }
+        pose.popPose();
     }
 
     @Override
@@ -73,9 +82,12 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
 
     @Override
     protected void renderBg(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+        RenderSystem.disableDepthTest();
         pose.pushPose();
         pose.translate(this.leftPos, this.topPos, 0);
 
+        mouseX -= this.leftPos;
+        mouseY -= this.topPos;
         for (MyGuiComponent component : components) {
             component.renderBackground(pose, partialTick, mouseX, mouseY);
         }
@@ -85,8 +97,7 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button))
-            return true;
+        super.mouseClicked(mouseX, mouseY, button);
 
         mouseX -= this.leftPos;
         mouseY -= this.topPos;
@@ -100,8 +111,7 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
-            return true;
+        super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 
         mouseX -= this.leftPos;
         mouseY -= this.topPos;
@@ -115,8 +125,7 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (super.mouseReleased(mouseX, mouseY, button))
-            return true;
+        super.mouseReleased(mouseX, mouseY, button);
 
         mouseX -= this.leftPos;
         mouseY -= this.topPos;
@@ -144,26 +153,62 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
     }
 
     @Override
+    public boolean keyPressed(int key, int scancode, int unknown) {
+        if (super.keyPressed(key, scancode, unknown))
+            return true;
+
+        for (MyGuiComponent component : components) {
+            if (component.keyPressed(key, scancode, unknown))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean charTyped(char character, int scancode) {
+        if (super.charTyped(character, scancode))
+            return true;
+
+        for (MyGuiComponent component : components) {
+            if (component.charTyped(character, scancode))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void containerTick() {
 
         if (recipe == null) {
             recipe = menu.recipe_slot.getRecipe();
 
             if (recipe != null) {
-                ScrolledListPanel ingredientList = new ScrolledListPanel(10, 10, 60, 60);
+                ScrolledListPanel ingredientList = new ScrolledListPanel(8, 20, 80, 60);
                 int heigth = 0;
                 for (MyIngredient ingredient : recipe.ingredients) {
-                    ingredientList.components.add(new Decal(0, heigth + 1, VanillaTextures.EMPTY_SLOT));
-                    ingredientList.components.add(new TextComponent(20, heigth + 1, this.font, ingredient.toString()));
+                    if (ingredient instanceof MyIngredient.ItemIngredient item) {
+                        ingredientList.children.add(new ItemComponent(0, heigth+1, item, false));
+                    } else if (ingredient instanceof MyIngredient.TimeIngredient timeIngredient) {
+                        ingredientList.children.add(new IntegerInput(1, heigth+1, 40, 12, timeIngredient.processing_time));
+                    } else {
+                        ingredientList.children.add(new Decal(0, heigth + 1, VanillaTextures.EMPTY_SLOT));
+                        ingredientList.children.add(new TextComponent(20, heigth + 1, ingredient.toString()));
+                    }
                     heigth += 20;
                 }
                 components.add(ingredientList);
 
-                ScrolledListPanel resultList = new ScrolledListPanel(80, 10, 60, 60);
+                ScrolledListPanel resultList = new ScrolledListPanel(88, 20, 80, 60);
                 heigth = 0;
                 for (MyResult result : recipe.results) {
-                    resultList.components.add(new Decal(0, heigth + 1, VanillaTextures.EMPTY_SLOT));
-                    resultList.components.add(new TextComponent(20, heigth + 1, this.font, result.toString()));
+                    if (result instanceof MyResult.ItemResult item) {
+                        resultList.children.add(new ItemComponent(0, heigth+1, item, false));
+                    } else if (result instanceof MyResult.ExperienceResult experienceResult) {
+                        resultList.children.add(new IntegerInput(1, heigth+1, 40, 12, (int)experienceResult.experience));
+                    } else {
+                        resultList.children.add(new Decal(0, heigth + 1, VanillaTextures.EMPTY_SLOT));
+                        resultList.children.add(new TextComponent(20, heigth + 1, result.toString()));
+                    }
                     heigth += 20;
                 }
                 components.add(resultList);
