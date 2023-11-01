@@ -51,10 +51,12 @@ public class RecipeIDSlot extends Slot {
     @Override
     public ItemStack getItem() {
         ItemStack item = new ItemStack(Items.ANDESITE);
-        CompoundTag tag = new CompoundTag();
-        tag.putString("recipe_type", type.name());
-        tag.putString("recipe_id", id.toString());
-        item.setTag(tag);
+        if (type != null) {
+            CompoundTag tag = new CompoundTag();
+            tag.putString("recipe_type", type.name());
+            tag.putString("recipe_id", id.toString());
+            item.setTag(tag);
+        }
         return item;
     }
 

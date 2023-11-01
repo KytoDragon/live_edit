@@ -27,7 +27,7 @@ public class RecipeEditingMenu extends AbstractContainerMenu {
         // Server + Client constructor
         super(MENU_TYPE, containerId);
 
-        inventoryGui = new InventoryGui(inventory, 7, 93, slots.size());
+        inventoryGui = new InventoryGui(inventory, 7, 93);
         inventoryGui.addSlots(super::addSlot);
 
         // Minecraft can only synchronize items and integers when dealing with menus.

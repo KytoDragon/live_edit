@@ -3,7 +3,6 @@ package de.kytodragon.live_edit.editing.gui.components;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -63,40 +62,40 @@ public abstract class MyGuiComponent extends GuiComponent {
         pose.popPose();
     }
 
-    public boolean mouseClicked(double mouseX, double mouseY, int button, ItemStack carried) {
+    public boolean mouseClicked(double mouseX, double mouseY, int mouse_button, ItemStack carried) {
         if (!isInside(mouseX, mouseY))
             return false;
 
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            if (component.mouseClicked(mouseX, mouseY, button, carried))
+            if (component.mouseClicked(mouseX, mouseY, mouse_button, carried))
                 return true;
         }
         return false;
     }
 
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    public boolean mouseDragged(double mouseX, double mouseY, int mouse_button, double deltaX, double deltaY) {
         if (!isInside(mouseX, mouseY))
             return false;
 
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            if (component.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+            if (component.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY))
                 return true;
         }
         return false;
     }
 
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(double mouseX, double mouseY, int mouse_button) {
         if (!isInside(mouseX, mouseY))
             return false;
 
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            if (component.mouseReleased(mouseX, mouseY, button))
+            if (component.mouseReleased(mouseX, mouseY, mouse_button))
                 return true;
         }
         return false;
@@ -139,7 +138,7 @@ public abstract class MyGuiComponent extends GuiComponent {
         has_focus = focus;
     }
 
-    protected static void setFocusOn(MyGuiComponent component) {
+    public static void setFocusOn(MyGuiComponent component) {
         if (focused == null && component != null) {
             component.has_focus = true;
             focused = component;
@@ -148,6 +147,12 @@ public abstract class MyGuiComponent extends GuiComponent {
             if (component != null)
                 component.has_focus = true;
             focused = component;
+        }
+    }
+
+    public void tick() {
+        for (MyGuiComponent component : children) {
+            component.tick();
         }
     }
 }

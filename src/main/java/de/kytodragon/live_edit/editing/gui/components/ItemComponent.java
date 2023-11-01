@@ -6,11 +6,17 @@ import com.mojang.math.Vector4f;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.editing.gui.VanillaTextures;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,21 +24,22 @@ import java.util.Optional;
 
 public class ItemComponent extends MyGuiComponent {
 
-    ItemStack itemStack;
-    boolean canChange = true;
-    boolean onlyOneItem = false;
-    boolean onlyOneStack = true;
+    public ItemStack itemStack;
+    public boolean can_change = true;
+    public boolean only_one_item = false;
+    public boolean only_one_stack = true;
 
-    public ItemComponent(int x, int y, MyIngredient.ItemIngredient ingredient, boolean onlyOneItem) {
-        super(x, y, 18, 18);
-        itemStack = ingredient.item;
-        this.onlyOneItem = onlyOneItem;
+    public ItemComponent(int x, int y, MyIngredient.ItemIngredient ingredient) {
+        this(x, y, ingredient.item);
     }
 
-    public ItemComponent(int x, int y, MyResult.ItemResult result, boolean onlyOneItem) {
+    public ItemComponent(int x, int y, MyResult.ItemResult result) {
+        this(x, y, result.item);
+    }
+
+    public ItemComponent(int x, int y, ItemStack item) {
         super(x, y, 18, 18);
-        itemStack = result.item;
-        this.onlyOneItem = onlyOneItem;
+        itemStack = item;
     }
 
     @Override
@@ -77,6 +84,16 @@ public class ItemComponent extends MyGuiComponent {
             List<Component> lines = itemStack.getTooltipLines(minecraft.player, minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
             Optional<TooltipComponent> image = itemStack.getTooltipImage();
 
+            if (minecraft.options.advancedItemTooltips) {
+                String modid = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(itemStack.getItem())).getNamespace();
+                String modname = ModList.get().getModContainerById(modid)
+                    .map(ModContainer::getModInfo)
+                    .map(IModInfo::getDisplayName)
+                    .orElseGet(() -> StringUtils.capitalize(modid));
+                String formatting = ChatFormatting.BLUE.toString() + ChatFormatting.ITALIC.toString();
+                lines.add(Component.literal(formatting+modname));
+            }
+
             // renderTooltip will clamp the tooltip position to the screen size before the current pose ist considered.
             // Therefore translate to the current position. TODO Will tooltips correctly flip sides on the right screen edge?
             pose.pushPose();
@@ -96,26 +113,25 @@ public class ItemComponent extends MyGuiComponent {
 
         MyGuiComponent.setFocusOn(null);
 
-        if (!canChange)
+        if (!can_change)
             return false;
 
         if (!carried.isEmpty()) {
             if (mouse_button == 0) {
                 if (ItemStack.isSameItemSameTags(itemStack, carried)) {
                     // add amount if same item
-                    if (!onlyOneItem) {
+                    if (!only_one_item) {
                         itemStack.setCount(itemStack.getCount() + carried.getCount());
-                        if (onlyOneStack && itemStack.getCount() > itemStack.getMaxStackSize())
+                        if (only_one_stack && itemStack.getCount() > itemStack.getMaxStackSize())
                             itemStack.setCount(itemStack.getMaxStackSize());
                     }
                 } else {
                     // otherwise replace
                     itemStack = carried.copy();
-                    if (onlyOneItem)
+                    if (only_one_item)
                         itemStack.setCount(1);
                 }
             } else if (mouse_button == 1) {
-                itemStack = carried.copy();
                 if (ItemStack.isSameItemSameTags(itemStack, carried)) {
                     // subtract ammount id same item
                     itemStack.setCount(itemStack.getCount() - carried.getCount());

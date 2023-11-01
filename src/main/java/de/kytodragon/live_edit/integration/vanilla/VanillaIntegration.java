@@ -3,6 +3,11 @@ package de.kytodragon.live_edit.integration.vanilla;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
+import de.kytodragon.live_edit.editing.gui.RecipeEditingGui;
+import de.kytodragon.live_edit.editing.gui.modules.ExperienceInput;
+import de.kytodragon.live_edit.editing.gui.modules.ItemInput;
+import de.kytodragon.live_edit.editing.gui.modules.ItemOrTagInput;
+import de.kytodragon.live_edit.editing.gui.modules.TimeInput;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
@@ -58,6 +63,12 @@ public class VanillaIntegration implements Integration {
         MyRecipe.result_deserializers.put("chance", MyResult.ChanceResult::fromJson);
         MyRecipe.result_deserializers.put("experience", MyResult.ExperienceResult::fromJson);
         MyRecipe.result_deserializers.put("tag", MyResult.TagResult::fromJson);
+
+        RecipeEditingGui.ingredientMapper.put(MyIngredient.ItemIngredient.class, ItemOrTagInput::new);
+        RecipeEditingGui.ingredientMapper.put(MyIngredient.TagIngredient.class, ItemOrTagInput::new);
+        RecipeEditingGui.ingredientMapper.put(MyIngredient.TimeIngredient.class, TimeInput::new);
+        RecipeEditingGui.resultMapper.put(MyResult.ItemResult.class, ItemInput::new);
+        RecipeEditingGui.resultMapper.put(MyResult.ExperienceResult.class, ExperienceInput::new);
 
         // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
         // This makes shure we do not delete recipes we do not know about.

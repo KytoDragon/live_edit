@@ -3,5 +3,9 @@
     "commands.live_edit.recipe.marked_for_deletion": "Recipe %s marked for deletion",
     "commands.live_edit.recipe_type_not_found": "Unknown recipe type %s",
     "commands.live_edit.item.marked_for_replacement": "Marked item %s for replacement with item %s",
-    "commands.live_edit.recipe_menu_title": "Edit Recipe %s"
+    "commands.live_edit.recipe_menu_title": "Edit Recipe %s",
+    "live_edit.tooltip.tags": "Accepts any %s",
+    "commands.live_edit.recipe.marked_for_replacement": "Marked recipe %s for replacement",
+    "commands.live_edit.recipe.marked_for_addition": "Marked recipe %s for addition",
+    "commands.live_edit.recipe.could_not_parse": "Could not parse recipe, error: %s"
 }

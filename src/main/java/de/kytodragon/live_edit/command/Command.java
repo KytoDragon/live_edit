@@ -1,6 +1,5 @@
 package de.kytodragon.live_edit.command;
 
-import com.google.gson.Gson;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.kytodragon.live_edit.editing.MyIngredient;
@@ -36,6 +35,7 @@ public class Command {
     public static void onRegisterCommandEvent(RegisterCommandsEvent event) {
         ArgumentTypeInfos.registerByClass(RecipeArgument.class, SingletonArgumentInfo.contextFree(RecipeArgument::new));
         ArgumentTypeInfos.registerByClass(RecipeTypeArgument.class, SingletonArgumentInfo.contextFree(RecipeTypeArgument::new));
+        ArgumentTypeInfos.registerByClass(RecipeJsonArgument.class, SingletonArgumentInfo.contextFree(RecipeJsonArgument::new));
 
         event.getDispatcher().register(
             LiteralArgumentBuilder.<CommandSourceStack>literal("live-edit")
@@ -43,7 +43,8 @@ public class Command {
             .then(reloadCommand())
             .then(listRecipesCommand(event.getBuildContext()))
             .then(deleteRecipesCommand())
-            .then(replaceItemCommand(event.getBuildContext()))
+            .then(addRecipeCommand())
+            .then(replaceCommands(event.getBuildContext()))
             .then(encodeRecipesCommand())
             .then(openGUICommand())
         );
@@ -59,6 +60,7 @@ public class Command {
 
     private static ArgumentBuilder<CommandSourceStack, ?> listRecipesCommand(CommandBuildContext buildContext) {
         return Commands.literal("list")
+            // TODO split into result, ingredient and all, maybe using an enum
             .then(Commands.literal("result")
                 .then(Commands.argument("item", new ItemArgument(buildContext))
                     .executes(ctx -> {
@@ -115,25 +117,67 @@ public class Command {
                         ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
                         MyRecipe recipe = getEncodedRecipe(RecipeManager.instance.manipulators.get(type), recipe_key);
                         if (recipe != null)
-                            ctx.getSource().sendSuccess(Component.literal(new Gson().toJson(recipe.toJson())), false);
+                            ctx.getSource().sendSuccess(Component.literal(recipe.toJsonString()), false);
                         return 1;
                     })
                 )
             );
     }
 
-    private static ArgumentBuilder<CommandSourceStack, ?> replaceItemCommand(CommandBuildContext buildContext) {
+    private static ArgumentBuilder<CommandSourceStack, ?> replaceCommands(CommandBuildContext buildContext) {
         return Commands.literal("replace")
-            .then(Commands.argument("item", new ItemArgument(buildContext))
-                .then(Commands.argument("replacement", new ItemArgument(buildContext))
-                    .executes(ctx -> {
-                        Item item = ItemArgument.getItem(ctx, "item").getItem();
-                        Item replacement = ItemArgument.getItem(ctx, "replacement").getItem();
-                        RecipeManager.instance.markItemForReplacement(item, replacement);
+            .then(Commands.literal("item")
+                .then(Commands.argument("item", new ItemArgument(buildContext))
+                    .then(Commands.argument("replacement", new ItemArgument(buildContext))
+                        .executes(ctx -> {
+                            Item item = ItemArgument.getItem(ctx, "item").getItem();
+                            Item replacement = ItemArgument.getItem(ctx, "replacement").getItem();
+                            RecipeManager.instance.markItemForReplacement(item, replacement);
 
-                        ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.item.marked_for_replacement", item.toString(), replacement.toString()), false);
-                        return 1;
-                    })
+                            ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.item.marked_for_replacement", item.toString(), replacement.toString()), false);
+                            return 1;
+                        })
+                    )
+                )
+            )
+            .then(Commands.literal("recipe")
+                .then(Commands.argument("type", new RecipeTypeArgument())
+                    .then(Commands.argument("recipe", new RecipeArgument())
+                        .then(Commands.argument("replacement", new RecipeJsonArgument())
+                            .executes(ctx -> {
+                                RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
+                                ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
+                                MyRecipe recipe = RecipeJsonArgument.getRecipe(ctx, "replacement");
+
+                                RecipeManager.instance.markRecipeForReplacement(type, recipe_key, recipe);
+
+                                ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.recipe.marked_for_replacement", recipe_key.toString()), false);
+                                return 1;
+                            })
+                        )
+                    )
+                )
+            );
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> addRecipeCommand() {
+        return Commands.literal("add")
+            .then(Commands.literal("recipe")
+                .then(Commands.argument("type", new RecipeTypeArgument())
+                    .then(Commands.argument("recipe", new RecipeArgument())
+                        .then(Commands.argument("replacement", new RecipeJsonArgument())
+                            .executes(ctx -> {
+                                RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
+                                ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
+                                MyRecipe recipe = RecipeJsonArgument.getRecipe(ctx, "replacement");
+
+                                RecipeManager.instance.markRecipeForAddition(type, recipe_key, recipe);
+
+                                ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.recipe.marked_for_addition", recipe_key.toString()), false);
+                                return 1;
+                            })
+                        )
+                    )
                 )
             );
     }

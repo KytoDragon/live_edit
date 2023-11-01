@@ -2,11 +2,6 @@ package de.kytodragon.live_edit.editing.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import de.kytodragon.live_edit.LiveEditMod;
-import de.kytodragon.live_edit.editing.MyIngredient;
-import de.kytodragon.live_edit.editing.MyRecipe;
-import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.editing.gui.components.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -16,15 +11,29 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import de.kytodragon.live_edit.LiveEditMod;
+import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.editing.MyRecipe;
+import de.kytodragon.live_edit.editing.MyResult;
+import de.kytodragon.live_edit.editing.gui.components.*;
+import de.kytodragon.live_edit.editing.gui.modules.*;
+import de.kytodragon.live_edit.recipe.RecipeType;
+
+import java.util.*;
 
 public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu> {
 
     private static final ResourceLocation MENU_TYPE_ID = new ResourceLocation(LiveEditMod.MODID, "recipe_editing_menu");
+    public static final Map<Class<? extends MyIngredient>, IngredientInputFactory> ingredientMapper = new HashMap<>();
+    public static final Map<Class<? extends MyResult>, ResultInputFactory> resultMapper = new HashMap<>();
+    public static final Map<RecipeType, RecipeInputFactory> recipeMapper = new HashMap<>();
 
     private final List<MyGuiComponent> components = new ArrayList<>();
     private MyRecipe recipe;
+
+    private IRecipeInput recipe_editor;
+    private ScrolledListPanel ingredient_list;
+    private ScrolledListPanel result_list;
 
     public RecipeEditingGui(RecipeEditingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -37,6 +46,7 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
 
         components.add(new Background(0, 0, 176, 176));
         components.add(menu.inventoryGui);
+        components.add(new Button(100, 80, 30, 12, "Save", this::sendRecipeToServer));
     }
 
     public static void clientSetup(RegisterEvent event) {
@@ -96,13 +106,13 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(double mouseX, double mouseY, int mouse_button) {
+        super.mouseClicked(mouseX, mouseY, mouse_button);
 
         mouseX -= this.leftPos;
         mouseY -= this.topPos;
         for (MyGuiComponent component : components) {
-            if (component.mouseClicked(mouseX, mouseY, button, menu.getCarried()))
+            if (component.mouseClicked(mouseX, mouseY, mouse_button, menu.getCarried()))
                 return true;
         }
 
@@ -110,13 +120,13 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    public boolean mouseDragged(double mouseX, double mouseY, int mouse_button, double deltaX, double deltaY) {
+        super.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY);
 
         mouseX -= this.leftPos;
         mouseY -= this.topPos;
         for (MyGuiComponent component : components) {
-            if (component.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+            if (component.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY))
                 return true;
         }
 
@@ -124,13 +134,13 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        super.mouseReleased(mouseX, mouseY, button);
+    public boolean mouseReleased(double mouseX, double mouseY, int mouse_button) {
+        super.mouseReleased(mouseX, mouseY, mouse_button);
 
         mouseX -= this.leftPos;
         mouseY -= this.topPos;
         for (MyGuiComponent component : components) {
-            if (component.mouseReleased(mouseX, mouseY, button))
+            if (component.mouseReleased(mouseX, mouseY, mouse_button))
                 return true;
         }
 
@@ -183,36 +193,88 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
             recipe = menu.recipe_slot.getRecipe();
 
             if (recipe != null) {
-                ScrolledListPanel ingredientList = new ScrolledListPanel(8, 20, 80, 60);
-                int heigth = 0;
-                for (MyIngredient ingredient : recipe.ingredients) {
-                    if (ingredient instanceof MyIngredient.ItemIngredient item) {
-                        ingredientList.children.add(new ItemComponent(0, heigth+1, item, false));
-                    } else if (ingredient instanceof MyIngredient.TimeIngredient timeIngredient) {
-                        ingredientList.children.add(new IntegerInput(1, heigth+1, 40, 12, timeIngredient.processing_time));
-                    } else {
-                        ingredientList.children.add(new Decal(0, heigth + 1, VanillaTextures.EMPTY_SLOT));
-                        ingredientList.children.add(new TextComponent(20, heigth + 1, ingredient.toString()));
-                    }
-                    heigth += 20;
-                }
-                components.add(ingredientList);
+                RecipeInputFactory factory = recipeMapper.get(recipe.type);
+                if (factory != null) {
+                    recipe_editor = factory.getGUIComponent(8, 20);
+                    recipe_editor.setRecipe(recipe);
+                    components.add(recipe_editor.getGUIComponent());
+                } else {
 
-                ScrolledListPanel resultList = new ScrolledListPanel(88, 20, 80, 60);
-                heigth = 0;
-                for (MyResult result : recipe.results) {
-                    if (result instanceof MyResult.ItemResult item) {
-                        resultList.children.add(new ItemComponent(0, heigth+1, item, false));
-                    } else if (result instanceof MyResult.ExperienceResult experienceResult) {
-                        resultList.children.add(new IntegerInput(1, heigth+1, 40, 12, (int)experienceResult.experience));
-                    } else {
-                        resultList.children.add(new Decal(0, heigth + 1, VanillaTextures.EMPTY_SLOT));
-                        resultList.children.add(new TextComponent(20, heigth + 1, result.toString()));
+                    ingredient_list = new ScrolledListPanel(8, 20, 80, 60);
+                    int heigth = 0;
+                    for (MyIngredient ingredient : recipe.ingredients) {
+                        IngredientInputFactory inputFactory = ingredientMapper.get(ingredient.getClass());
+                        if (inputFactory == null) {
+                            LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for ingredient class " + ingredient.getClass());
+                            onClose();
+                            return;
+                        }
+                        IIngredientInput input = inputFactory.getGUIComponent(0, heigth);
+                        input.setIngredient(ingredient);
+                        ingredient_list.children.add(input.getGUIComponent());
+                        heigth += input.getGUIComponent().height;
                     }
-                    heigth += 20;
+                    components.add(ingredient_list);
+
+                    result_list = new ScrolledListPanel(88, 20, 80, 60);
+                    heigth = 0;
+                    for (MyResult result : recipe.results) {
+                        ResultInputFactory inputFactory = resultMapper.get(result.getClass());
+                        if (inputFactory == null) {
+                            LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for result class " + result.getClass());
+                            onClose();
+                            return;
+                        }
+                        IResultInput input = inputFactory.getGUIComponent(0, heigth);
+                        input.setResult(result);
+                        result_list.children.add(input.getGUIComponent());
+                        heigth += input.getGUIComponent().height;
+                    }
+                    components.add(result_list);
                 }
-                components.add(resultList);
             }
         }
+
+        for (MyGuiComponent component : components) {
+            component.tick();
+        }
+    }
+
+    private void sendRecipeToServer() {
+        if (recipe == null)
+            return;
+
+        MyRecipe new_recipe;
+        if (recipe_editor != null) {
+            new_recipe = recipe_editor.getRecipe();
+        } else {
+            new_recipe = new MyRecipe();
+            new_recipe.type = recipe.type;
+            new_recipe.id = recipe.id;
+            new_recipe.group = recipe.group;
+            new_recipe.is_shaped = recipe.is_shaped;
+            new_recipe.ingredients = new ArrayList<>(ingredient_list.children.size());
+            for (MyGuiComponent comp : ingredient_list.children) {
+                IIngredientInput input = (IIngredientInput)comp;
+                new_recipe.ingredients.add(input.getIngredient());
+            }
+            new_recipe.results = new ArrayList<>(result_list.children.size());
+            for (MyGuiComponent comp : result_list.children) {
+                IResultInput input = (IResultInput)comp;
+                new_recipe.results.add(input.getResult());
+            }
+        }
+        String command = "live-edit replace recipe " + new_recipe.type.name() + " " + new_recipe.id.toString() + " " + new_recipe.toJsonString();
+        Objects.requireNonNull(minecraft);
+        Objects.requireNonNull(minecraft.player);
+        minecraft.player.commandUnsigned(command);
+
+        onClose();
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        MyGuiComponent.setFocusOn(null);
     }
 }

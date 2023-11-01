@@ -18,4 +18,17 @@ public class VanillaTextures {
 
     public static final Texture EMPTY_SLOT = new Texture(TEXTURE_ID, 0, 51, 18, 18);
     public static final Texture RESULT_SLOT = new Texture(TEXTURE_ID, 19, 51, 26, 26);
+    public static final Texture CLOCK = new Texture(TEXTURE_ID, 97, 33, 16, 16);
+
+    public static final Texture[] EXPERIENCE_ORBS = repeatTexture(0, 98, 16, 16, 11, 1);
+
+    private static Texture[] repeatTexture(int x, int y, int width, int height, int columns, int rows) {
+        Texture[] result = new Texture[columns * rows];
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
+                result[row * columns + column] = new Texture(TEXTURE_ID, x + column * width, y + row * height, width, height);;
+            }
+        }
+        return result;
+    }
 }

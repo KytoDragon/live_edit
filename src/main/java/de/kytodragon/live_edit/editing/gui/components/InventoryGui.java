@@ -11,13 +11,11 @@ import java.util.function.Consumer;
 
 public class InventoryGui extends MyGuiComponent {
     Inventory inventory;
-    int inventoryBaseSlotID;
     List<Slot> slots = new ArrayList<>(27);
 
-    public InventoryGui(Inventory inventory, int inventoryX, int inventoryY, int inventoryBaseSlotID) {
+    public InventoryGui(Inventory inventory, int inventoryX, int inventoryY) {
         super(inventoryX, inventoryY, 9*18, 4*18 + 4);
         this.inventory = inventory;
-        this.inventoryBaseSlotID = inventoryBaseSlotID;
     }
 
     // Uses a consumer as AbstractContainerMenu.addSlot is not public

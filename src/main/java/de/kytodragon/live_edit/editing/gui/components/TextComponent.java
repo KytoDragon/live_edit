@@ -1,7 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.Font;
 
 public class TextComponent extends MyGuiComponent {
 

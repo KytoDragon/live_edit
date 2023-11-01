@@ -1,9 +1,6 @@
 package de.kytodragon.live_edit.editing;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -30,6 +27,10 @@ public class MyRecipe {
     public boolean is_shaped = false;
 
     public List<MyResult> results;
+
+    public static MyRecipe fromJsonString(String json) {
+        return fromJson(JsonParser.parseString(json).getAsJsonObject());
+    }
 
     public static MyRecipe fromJson(JsonObject json) {
         MyRecipe recipe = new MyRecipe();
@@ -119,5 +120,9 @@ public class MyRecipe {
         }
 
         return json;
+    }
+
+    public String toJsonString() {
+        return new Gson().toJson(toJson());
     }
 }

@@ -1,5 +1,6 @@
 package de.kytodragon.live_edit.recipe;
 
+import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +23,14 @@ public class RecipeManager {
 
     public void markRecipeForDeletion(RecipeType type, ResourceLocation recipeKey) {
         manipulators.get(type).markRecipeForDeletion(recipeKey);
+    }
+
+    public void markRecipeForAddition(RecipeType type, ResourceLocation recipeKey, MyRecipe recipe) {
+        manipulators.get(type).markRecipeForAddition(recipeKey, recipe);
+    }
+
+    public void markRecipeForReplacement(RecipeType type, ResourceLocation recipeKey, MyRecipe recipe) {
+        manipulators.get(type).markRecipeForReplacement(recipeKey, recipe);
     }
 
     public void markItemForReplacement(Item item, Item replacement) {

@@ -3,7 +3,6 @@ package de.kytodragon.live_edit.editing;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;

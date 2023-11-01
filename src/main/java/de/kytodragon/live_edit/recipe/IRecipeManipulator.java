@@ -44,6 +44,14 @@ public abstract class IRecipeManipulator<K, R, I extends Integration> {
         recipes_to_delete.add(recipeKey);
     }
 
+    public void markRecipeForAddition(K recipeKey, MyRecipe recipe) {
+        recipes_to_add.put(recipeKey, decodeRecipe(recipe));
+    }
+
+    public void markRecipeForReplacement(K recipeKey, MyRecipe recipe) {
+        recipes_to_replace.put(recipeKey, decodeRecipe(recipe));
+    }
+
     public void shutdownServer() {
         recipes_to_delete.clear();
         recipes_to_replace.clear();
@@ -68,6 +76,9 @@ public abstract class IRecipeManipulator<K, R, I extends Integration> {
                 continue;
             }
             if (recipes_to_delete.contains(key)) {
+                continue;
+            }
+            if (recipes_to_add.containsKey(key)) {
                 continue;
             }
             if (recipes_to_replace.containsKey(key)) {

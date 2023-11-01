@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -21,6 +22,7 @@ public class ScrolledListPanel extends MyGuiComponent {
     private static final int barBorderColor = 0xFFC0C0C0;
     private static final int border = 4;
     private static final int barWidth = 6;
+    private static final int scrollAmount = 16;
     private final int barLeft;
 
     public ScrolledListPanel(int x, int y, int width, int height) {
@@ -91,11 +93,11 @@ public class ScrolledListPanel extends MyGuiComponent {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button, ItemStack carried) {
+    public boolean mouseClicked(double mouseX, double mouseY, int mouse_button, ItemStack carried) {
         if (!isInside(mouseX, mouseY))
             return false;
 
-        scrolling = button == 0 && mouseX >= barLeft && mouseX < barLeft + barWidth;
+        scrolling = mouse_button == 0 && mouseX >= barLeft && mouseX < barLeft + barWidth;
         if (scrolling) {
             return true;
         }
@@ -105,7 +107,7 @@ public class ScrolledListPanel extends MyGuiComponent {
             mouseX -= x;
             mouseY -= y - scrollDistance + border;
             for (MyGuiComponent component : children) {
-                if (component.mouseClicked(mouseX, mouseY, button, carried))
+                if (component.mouseClicked(mouseX, mouseY, mouse_button, carried))
                     return true;
             }
         }
@@ -113,7 +115,7 @@ public class ScrolledListPanel extends MyGuiComponent {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    public boolean mouseDragged(double mouseX, double mouseY, int mouse_button, double deltaX, double deltaY) {
         if (!isInside(mouseX, mouseY))
             return false;
 
@@ -130,7 +132,7 @@ public class ScrolledListPanel extends MyGuiComponent {
             mouseX -= x;
             mouseY -= y - scrollDistance + border;
             for (MyGuiComponent component : children) {
-                if (component.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+                if (component.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY))
                     return true;
             }
         }
@@ -138,11 +140,11 @@ public class ScrolledListPanel extends MyGuiComponent {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(double mouseX, double mouseY, int mouse_button) {
         if (!isInside(mouseX, mouseY))
             return false;
 
-        if (super.mouseReleased(mouseX, mouseY, button))
+        if (super.mouseReleased(mouseX, mouseY, mouse_button))
             return true;
         if (scrolling) {
             scrolling = false;
@@ -154,7 +156,7 @@ public class ScrolledListPanel extends MyGuiComponent {
             mouseX -= x;
             mouseY -= y - scrollDistance + border;
             for (MyGuiComponent component : children) {
-                if (component.mouseReleased(mouseX, mouseY, button))
+                if (component.mouseReleased(mouseX, mouseY, mouse_button))
                     return true;
             }
         }
@@ -166,8 +168,8 @@ public class ScrolledListPanel extends MyGuiComponent {
         if (!isInside(mouseX, mouseY))
             return false;
 
-        if (scroll != 0) {
-            scrollDistance += (float) (-scroll * getScrollAmount());
+        if (scroll != 0 && !Screen.hasShiftDown()) {
+            scrollDistance += (float) (-scroll * scrollAmount);
             applyScrollLimits();
             return true;
         }
@@ -227,9 +229,5 @@ public class ScrolledListPanel extends MyGuiComponent {
             scrollDistance = 0.0F;
         if (scrollDistance > max)
             scrollDistance = max;
-    }
-
-    private int getScrollAmount() {
-        return 16;
     }
 }
