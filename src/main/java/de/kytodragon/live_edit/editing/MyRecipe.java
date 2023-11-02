@@ -24,7 +24,7 @@ public class MyRecipe {
     public String group = "";
 
     public List<MyIngredient> ingredients;
-    public boolean is_shaped = false;
+    public int shaped_width = 0;
 
     public List<MyResult> results;
 
@@ -67,7 +67,7 @@ public class MyRecipe {
             }
         }
 
-        recipe.is_shaped = GsonHelper.getAsBoolean(json, "is_shaped", false);
+        recipe.shaped_width = GsonHelper.getAsInt(json, "shaped_width", 0);
 
         JsonArray results = GsonHelper.getAsJsonArray(json, "results", null);
         if (results != null) {
@@ -109,8 +109,8 @@ public class MyRecipe {
             }
             json.add("ingredients", json_ingredients);
         }
-        if (is_shaped)
-            json.addProperty("is_shaped", Boolean.TRUE);
+        if (shaped_width > 0)
+            json.addProperty("shaped_width", shaped_width);
         if (results != null) {
             JsonArray json_result = new JsonArray(results.size());
             for (MyResult result : results) {

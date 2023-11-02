@@ -162,9 +162,9 @@ public class VanillaIntegration implements Integration {
         if (FMLEnvironment.dist.isDedicatedServer()) {
             // In single player this hapens via the ClientboundUpdateTagsPacket
             MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.TagsUpdatedEvent(server.registryAccess(), false, false));
-            // In single player this is already done via the ClientboundUpdateRecipesPacket
-            vanilla_recipe_manager.replaceRecipes(server_data.new_recipes);
         }
+        vanilla_recipe_manager.replaceRecipes(server_data.new_recipes);
+
         PlayerList player_list = server.getPlayerList();
         player_list.broadcastAll(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registryAccess())));
         player_list.broadcastAll(new ClientboundUpdateRecipesPacket(server_data.new_recipes));

@@ -148,7 +148,7 @@ public class IngredientReplacer {
             max_ingredients = ingredients.size() + max_ingredients;
         NonNullList<Ingredient> result = NonNullList.withSize(max_ingredients, Ingredient.EMPTY);
         for (int i = 0; i < max_ingredients; i++) {
-            result.set(i++, decodeIngredient(ingredients.get(i)));
+            result.set(i, decodeIngredient(ingredients.get(i)));
         }
         return result;
     }

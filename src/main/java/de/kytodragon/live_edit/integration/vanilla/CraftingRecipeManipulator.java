@@ -72,15 +72,17 @@ public class CraftingRecipeManipulator extends StandardRecipeManipulator<Craftin
         result.ingredients = encodeIngredients(recipe.getIngredients());
         result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()));
         result.type = RecipeType.CRAFTING;
-        result.is_shaped = recipe instanceof ShapedRecipe;
+        if (recipe instanceof ShapedRecipe shaped)
+            result.shaped_width = shaped.getRecipeWidth();
         return result;
     }
 
     @Override
     public CraftingRecipe decodeRecipe(MyRecipe recipe) {
         ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
-        if (recipe.is_shaped) {
-            return new ShapedRecipe(recipe.id, recipe.group, 3, 3, decodeIngredients(recipe.ingredients), result);
+        if (recipe.shaped_width > 0) {
+            int shaped_height = (recipe.ingredients.size() + recipe.shaped_width - 1) / recipe.shaped_width;
+            return new ShapedRecipe(recipe.id, recipe.group, recipe.shaped_width, shaped_height, decodeIngredients(recipe.ingredients), result);
         } else {
             return new ShapelessRecipe(recipe.id, recipe.group, result, decodeIngredients(recipe.ingredients));
         }

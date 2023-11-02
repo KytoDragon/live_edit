@@ -2,6 +2,8 @@ package de.kytodragon.live_edit.editing.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.kytodragon.live_edit.editing.EditCommandPacket;
+import de.kytodragon.live_edit.integration.PacketRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -252,7 +254,7 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
             new_recipe.type = recipe.type;
             new_recipe.id = recipe.id;
             new_recipe.group = recipe.group;
-            new_recipe.is_shaped = recipe.is_shaped;
+            new_recipe.shaped_width = recipe.shaped_width;
             new_recipe.ingredients = new ArrayList<>(ingredient_list.children.size());
             for (MyGuiComponent comp : ingredient_list.children) {
                 IIngredientInput input = (IIngredientInput)comp;
@@ -264,10 +266,10 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
                 new_recipe.results.add(input.getResult());
             }
         }
-        String command = "live-edit replace recipe " + new_recipe.type.name() + " " + new_recipe.id.toString() + " " + new_recipe.toJsonString();
-        Objects.requireNonNull(minecraft);
-        Objects.requireNonNull(minecraft.player);
-        minecraft.player.commandUnsigned(command);
+
+        EditCommandPacket packet = new EditCommandPacket();
+        packet.command = "replace recipe " + new_recipe.type.name() + " " + new_recipe.id.toString() + " " + new_recipe.toJsonString();
+        PacketRegistry.INSTANCE.sendToServer(packet);
 
         onClose();
     }

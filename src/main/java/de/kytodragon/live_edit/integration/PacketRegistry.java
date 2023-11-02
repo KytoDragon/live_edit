@@ -32,6 +32,16 @@ public class PacketRegistry {
             PacketRegistry::handleClientMessage, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
+    public static <T extends LiveEditPacket> void registerServerPacket(Class<T> clazz, Supplier<T> constuctor) {
+        PacketRegistry.INSTANCE.registerMessage(PacketRegistry.PACKET_ID++, clazz,
+            PacketRegistry::encodeMessage, (buf) -> {
+                T packet = constuctor.get();
+                packet.decode(buf);
+                return packet;
+            },
+            PacketRegistry::handleServerMessage, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+    }
+
     public static void encodeMessage(LiveEditPacket packet, FriendlyByteBuf buf) {
         packet.encode(buf);
     }
@@ -39,6 +49,13 @@ public class PacketRegistry {
     public static void handleClientMessage(LiveEditPacket packet, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             RecipeManager.instance.handleClientPacket(packet);
+        });
+        context.get().setPacketHandled(true);
+    }
+
+    public static void handleServerMessage(LiveEditPacket packet, Supplier<NetworkEvent.Context> context) {
+        context.get().enqueueWork(() -> {
+            RecipeManager.instance.handleServerPacket(packet, context.get().getSender());
         });
         context.get().setPacketHandled(true);
     }

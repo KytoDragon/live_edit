@@ -2,8 +2,10 @@ package de.kytodragon.live_edit;
 
 import com.mojang.logging.LogUtils;
 import de.kytodragon.live_edit.command.Command;
+import de.kytodragon.live_edit.editing.EditCommandPacket;
 import de.kytodragon.live_edit.editing.gui.RecipeEditingGui;
 import de.kytodragon.live_edit.integration.Integration;
+import de.kytodragon.live_edit.integration.PacketRegistry;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,6 +23,7 @@ public class LiveEditMod {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public LiveEditMod() {
+        PacketRegistry.registerServerPacket(EditCommandPacket.class, EditCommandPacket::new);
         Integration.addAllIntegration(RecipeManager.instance);
 
         MinecraftForge.EVENT_BUS.addListener(this::onServerStopping);

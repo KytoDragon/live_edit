@@ -1,8 +1,10 @@
 package de.kytodragon.live_edit.recipe;
 
+import de.kytodragon.live_edit.editing.EditCommandPacket;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 
 import net.minecraft.server.MinecraftServer;
@@ -87,6 +89,17 @@ public class RecipeManager {
 
     public void handleClientPacket(LiveEditPacket packet) {
         integrations.forEach(integration -> integration.acceptClientPacket(packet));
+    }
+
+    public void handleServerPacket(LiveEditPacket packet, ServerPlayer player) {
+
+        if (packet instanceof EditCommandPacket commandPacket) {
+
+            CommandSourceStack commandsourcestack = player.createCommandSourceStack();
+            String command = "/live-edit " + commandPacket.command;
+            player.server.getCommands().performPrefixedCommand(commandsourcestack, command);
+            return;
+        }
     }
 
     public void informNewPlayer(ServerPlayer player) {
