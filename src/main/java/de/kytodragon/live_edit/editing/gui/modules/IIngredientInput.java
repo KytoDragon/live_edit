@@ -7,5 +7,7 @@ public interface IIngredientInput {
 
     void setIngredient(MyIngredient ingredient);
     MyIngredient getIngredient();
-    MyGuiComponent getGUIComponent();
+    default MyGuiComponent getGUIComponent() {
+        return (MyGuiComponent) this;
+    }
 }

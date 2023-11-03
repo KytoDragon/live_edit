@@ -28,6 +28,7 @@ public class ItemComponent extends MyGuiComponent {
     public boolean can_change = true;
     public boolean only_one_item = false;
     public boolean only_one_stack = true;
+    public boolean draw_result_slot = false;
 
     public ItemComponent(int x, int y, MyIngredient.ItemIngredient ingredient) {
         this(x, y, ingredient.item);
@@ -44,7 +45,11 @@ public class ItemComponent extends MyGuiComponent {
 
     @Override
     public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        VanillaTextures.EMPTY_SLOT.draw(this, pose, x, y);
+        if (draw_result_slot) {
+            VanillaTextures.RESULT_SLOT.draw(this, pose, x-4, y-4);
+        } else {
+            VanillaTextures.EMPTY_SLOT.draw(this, pose, x, y);
+        }
     }
 
     @Override

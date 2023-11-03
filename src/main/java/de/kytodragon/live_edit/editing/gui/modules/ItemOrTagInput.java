@@ -21,7 +21,7 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
     }
 
     public ItemOrTagInput(int x, int y, boolean can_change, boolean only_one_item, boolean only_one_stack) {
-        super(x, y, 18+1+9+9, 18);
+        super(x, y, only_one_item ? 18+1+9 : 18+1+9+9, 18);
 
         item = new ItemComponent(0, 0, ItemStack.EMPTY);
         item.can_change = can_change;
@@ -32,7 +32,7 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
         tag.can_change = can_change;
 
         if (can_change) {
-            children.add(new Button(19+9, 0, 9, 9, "t", this::switchMode));
+            children.add(new Button(only_one_item ? 19 : 19+9, 0, 9, 9, "t", this::switchMode));
 
             if (!only_one_item) {
                 children.add(new Button(19, 0, 9, 9, "+", () -> amountChange(1, only_one_stack)));
@@ -86,9 +86,12 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
         }
     }
 
-    @Override
-    public MyGuiComponent getGUIComponent() {
-        return this;
+    public boolean isEmpty() {
+        if (is_tag) {
+            return tag.tag == null;
+        } else {
+            return item.itemStack.isEmpty();
+        }
     }
 
     @Override
@@ -101,8 +104,8 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
             children.add(item);
         } else if (ingredient instanceof MyIngredient.TagIngredient tagIngredient) {
             is_tag = true;
-            tag.setTag(tagIngredient.tag);
             tag.amount = tagIngredient.tag_amount;
+            tag.setTag(tagIngredient.tag);
             children.add(tag);
         }
     }

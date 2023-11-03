@@ -7,5 +7,7 @@ public interface IRecipeInput {
 
     void setRecipe(MyRecipe recipe);
     MyRecipe getRecipe();
-    MyGuiComponent getGUIComponent();
+    default MyGuiComponent getGUIComponent() {
+        return (MyGuiComponent) this;
+    }
 }

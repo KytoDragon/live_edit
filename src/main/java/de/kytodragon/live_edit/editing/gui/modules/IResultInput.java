@@ -7,5 +7,7 @@ public interface IResultInput {
 
     void setResult(MyResult result);
     MyResult getResult();
-    MyGuiComponent getGUIComponent();
+    default MyGuiComponent getGUIComponent() {
+        return (MyGuiComponent) this;
+    }
 }

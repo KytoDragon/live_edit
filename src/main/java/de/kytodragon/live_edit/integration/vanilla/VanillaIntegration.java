@@ -4,10 +4,7 @@ import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.editing.gui.RecipeEditingGui;
-import de.kytodragon.live_edit.editing.gui.modules.ExperienceInput;
-import de.kytodragon.live_edit.editing.gui.modules.ItemInput;
-import de.kytodragon.live_edit.editing.gui.modules.ItemOrTagInput;
-import de.kytodragon.live_edit.editing.gui.modules.TimeInput;
+import de.kytodragon.live_edit.editing.gui.modules.*;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
@@ -69,6 +66,13 @@ public class VanillaIntegration implements Integration {
         RecipeEditingGui.ingredientMapper.put(MyIngredient.TimeIngredient.class, TimeInput::new);
         RecipeEditingGui.resultMapper.put(MyResult.ItemResult.class, ItemInput::new);
         RecipeEditingGui.resultMapper.put(MyResult.ExperienceResult.class, ExperienceInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.CRAFTING, CraftingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.SMELTING, SmeltingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.CAMPFIRE_COOKING, SmeltingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.SMOKING, SmeltingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.BLASTING, SmeltingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.STONECUTTING, StoneCuttingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.SMITHING, SmithingRecipeInput::new);
 
         // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
         // This makes shure we do not delete recipes we do not know about.

@@ -4,6 +4,7 @@ public class FloatInput extends EditBoxWrapper {
 
     public float value;
     public boolean allowNegative = false;
+    // TODO Decimal format
 
     public FloatInput(int x, int y, int width, int height, float value) {
         super(x, y, width, height, Float.toString(value));

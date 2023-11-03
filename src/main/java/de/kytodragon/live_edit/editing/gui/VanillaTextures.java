@@ -19,6 +19,12 @@ public class VanillaTextures {
     public static final Texture EMPTY_SLOT = new Texture(TEXTURE_ID, 0, 51, 18, 18);
     public static final Texture RESULT_SLOT = new Texture(TEXTURE_ID, 19, 51, 26, 26);
     public static final Texture CLOCK = new Texture(TEXTURE_ID, 97, 33, 16, 16);
+    public static final Texture ARROW_RIGHT = new Texture(TEXTURE_ID, 108, 0, 23, 16);
+    public static final Texture CHECKBOX_EMPTY = new Texture(TEXTURE_ID, 51, 89, 9, 9);
+    public static final Texture CHECKBOX_FILLED = new Texture(TEXTURE_ID, 60, 89, 9, 9);
+    public static final Texture SMITHING_SLOT = new Texture(TEXTURE_ID, 51, 33, 18, 18);
+    public static final Texture SMITHING_HAMMER = new Texture(TEXTURE_ID, 51, 0, 32, 32);
+    public static final Texture LARGE_PLUS = new Texture(TEXTURE_ID, 16, 85, 13, 13);
 
     public static final Texture[] EXPERIENCE_ORBS = repeatTexture(0, 98, 16, 16, 11, 1);
 

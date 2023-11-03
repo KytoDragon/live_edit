@@ -249,6 +249,9 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
         MyRecipe new_recipe;
         if (recipe_editor != null) {
             new_recipe = recipe_editor.getRecipe();
+            new_recipe.type = recipe.type;
+            new_recipe.id = recipe.id;
+            new_recipe.group = recipe.group;
         } else {
             new_recipe = new MyRecipe();
             new_recipe.type = recipe.type;

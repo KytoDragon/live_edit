@@ -64,8 +64,6 @@ public class TagComponent extends MyGuiComponent {
         current_item = ItemStack.EMPTY;
         current_item_pos = 0;
         cycle = 0;
-        if (tag == null)
-            amount = 0;
         tick();
     }
 
@@ -91,6 +89,8 @@ public class TagComponent extends MyGuiComponent {
                 if (reset_tags || last_clicked_item != item)
                     current_tag_pos = 0;
                 current_tag_pos = current_tag_pos % tags.size();
+                if (amount == 0)
+                    amount = 1;
 
                 setTag(tags.get(current_tag_pos).getKey());
                 current_tag_pos++;

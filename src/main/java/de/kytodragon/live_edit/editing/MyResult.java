@@ -35,7 +35,7 @@ public abstract class MyResult {
             json.addProperty("type", "item");
             json.addProperty("item", item_id.toString());
             if (item.getCount() != 1)
-                json.addProperty("count", item.getCount());
+                json.addProperty("amount", item.getCount());
             if (item.getTag() != null)
                 json.add("nbt", JsonParser.parseString(item.getTag().getAsString()));
             return json;

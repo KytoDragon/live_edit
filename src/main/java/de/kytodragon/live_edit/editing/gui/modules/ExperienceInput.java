@@ -79,9 +79,4 @@ public class ExperienceInput extends MyGuiComponent implements IResultInput {
     public MyResult getResult() {
         return new MyResult.ExperienceResult(input.value);
     }
-
-    @Override
-    public MyGuiComponent getGUIComponent() {
-        return this;
-    }
 }

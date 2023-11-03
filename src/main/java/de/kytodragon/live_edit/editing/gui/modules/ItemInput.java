@@ -13,16 +13,17 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
     private final ItemComponent item;
 
     public ItemInput(int x, int y) {
-        this(x, y, true, false, true);
+        this(x, y, true, false, true, false);
     }
 
-    public ItemInput(int x, int y, boolean can_change, boolean only_one_item, boolean only_one_stack) {
+    public ItemInput(int x, int y, boolean can_change, boolean only_one_item, boolean only_one_stack, boolean draw_result_slot) {
         super(x, y, 18+1+9, 18);
 
         item = new ItemComponent(0, 0, ItemStack.EMPTY);
         item.can_change = can_change;
         item.only_one_item = only_one_item;
         item.only_one_stack = only_one_stack;
+        item.draw_result_slot = draw_result_slot;
 
         if (can_change && !only_one_item) {
             children.add(new Button(19, 0, 9, 9, "+", () -> amountChange(1, only_one_stack)));
@@ -47,6 +48,10 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
         if (only_one_stack && new_amount > item.itemStack.getMaxStackSize())
             new_amount = item.itemStack.getMaxStackSize();
         item.itemStack.setCount(new_amount);
+    }
+
+    public boolean isEmpty() {
+        return item.itemStack.isEmpty();
     }
 
     @Override

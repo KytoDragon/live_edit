@@ -11,9 +11,15 @@ import net.minecraft.client.gui.screens.Screen;
 public class TimeInput extends MyGuiComponent implements IIngredientInput {
 
     private final IntegerInput input;
+    private final boolean can_be_empty;
 
     public TimeInput(int x, int y) {
+        this(x, y, false);
+    }
+
+    public TimeInput(int x, int y, boolean can_be_empty) {
         super(x, y, 40+9+16, 18);
+        this.can_be_empty = can_be_empty;
         input = new IntegerInput(0, 0, 40, 18, 0);
         children.add(input);
 
@@ -32,6 +38,8 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput {
         int new_amount = input.value + amount;
         if (new_amount < 0)
             new_amount = 0;
+        if (new_amount == 0 && !can_be_empty)
+            new_amount = 1;
         input.setValue(new_amount);
     }
 
@@ -45,10 +53,5 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput {
     @Override
     public MyIngredient getIngredient() {
         return new MyIngredient.TimeIngredient(input.value);
-    }
-
-    @Override
-    public MyGuiComponent getGUIComponent() {
-        return this;
     }
 }
