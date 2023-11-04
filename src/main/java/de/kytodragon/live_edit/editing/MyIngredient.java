@@ -49,7 +49,9 @@ public abstract class MyIngredient {
             Item item = JsonHelper.getItem(json, "item");
             int amount = GsonHelper.getAsInt(json, "amount", 1);
             CompoundTag tag = JsonHelper.getNBTTag(json, "nbt");
-            return new ItemIngredient(new ItemStack(item, amount, tag));
+            ItemStack result = new ItemStack(item, amount);
+            result.setTag(tag);
+            return new ItemIngredient(result);
         }
     }
 

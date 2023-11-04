@@ -21,6 +21,10 @@ public abstract class MyGuiComponent extends GuiComponent {
     public List<MyGuiComponent> children = new ArrayList<>();
     public boolean has_focus;
 
+    public MyGuiComponent(int x, int y) {
+        this(x, y, -1, -1);
+    }
+
     public MyGuiComponent(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
@@ -153,6 +157,20 @@ public abstract class MyGuiComponent extends GuiComponent {
     public void tick() {
         for (MyGuiComponent component : children) {
             component.tick();
+        }
+    }
+
+    public void calculateBounds() {
+        for (MyGuiComponent component : children) {
+            component.calculateBounds();
+        }
+        if (width == -1 && height == -1) {
+            width = 0;
+            height = 0;
+            for (MyGuiComponent component : children) {
+                this.width = Math.max(width, component.x + component.width);
+                this.height = Math.max(height, component.y + component.height);
+            }
         }
     }
 }

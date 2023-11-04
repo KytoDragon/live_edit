@@ -1,34 +1,47 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
+import java.text.DecimalFormat;
+import java.text.ParseException;
+
 public class FloatInput extends EditBoxWrapper {
 
     public float value;
     public boolean allowNegative = false;
-    // TODO Decimal format
+    private final DecimalFormat positive_format;
+    private final DecimalFormat negativ_format;
 
     public FloatInput(int x, int y, int width, int height, float value) {
         super(x, y, width, height, Float.toString(value));
         this.value = value;
 
+        positive_format = new DecimalFormat("###0.##;###0.##");
+        negativ_format = new DecimalFormat("###0.##");
+
         edit_box.setFilter(text -> {
-            if (allowNegative)
-                return text.matches("-?[0-9]{0,4}(\\.[0-9]{0,2})?");
-            else
-                return text.matches("[0-9]{0,4}(\\.[0-9]{0,2})?");
+            try {
+                if (allowNegative) {
+                    negativ_format.parse(text);
+                } else {
+                    positive_format.parse(text);
+                }
+                return true;
+            } catch (ParseException e) {
+                return false;
+            }
         });
     }
 
     public void setValue(float value) {
         this.value = value;
-        edit_box.setValue(Float.toString(value));
+        edit_box.setValue(negativ_format.format(value));
     }
 
     @Override
     protected void setText(String text) {
-        if (text == null || text.isEmpty() || text.equals("-") || text.equals("."))
+        try {
+            this.value = negativ_format.parse(text).floatValue();
+        } catch (ParseException e) {
             this.value = 0;
-        else {
-            this.value = Float.parseFloat(text);
         }
     }
 }

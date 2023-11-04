@@ -2,9 +2,9 @@ package de.kytodragon.live_edit.integration.vanilla;
 
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.brewing.BrewingRecipe;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -27,7 +27,8 @@ public class VanillaUpdatePacket implements LiveEditPacket {
             buf2.writeFloat(compostable.compastChance());
         });
         buf.writeCollection(new_potions, (buf2, _recipe) -> {
-            BrewingRecipe recipe = (BrewingRecipe)_recipe;
+            MyBrewingRecipe recipe = (MyBrewingRecipe)_recipe;
+            buf2.writeResourceLocation(recipe.getKey());
             recipe.getInput().toNetwork(buf2);
             recipe.getIngredient().toNetwork(buf2);
             buf2.writeItem(recipe.getOutput());
@@ -42,10 +43,11 @@ public class VanillaUpdatePacket implements LiveEditPacket {
             return new CompostChance(ForgeRegistries.ITEMS.getValue(buf2.readResourceLocation()), buf2.readFloat());
         });
         new_potions = buf.readList(buf2 -> {
+            ResourceLocation key = buf2.readResourceLocation();
             Ingredient input = Ingredient.fromNetwork(buf2);
             Ingredient ingredient = Ingredient.fromNetwork(buf2);
             ItemStack output = buf2.readItem();
-            return new BrewingRecipe(input, ingredient, output);
+            return new MyBrewingRecipe(key, input, ingredient, output);
         });
     }
 }

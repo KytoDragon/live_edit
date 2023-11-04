@@ -17,7 +17,7 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
     }
 
     public ItemInput(int x, int y, boolean can_change, boolean only_one_item, boolean only_one_stack, boolean draw_result_slot) {
-        super(x, y, 18+1+9, 18);
+        super(x, y);
 
         item = new ItemComponent(0, 0, ItemStack.EMPTY);
         item.can_change = can_change;

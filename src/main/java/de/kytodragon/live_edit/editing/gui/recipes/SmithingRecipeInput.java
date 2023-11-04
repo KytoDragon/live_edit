@@ -1,9 +1,11 @@
-package de.kytodragon.live_edit.editing.gui.modules;
+package de.kytodragon.live_edit.editing.gui.recipes;
 
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.gui.VanillaTextures;
 import de.kytodragon.live_edit.editing.gui.components.Decal;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
+import de.kytodragon.live_edit.editing.gui.modules.ItemInput;
+import de.kytodragon.live_edit.editing.gui.modules.ItemOrTagInput;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public class SmithingRecipeInput extends MyGuiComponent implements IRecipeInput 
     private final ItemInput result;
 
     public SmithingRecipeInput(int x, int y) {
-        super(x, y, 151, 54);
+        super(x, y);
 
         base = new ItemOrTagInput(10, 30, true, true, false);
         children.add(base);

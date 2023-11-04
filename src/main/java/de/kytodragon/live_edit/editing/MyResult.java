@@ -45,25 +45,27 @@ public abstract class MyResult {
             Item item = JsonHelper.getItem(json, "item");
             int amount = GsonHelper.getAsInt(json, "amount", 1);
             CompoundTag tag = JsonHelper.getNBTTag(json, "nbt");
-            return new ItemResult(new ItemStack(item, amount, tag));
+            ItemStack result = new ItemStack(item, amount);
+            result.setTag(tag);
+            return new ItemResult(result);
         }
     }
 
-    public static class AmountResult extends MyResult {
-        public int output_amount;
-        public AmountResult(int output_amount) { this.output_amount = output_amount; }
+    public static class TimeResult extends MyResult {
+        public int processing_time;
+        public TimeResult(int processing_time) { this.processing_time = processing_time; }
 
         @Override
         public JsonElement toJson() {
             JsonObject json = new JsonObject();
-            json.addProperty("type", "amount");
-            json.addProperty("amount", output_amount);
+            json.addProperty("type", "time");
+            json.addProperty("time", processing_time);
             return json;
         }
 
-        public static AmountResult fromJson(JsonObject json) {
-            int amount = GsonHelper.getAsInt(json, "amount");
-            return new AmountResult(amount);
+        public static TimeResult fromJson(JsonObject json) {
+            int amount = GsonHelper.getAsInt(json, "time");
+            return new TimeResult(amount);
         }
     }
 

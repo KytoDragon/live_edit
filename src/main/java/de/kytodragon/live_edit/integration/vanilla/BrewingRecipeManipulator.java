@@ -17,15 +17,12 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.brewing.BrewingRecipe;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.common.brewing.VanillaBrewingRecipe;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
@@ -38,16 +35,15 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
     public ResourceLocation getKey(IBrewingRecipe recipe) {
         if (recipe instanceof VanillaBrewingRecipe) {
             return vanilla_potions;
-        } else if (recipe instanceof BrewingRecipe brew) {
-            // TODO This is not unique. Creating a new name will be difficult, if the ingrediants are not a single item.
-            return ForgeRegistries.ITEMS.getKey(brew.getOutput().getItem());
+        } else if (recipe instanceof MyBrewingRecipe brew) {
+            return brew.getKey();
         }
         return null;
     }
 
     @Override
     public IBrewingRecipe manipulate(IBrewingRecipe recipe, GeneralManipulationData data) {
-        if (recipe instanceof BrewingRecipe brew) {
+        if (recipe instanceof MyBrewingRecipe brew) {
             Ingredient input = brew.getInput();
             Ingredient additive = brew.getIngredient();
             ItemStack resultItem = brew.getOutput();
@@ -61,7 +57,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
             if (resultToReplace)
                 resultItem = IngredientReplacer.replace(resultItem, data);
             if (inputToReplace || additiveToReplace || resultToReplace) {
-                return new BrewingRecipe(input, additive, resultItem);
+                return new MyBrewingRecipe(brew.getKey(), input, additive, resultItem);
             }
         }
         return recipe;
@@ -75,7 +71,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
             if (recipe instanceof VanillaBrewingRecipe) {
                 // Swap the vanilla placeholder with a list of single recipes.
                 return getVanillaReplacementRecipes().stream();
-            } else if (recipe instanceof BrewingRecipe) {
+            } else if (recipe instanceof MyBrewingRecipe) {
                 return Stream.of(recipe);
             } else {
                 // IBrewingRecipe does not have serializer so do not even touch recipes that we can't handle
@@ -97,7 +93,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
 
     @Override
     public MyRecipe encodeRecipe(IBrewingRecipe recipe) {
-        if (recipe instanceof BrewingRecipe brew) {
+        if (recipe instanceof MyBrewingRecipe brew) {
             MyIngredient input = encodeIngredient(brew.getInput());
             MyIngredient additive = encodeIngredient(brew.getIngredient());
             if (input == null || additive == null) {
@@ -105,7 +101,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
             }
 
             MyRecipe result = new MyRecipe();
-            result.id = getKey(recipe);
+            result.id = brew.getKey();
             result.ingredients = List.of(input, additive);
             result.results = List.of(new MyResult.ItemResult(brew.getOutput()));
             result.type = RecipeType.BREWING;
@@ -118,38 +114,82 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
     public IBrewingRecipe decodeRecipe(MyRecipe recipe) {
         ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
         NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients);
-        return new BrewingRecipe(ingredients.get(0), ingredients.get(1), result);
+        return new MyBrewingRecipe(recipe.id, ingredients.get(0), ingredients.get(1), result);
     }
 
     /**
      * Get a list of brewing recipes that is equivalent to the vanilla potion recipe.
      */
-    private static List<BrewingRecipe> getVanillaReplacementRecipes() {
-        // Get list of all vanilla potions
+    private static List<MyBrewingRecipe> getVanillaReplacementRecipes() {
+        // Get list of all vanilla potion effects
         List<Potion> all_potions = ForgeRegistries.POTIONS.getValues().stream()
             .filter(potion -> potion == Potions.WATER || PotionBrewing.isBrewablePotion(potion))
             .toList();
 
-        // Go over all items
-        return ForgeRegistries.ITEMS.getValues().stream()
-            .map(Item::getDefaultInstance)
+        // All vanilla potion containers
+        List<Item> containers = List.of(Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION);
+
+        // Find all ingredients
+        List<ItemStack> ingredients = new ArrayList<>();
+        for (Item item : ForgeRegistries.ITEMS.getValues()) {
+            ItemStack ingredient = item.getDefaultInstance();
+
             // check if the item is a vanilla ingredient
-            .filter(PotionBrewing::isIngredient)
-            // for each potion
-            .flatMap(item -> all_potions.stream()
+            if (PotionBrewing.isIngredient(ingredient)) {
+                ingredients.add(ingredient);
+            }
+        }
+
+        List<MyBrewingRecipe> result = new ArrayList<>();
+        // Multiple recipes for the same potion will have a nummber at the end of the key
+        Map<String, Integer> keyIndices = new HashMap<>();
+
+        // for each potion
+        for (Potion potion : all_potions) {
+
+            // for each possible container
+            for (Item container : containers) {
+
                 // map potion to actual items
-                .flatMap(potion -> {
-                    return Stream.of(PotionUtils.setPotion(new ItemStack(Items.POTION), potion),
-                        PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), potion),
-                        PotionUtils.setPotion(new ItemStack(Items.LINGERING_POTION), potion));
-                })
-                // check if potion and ingredient are compatible
-                .filter(potion -> PotionBrewing.hasMix(potion, item))
-                // create recipe
-                .map(potion -> {
-                    ItemStack result = PotionBrewing.mix(item, potion);
-                    return new BrewingRecipe(Ingredient.of(potion), Ingredient.of(item), result);
-                })
-            ).toList();
+                ItemStack potion_item = PotionUtils.setPotion(new ItemStack(container), potion);
+
+                for (ItemStack ingredient : ingredients) {
+
+                    // check if potion and ingredient are compatible
+                    if (!PotionBrewing.hasMix(potion_item, ingredient))
+                        continue;
+
+                    // create recipe
+                    ItemStack result_potion = PotionBrewing.mix(ingredient, potion_item);
+
+                    // create unique key
+                    String keyPrefix;
+                    if (result_potion.getItem() == Items.POTION) {
+                        keyPrefix = "potion_";
+                    } else if (result_potion.getItem() == Items.SPLASH_POTION) {
+                        keyPrefix = "splash_";
+                    } else if (result_potion.getItem() == Items.LINGERING_POTION) {
+                        keyPrefix = "lingering_";
+                    } else {
+                        continue;
+                    }
+                    keyPrefix = PotionUtils.getPotion(result_potion).getName(keyPrefix);
+                    String keyName = keyPrefix;
+
+                    Integer index = keyIndices.get(keyPrefix);
+                    if (index == null)
+                        index = 1;
+                    else {
+                        index = index + 1;
+                        keyName = keyPrefix + "_" + index;
+                    }
+                    keyIndices.put(keyPrefix, index);
+
+                    ResourceLocation key = new ResourceLocation("minecraft", keyName);
+                    result.add(new MyBrewingRecipe(key, Ingredient.of(potion_item), Ingredient.of(ingredient), result_potion));
+                }
+            }
+        }
+        return result;
     }
 }

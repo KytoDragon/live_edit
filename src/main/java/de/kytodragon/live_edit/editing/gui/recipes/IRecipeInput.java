@@ -1,4 +1,4 @@
-package de.kytodragon.live_edit.editing.gui.modules;
+package de.kytodragon.live_edit.editing.gui.recipes;
 
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;

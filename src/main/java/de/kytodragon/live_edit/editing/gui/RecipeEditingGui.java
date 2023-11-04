@@ -3,6 +3,8 @@ package de.kytodragon.live_edit.editing.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.editing.EditCommandPacket;
+import de.kytodragon.live_edit.editing.gui.recipes.IRecipeInput;
+import de.kytodragon.live_edit.editing.gui.recipes.RecipeInputFactory;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -199,7 +201,9 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
                 if (factory != null) {
                     recipe_editor = factory.getGUIComponent(8, 20);
                     recipe_editor.setRecipe(recipe);
-                    components.add(recipe_editor.getGUIComponent());
+                    MyGuiComponent component = recipe_editor.getGUIComponent();
+                    component.calculateBounds();
+                    components.add(component);
                 } else {
 
                     ingredient_list = new ScrolledListPanel(8, 20, 80, 60);
@@ -213,8 +217,10 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
                         }
                         IIngredientInput input = inputFactory.getGUIComponent(0, heigth);
                         input.setIngredient(ingredient);
-                        ingredient_list.children.add(input.getGUIComponent());
-                        heigth += input.getGUIComponent().height;
+                        MyGuiComponent component = input.getGUIComponent();
+                        component.calculateBounds();
+                        heigth += component.height;
+                        ingredient_list.children.add(component);
                     }
                     components.add(ingredient_list);
 
@@ -229,8 +235,10 @@ public class RecipeEditingGui extends AbstractContainerScreen<RecipeEditingMenu>
                         }
                         IResultInput input = inputFactory.getGUIComponent(0, heigth);
                         input.setResult(result);
-                        result_list.children.add(input.getGUIComponent());
-                        heigth += input.getGUIComponent().height;
+                        MyGuiComponent component = input.getGUIComponent();
+                        component.calculateBounds();
+                        heigth += component.height;
+                        result_list.children.add(component);
                     }
                     components.add(result_list);
                 }

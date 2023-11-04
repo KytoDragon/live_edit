@@ -21,7 +21,7 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
     }
 
     public ItemOrTagInput(int x, int y, boolean can_change, boolean only_one_item, boolean only_one_stack) {
-        super(x, y, only_one_item ? 18+1+9 : 18+1+9+9, 18);
+        super(x, y);
 
         item = new ItemComponent(0, 0, ItemStack.EMPTY);
         item.can_change = can_change;

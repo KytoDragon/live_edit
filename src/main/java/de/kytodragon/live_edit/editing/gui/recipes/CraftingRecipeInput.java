@@ -1,4 +1,4 @@
-package de.kytodragon.live_edit.editing.gui.modules;
+package de.kytodragon.live_edit.editing.gui.recipes;
 
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.gui.VanillaTextures;
@@ -6,6 +6,8 @@ import de.kytodragon.live_edit.editing.gui.components.CheckBox;
 import de.kytodragon.live_edit.editing.gui.components.Decal;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
 import de.kytodragon.live_edit.editing.gui.components.TextComponent;
+import de.kytodragon.live_edit.editing.gui.modules.ItemInput;
+import de.kytodragon.live_edit.editing.gui.modules.ItemOrTagInput;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ public class CraftingRecipeInput extends MyGuiComponent implements IRecipeInput 
     private final CheckBox shaped;
 
     public CraftingRecipeInput(int x, int y) {
-        super(x, y, 151, 54);
+        super(x, y);
 
         ingredients = new ItemOrTagInput[9];
         for (int i = 0; i < 9; i++) {

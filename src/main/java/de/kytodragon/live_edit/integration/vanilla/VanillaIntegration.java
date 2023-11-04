@@ -5,6 +5,7 @@ import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.editing.gui.RecipeEditingGui;
 import de.kytodragon.live_edit.editing.gui.modules.*;
+import de.kytodragon.live_edit.editing.gui.recipes.*;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
@@ -56,7 +57,7 @@ public class VanillaIntegration implements Integration {
         MyRecipe.ingredient_deserializers.put("time", MyIngredient.TimeIngredient::fromJson);
 
         MyRecipe.result_deserializers.put("item", MyResult.ItemResult::fromJson);
-        MyRecipe.result_deserializers.put("amount", MyResult.AmountResult::fromJson);
+        MyRecipe.result_deserializers.put("time", MyResult.TimeResult::fromJson);
         MyRecipe.result_deserializers.put("chance", MyResult.ChanceResult::fromJson);
         MyRecipe.result_deserializers.put("experience", MyResult.ExperienceResult::fromJson);
         MyRecipe.result_deserializers.put("tag", MyResult.TagResult::fromJson);
@@ -66,6 +67,8 @@ public class VanillaIntegration implements Integration {
         RecipeEditingGui.ingredientMapper.put(MyIngredient.TimeIngredient.class, TimeInput::new);
         RecipeEditingGui.resultMapper.put(MyResult.ItemResult.class, ItemInput::new);
         RecipeEditingGui.resultMapper.put(MyResult.ExperienceResult.class, ExperienceInput::new);
+        RecipeEditingGui.resultMapper.put(MyResult.TimeResult.class, TimeInput::new);
+        RecipeEditingGui.resultMapper.put(MyResult.ChanceResult.class, ChanceInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.CRAFTING, CraftingRecipeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.SMELTING, SmeltingRecipeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.CAMPFIRE_COOKING, SmeltingRecipeInput::new);
@@ -73,6 +76,8 @@ public class VanillaIntegration implements Integration {
         RecipeEditingGui.recipeMapper.put(RecipeType.BLASTING, SmeltingRecipeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.STONECUTTING, StoneCuttingRecipeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.SMITHING, SmithingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.BURN_TIME, BurnTimeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.COMPOSTING, ComposterInput::new);
 
         // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
         // This makes shure we do not delete recipes we do not know about.

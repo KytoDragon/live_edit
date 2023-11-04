@@ -1,4 +1,4 @@
-package de.kytodragon.live_edit.editing.gui.modules;
+package de.kytodragon.live_edit.editing.gui.recipes;
 
 public interface RecipeInputFactory {
 
