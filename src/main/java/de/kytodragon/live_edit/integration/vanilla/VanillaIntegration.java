@@ -78,6 +78,7 @@ public class VanillaIntegration implements Integration {
         RecipeEditingGui.recipeMapper.put(RecipeType.SMITHING, SmithingRecipeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.BURN_TIME, BurnTimeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.COMPOSTING, ComposterInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.BREWING, BrewingRecipeInput::new);
 
         // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
         // This makes shure we do not delete recipes we do not know about.

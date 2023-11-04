@@ -54,6 +54,8 @@ public class SmeltingRecipeInput extends MyGuiComponent implements IRecipeInput 
 
     @Override
     public void tick() {
+        super.tick();
+
         progress = (progress + 1) % (processing_time.getValue() + 1);
     }
 

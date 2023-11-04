@@ -29,6 +29,11 @@ public class VanillaTextures {
     public static final Texture BURN_EMPTY = new Texture(TEXTURE_ID, 70, 80, 14, 14);
     public static final Texture BURN_FILLED = new Texture(TEXTURE_ID, 85, 80, 14, 14);
 
+    public static final Texture POTION_SLOT = new Texture(TEXTURE_ID, 51, 71, 18, 18);
+    public static final Texture BREWING_PIPES = new Texture(TEXTURE_ID, 70, 54, 30, 25);
+    public static final Texture ARROW_DOWN = new Texture(TEXTURE_ID, 0, 70, 7, 27);
+    public static final Texture ARROW_DOWN_FILLED = new Texture(TEXTURE_ID, 8, 70, 7, 27);
+
     public static final Texture[] EXPERIENCE_ORBS = repeatTexture(0, 98, 16, 16, 11, 1);
 
     private static Texture[] repeatTexture(int x, int y, int width, int height, int columns, int rows) {
