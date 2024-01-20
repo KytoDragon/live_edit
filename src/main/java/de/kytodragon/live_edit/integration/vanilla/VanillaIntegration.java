@@ -9,7 +9,7 @@ import de.kytodragon.live_edit.editing.gui.recipes.*;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
-import de.kytodragon.live_edit.mixin_interfaces.BrewingRecipeRegistryInterface;
+import de.kytodragon.live_edit.mixins.BrewingRecipeRegistryMixin;
 import de.kytodragon.live_edit.mixins.LootTablesMixin;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
@@ -29,7 +29,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -202,7 +201,10 @@ public class VanillaIntegration implements Integration {
             ComposterBlock.COMPOSTABLES.clear();
             packet.new_compostables.forEach(compost -> ComposterBlock.COMPOSTABLES.put(compost.item(), compost.compastChance()));
 
-            ((BrewingRecipeRegistryInterface)new BrewingRecipeRegistry()).live_edit_mixin_setRecipes(packet.new_potions);
+            List<IBrewingRecipe> brewingRecipes = BrewingRecipeRegistryMixin.live_edit_mixin_getRecipes();
+            Objects.requireNonNull(brewingRecipes);
+            brewingRecipes.clear();
+            brewingRecipes.addAll(packet.new_potions);
         }
     }
 
