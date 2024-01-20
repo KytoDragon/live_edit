@@ -4,12 +4,22 @@
     "compatibilityLevel": "JAVA_17",
     "refmap": "live_edit.refmap.json",
     "mixins": [
+        "AlternativesEntryMixin",
         "BrewingRecipeRegistryMixin",
+        "CompositeEntryBaseMixin",
         "CompoundIngredientMixin",
         "DifferenceIngredientMixin",
+        "EntryGroupMixin",
         "IngredientMixin",
         "IngredientTagValueMixin",
         "IntersectionIngredientMixin",
+        "LootItemMixin",
+        "LootPoolEntryContainerMixin",
+        "LootPoolMixin",
+        "LootPoolSingletonContainerMixin",
+        "LootTableMixin",
+        "LootTablesMixin",
+        "SequentialEntryMixin",
         "UpgradeRecipeMixin"
     ],
     "client": [

@@ -10,12 +10,14 @@ import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import de.kytodragon.live_edit.mixin_interfaces.BrewingRecipeRegistryInterface;
+import de.kytodragon.live_edit.mixins.LootTablesMixin;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -25,6 +27,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
@@ -65,10 +68,12 @@ public class VanillaIntegration implements Integration {
         RecipeEditingGui.ingredientMapper.put(MyIngredient.ItemIngredient.class, ItemOrTagInput::new);
         RecipeEditingGui.ingredientMapper.put(MyIngredient.TagIngredient.class, ItemOrTagInput::new);
         RecipeEditingGui.ingredientMapper.put(MyIngredient.TimeIngredient.class, TimeInput::new);
+
         RecipeEditingGui.resultMapper.put(MyResult.ItemResult.class, ItemInput::new);
         RecipeEditingGui.resultMapper.put(MyResult.ExperienceResult.class, ExperienceInput::new);
         RecipeEditingGui.resultMapper.put(MyResult.TimeResult.class, TimeInput::new);
         RecipeEditingGui.resultMapper.put(MyResult.ChanceResult.class, ChanceInput::new);
+
         RecipeEditingGui.recipeMapper.put(RecipeType.CRAFTING, CraftingRecipeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.SMELTING, SmeltingRecipeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.CAMPFIRE_COOKING, SmeltingRecipeInput::new);
@@ -79,6 +84,7 @@ public class VanillaIntegration implements Integration {
         RecipeEditingGui.recipeMapper.put(RecipeType.BURN_TIME, BurnTimeInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.COMPOSTING, ComposterInput::new);
         RecipeEditingGui.recipeMapper.put(RecipeType.BREWING, BrewingRecipeInput::new);
+        RecipeEditingGui.recipeMapper.put(RecipeType.TAGS, TagAssignmentInput::new);
 
         // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
         // This makes shure we do not delete recipes we do not know about.
@@ -95,6 +101,7 @@ public class VanillaIntegration implements Integration {
         manager.addRecipeManipulator(this, RecipeType.SMITHING, new SmithingRecipeManipulator());
 
         manager.addRecipeManipulator(this, RecipeType.TAGS, new TagManipulator());
+        manager.addRecipeManipulator(this, RecipeType.LOOT_TABLE, new LootTableManipulator());
 
         manager.addRecipeManipulator(this, RecipeType.BURN_TIME, new BurnTimeManipulator());
         manager.addRecipeManipulator(this, RecipeType.BREWING, new BrewingRecipeManipulator());
@@ -175,6 +182,8 @@ public class VanillaIntegration implements Integration {
         }
         vanilla_recipe_manager.replaceRecipes(server_data.new_recipes);
 
+        ((LootTablesMixin)server.getLootTables()).live_edit_mixin_setTables(server_data.new_tables);
+
         PlayerList player_list = server.getPlayerList();
         player_list.broadcastAll(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registryAccess())));
         player_list.broadcastAll(new ClientboundUpdateRecipesPacket(server_data.new_recipes));
@@ -225,6 +234,14 @@ public class VanillaIntegration implements Integration {
         server_data.new_potions.addAll(potions);
     }
 
+    public void addLootTables(Collection<LootTable> tables) {
+        tables.forEach(table -> server_data.new_tables.put(table.getLootTableId(), table));
+    }
+
+    public Map<ResourceLocation, LootTable> getCurrentLootTables() {
+        return ((LootTablesMixin)server.getLootTables()).live_edit_mixin_getTables();
+    }
+
     private static class NewServerData {
 
         private final List<Recipe<?>> new_recipes = new ArrayList<>();
@@ -232,5 +249,6 @@ public class VanillaIntegration implements Integration {
         private final List<BurnTime> new_burn_times = new ArrayList<>();
         private final List<CompostChance> new_compostables = new ArrayList<>();
         private final List<IBrewingRecipe> new_potions = new ArrayList<>();
+        private final Map<ResourceLocation, LootTable> new_tables = new HashMap<>();
     }
 }

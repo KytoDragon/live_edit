@@ -18,6 +18,7 @@ public record RecipeType(String name, net.minecraft.world.item.crafting.RecipeTy
     public static final RecipeType BURN_TIME = new RecipeType("BURN_TIME", null);
     public static final RecipeType BREWING = new RecipeType("BREWING", null);
     public static final RecipeType COMPOSTING = new RecipeType("COMPOSTING", null);
+    public static final RecipeType LOOT_TABLE = new RecipeType("LOOT_TABLE", null);
 
     /** Dummy type used to refer to all recipe types */
     public static final RecipeType ALL = new RecipeType("ALL", null);

@@ -2,23 +2,72 @@ Undo with history
 generate datapack
 -   might not cover everything we need to change
 
-delete recipe
-edit recipe
 new recipe
 -   items
-    -   damage
     -   and/or/not
     -   NBT? (full/partial)
--   amount
--   tags
--   fuel / energy
--   output chance
 
 item properties (Item.java)
-delete item
-switch one item with another
 
-item drops from blocks
-mob drops
-loot tables
--   fisching
+Loot Tables:
+-   multiple independent pools
+-   number generator
+    -   constant
+    -   minecraft:uniform with min/max
+-   pool:
+    -   rolls: number generator
+    -   bonus_rolls: number generator
+        -   additional rolls per level of luck
+    -   conditions
+        -   minecraft:killed_by_player
+        -   minecraft:random_chance_with_looting
+            -   base chance
+            -   additional chance per level of looting
+        -   minecraft:entity_properties
+            -   is_on_fire
+            -   killed by certain kind of mob
+            -   size of slime
+            -   fishing in open water
+        -   minecraft:random_chance
+            -   base chance
+        -   minecraft:damage_source_properties
+            -   killed by certain kind of mob
+            -   killed by lightning
+        -   minecraft:location_check
+        -   minecraft:inverted
+        -   minecraft:alternative
+        -   minecraft:survives_explosion
+        -   minecraft:block_state_property
+        -   minecraft:table_bonus
+            -   additional per level of fortune
+        -   minecraft:match_tool
+    -   entries
+        -   type
+            -   minecraft:item
+            -   minecraft:tag
+            -   minecraft:empty
+            -   minecraft:loot_table
+            -   minecraft:alternatives
+        -   weight (optional)
+        -   functions
+            -   manupulate the given item
+            -   can also have indivial conditions
+            -   quality?
+            -   minecraft:set_count
+                -   count: number generator
+                -   add: true / false
+            -   minecraft:looting_enchant
+                -   additional count per level of loting: number generator
+            -   minecraft:set_potion
+            -   minecraft:furnace_smelt
+            -   minecraft:set_damage
+                -   damage: number generator
+            -   minecraft:enchant_randomly
+            -   minecraft:set_instrument
+            -   minecraft:set_stew_effect
+                -   duration: number generator
+            -   minecraft:enchant_with_levels
+                -   levels: number generator
+                -   treasure?: true / false
+            -   minecraft:apply_bonus
+            -   minecraft:explosion_decay

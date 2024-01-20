@@ -57,21 +57,21 @@ public class RecipeManager {
         try {
             integrations.forEach(Integration::prepareReload);
         } catch (Exception e) {
-            LOGGER.info("Failed to prepare recipe replacement: ", e);
+            LOGGER.error("Failed to prepare recipe replacement: ", e);
             return;
         }
 
         try {
             manipulators.values().forEach(m -> m.manipulateRecipesAndPrepareReload(data));
         } catch (Exception e) {
-            LOGGER.info("Failed to replace recipes: ", e);
+            LOGGER.error("Failed to replace recipes: ", e);
             return;
         }
 
         try {
             integrations.forEach(Integration::reload);
         } catch (Exception e) {
-            LOGGER.info("Failed to prepare recipe replacement: ", e);
+            LOGGER.error("Failed to prepare recipe replacement: ", e);
             return;
         }
     }

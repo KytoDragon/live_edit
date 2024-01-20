@@ -40,7 +40,7 @@ public class VanillaTextures {
         Texture[] result = new Texture[columns * rows];
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
-                result[row * columns + column] = new Texture(TEXTURE_ID, x + column * width, y + row * height, width, height);;
+                result[row * columns + column] = new Texture(TEXTURE_ID, x + column * width, y + row * height, width, height);
             }
         }
         return result;

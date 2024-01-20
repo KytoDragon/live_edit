@@ -18,5 +18,4 @@ public class BrewingRecipeRegistryMixin implements BrewingRecipeRegistryInterfac
         recipes.clear();
         recipes.addAll(new_recipes);
     }
-
 }
