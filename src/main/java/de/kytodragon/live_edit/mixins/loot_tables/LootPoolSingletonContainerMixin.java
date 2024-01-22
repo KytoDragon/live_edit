@@ -1,4 +1,4 @@
-package de.kytodragon.live_edit.mixins;
+package de.kytodragon.live_edit.mixins.loot_tables;
 
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;

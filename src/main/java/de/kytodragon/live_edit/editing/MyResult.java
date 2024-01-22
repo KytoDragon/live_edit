@@ -14,7 +14,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 
-public abstract class MyResult {
+public abstract class MyResult implements IJsonProvider {
 
     public abstract JsonElement toJson();
 

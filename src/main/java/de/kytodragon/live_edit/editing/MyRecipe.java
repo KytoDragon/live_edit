@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class MyRecipe {
+public class MyRecipe implements IJsonProvider {
 
     public static final Map<String, Function<JsonObject, MyIngredient>> ingredient_deserializers = new HashMap<>();
     public static final Map<String, Function<JsonObject, MyResult>> result_deserializers = new HashMap<>();
@@ -96,28 +96,17 @@ public class MyRecipe {
         return recipe;
     }
 
-    public JsonObject toJson() {
+    @Override
+    public JsonElement toJson() {
         JsonObject json = new JsonObject();
         json.addProperty("type", type.name());
         json.addProperty("id", id.toString());
         if (!StringUtils.isEmpty(group))
             json.addProperty("group", group);
-        if (ingredients != null) {
-            JsonArray json_ingredients = new JsonArray(ingredients.size());
-            for (MyIngredient ingredient : ingredients) {
-                json_ingredients.add(ingredient.toJson());
-            }
-            json.add("ingredients", json_ingredients);
-        }
+        JsonHelper.addArrayToJson(json, "ingredients", ingredients);
         if (shaped_width > 0)
             json.addProperty("shaped_width", shaped_width);
-        if (results != null) {
-            JsonArray json_result = new JsonArray(results.size());
-            for (MyResult result : results) {
-                json_result.add(result.toJson());
-            }
-            json.add("results", json_result);
-        }
+        JsonHelper.addArrayToJson(json, "results", results);
 
         return json;
     }

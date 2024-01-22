@@ -3,6 +3,7 @@ package de.kytodragon.live_edit.command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.kytodragon.live_edit.editing.MyIngredient;
+import de.kytodragon.live_edit.editing.MyLootTable;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.editing.gui.RecipeEditingMenu;
@@ -20,6 +21,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.network.NetworkHooks;
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,6 +29,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static de.kytodragon.live_edit.LiveEditMod.LOGGER;
 
 public class Command {
 
@@ -115,9 +119,15 @@ public class Command {
                     .executes(ctx -> {
                         RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
                         ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
-                        MyRecipe recipe = getEncodedRecipe(RecipeManager.instance.manipulators.get(type), recipe_key);
-                        if (recipe != null)
-                            ctx.getSource().sendSuccess(Component.literal(recipe.toJsonString()), false);
+                        if (type == RecipeType.LOOT_TABLE) {
+                            MyLootTable table = getEncodedLootTable(RecipeManager.instance.manipulators.get(type), recipe_key);
+                            if (table != null)
+                                ctx.getSource().sendSuccess(Component.literal(table.toJsonString()), false);
+                        } else {
+                            MyRecipe recipe = getEncodedRecipe(RecipeManager.instance.manipulators.get(type), recipe_key);
+                            if (recipe != null)
+                                ctx.getSource().sendSuccess(Component.literal(recipe.toJsonString()), false);
+                        }
                         return 1;
                     })
                 )
@@ -215,6 +225,19 @@ public class Command {
             return null;
 
         return manipulator.encodeRecipe(recipe.get());
+    }
+
+    private static <T> MyLootTable getEncodedLootTable(IRecipeManipulator<ResourceLocation, T, ?> manipulator, ResourceLocation key) {
+        Optional<T> table = manipulator.getRecipe(key);
+        if (table.isEmpty())
+            return null;
+
+        try {
+            return LootTableConverter.convertLootTable((LootTable) table.get());
+        } catch (UnsupportedOperationException e) {
+            LOGGER.error("Failed to convert loot table: ", e);
+            return null;
+        }
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> openGUICommand() {

@@ -10,7 +10,7 @@ import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import de.kytodragon.live_edit.mixins.BrewingRecipeRegistryMixin;
-import de.kytodragon.live_edit.mixins.LootTablesMixin;
+import de.kytodragon.live_edit.mixins.loot_tables.LootTablesMixin;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.core.Holder;

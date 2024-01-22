@@ -13,7 +13,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 
-public abstract class MyIngredient {
+public abstract class MyIngredient implements IJsonProvider {
 
     // List<ItemStack> item_list;
     // TagKey<Fluid> fluid_tag;

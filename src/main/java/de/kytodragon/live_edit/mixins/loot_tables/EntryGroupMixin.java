@@ -1,17 +1,17 @@
-package de.kytodragon.live_edit.mixins;
+package de.kytodragon.live_edit.mixins.loot_tables;
 
+import net.minecraft.world.level.storage.loot.entries.EntryGroup;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
-import net.minecraft.world.level.storage.loot.entries.SequentialEntry;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(SequentialEntry.class)
-public interface SequentialEntryMixin {
+@Mixin(EntryGroup.class)
+public interface EntryGroupMixin {
 
     @SuppressWarnings("SameReturnValue")
     @Invoker("<init>")
-    static SequentialEntry create(LootPoolEntryContainer[] entries, LootItemCondition[] conditions) {
+    static EntryGroup create(LootPoolEntryContainer[] entries, LootItemCondition[] conditions) {
         return null;
     }
 }
