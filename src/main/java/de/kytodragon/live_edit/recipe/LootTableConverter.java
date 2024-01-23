@@ -60,12 +60,12 @@ public class LootTableConverter {
 
         MyLootPool result = new MyLootPool();
         result.entries = new ArrayList<>();
-        result.condition = new ArrayList<>();
+        result.conditions = new ArrayList<>();
         for (LootPoolEntryContainer entry : ((LootPoolMixin)pool).live_edit_mixin_getEntries()) {
             result.entries.add(convertEntry(entry));
         }
         for (LootItemCondition condition : ((LootPoolMixin)pool).live_edit_mixin_getConditions()) {
-            result.condition.add(convertCondition(condition));
+            result.conditions.add(convertCondition(condition));
         }
         FloatPair rolls = convertNumberGenerator(pool.getRolls());
         result.rollsMin = (int)rolls.min;

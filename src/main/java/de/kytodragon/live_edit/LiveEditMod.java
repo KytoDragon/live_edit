@@ -3,6 +3,7 @@ package de.kytodragon.live_edit;
 import com.mojang.logging.LogUtils;
 import de.kytodragon.live_edit.command.Command;
 import de.kytodragon.live_edit.editing.EditCommandPacket;
+import de.kytodragon.live_edit.editing.gui.LootTableEditingGui;
 import de.kytodragon.live_edit.editing.gui.RecipeEditingGui;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.PacketRegistry;
@@ -31,6 +32,7 @@ public class LiveEditMod {
         MinecraftForge.EVENT_BUS.addListener(Command::onRegisterCommandEvent);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerLogin);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(RecipeEditingGui::clientSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(LootTableEditingGui::clientSetup);
     }
 
     public void onServerStarting(ServerStartedEvent event) {

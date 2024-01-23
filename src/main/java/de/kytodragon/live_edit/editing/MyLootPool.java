@@ -13,7 +13,7 @@ public class MyLootPool implements IJsonProvider {
     public int bonusRollsMin;
     public int bonusRollsMax;
 
-    public List<MyLootCondition> condition;
+    public List<MyLootCondition> conditions;
     public List<MyLootEntry> entries;
 
     @Override
@@ -28,7 +28,7 @@ public class MyLootPool implements IJsonProvider {
         if (bonusRollsMax != 0)
             json.addProperty("bonusRollsMax", bonusRollsMax);
 
-        JsonHelper.addArrayToJson(json, "condition", condition);
+        JsonHelper.addArrayToJson(json, "conditions", conditions);
         JsonHelper.addArrayToJson(json, "entries", entries);
         return json;
     }
