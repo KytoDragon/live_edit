@@ -3,7 +3,6 @@ package de.kytodragon.live_edit.editing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
 import java.util.List;
 

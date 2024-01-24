@@ -10,8 +10,8 @@ import java.util.List;
 @Mixin(BrewingRecipeRegistry.class)
 public interface BrewingRecipeRegistryMixin {
 
-    @Accessor("recipes")
+    @Accessor(value = "recipes", remap = false)
     static List<IBrewingRecipe> live_edit_mixin_getRecipes() {
-        return null;
+        throw new RuntimeException("Mixins failed to apply");
     }
 }

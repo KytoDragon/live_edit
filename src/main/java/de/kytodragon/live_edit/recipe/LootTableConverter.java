@@ -389,10 +389,14 @@ public class LootTableConverter {
 
         } else if (function.getType() == LootItemFunctions.ENCHANT_RANDOMLY) {
             EnchantRandomlyFunction enchant = (EnchantRandomlyFunction) function;
-            result.type = Function.ENCHANT_RANDOMLY;
-            result.ids = new ArrayList<>(enchant.enchantments.size());
-            for (Enchantment e : enchant.enchantments) {
-                result.ids.add(ForgeRegistries.ENCHANTMENTS.getKey(e));
+            if (enchant.enchantments.isEmpty()) {
+                result.type = Function.ENCHANT_RANDOMLY;
+            } else {
+                result.type = Function.ENCHANT_RANDOMLY_WITH_LIST;
+                result.ids = new ArrayList<>(enchant.enchantments.size());
+                for (Enchantment e : enchant.enchantments) {
+                    result.ids.add(ForgeRegistries.ENCHANTMENTS.getKey(e));
+                }
             }
 
         } else if (function.getType() == LootItemFunctions.SET_INSTRUMENT) {
@@ -404,6 +408,8 @@ public class LootTableConverter {
             SetStewEffectFunction stew = (SetStewEffectFunction) function;
             result.type = Function.STEW_EFFECT;
             result.ids = new ArrayList<>(stew.effectDurationMap.size());
+            result.stew_duration_min = new ArrayList<>(stew.effectDurationMap.size());
+            result.stew_duration_max = new ArrayList<>(stew.effectDurationMap.size());
             for (Map.Entry<MobEffect, NumberProvider> effect : stew.effectDurationMap.entrySet()) {
                 result.ids.add(ForgeRegistries.MOB_EFFECTS.getKey(effect.getKey()));
                 FloatPair duration = convertNumberGenerator(effect.getValue());
