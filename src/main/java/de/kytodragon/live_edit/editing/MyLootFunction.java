@@ -3,6 +3,7 @@ package de.kytodragon.live_edit.editing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 
 import java.util.List;
 
@@ -36,6 +37,31 @@ public class MyLootFunction implements IJsonProvider {
     public List<Float> stew_duration_max;
     public boolean treasure_enchant;
     public List<MyLootCondition> conditions;
+
+    public static MyLootFunction fromJson(JsonObject json) {
+        MyLootFunction function = new MyLootFunction();
+
+        function.type = Function.valueOf(GsonHelper.getAsString(json, "type"));
+
+        function.min_count = GsonHelper.getAsFloat(json, "min_count", 0);
+        function.max_count = GsonHelper.getAsFloat(json, "max_count", 0);
+        function.limit = GsonHelper.getAsInt(json, "limit", 0);
+        function.add_count = GsonHelper.getAsBoolean(json, "add_count", false);
+
+        function.id = JsonHelper.getResourceLocationOrNull(json, "id");
+
+        function.ids = JsonHelper.parsePrimitiveListFromJson(json, "ids", (JsonElement elem) -> {
+            return ResourceLocation.of(elem.getAsString(), ':');
+        });
+        function.stew_duration_min = JsonHelper.parsePrimitiveListFromJson(json, "stew_duration_min", JsonElement::getAsFloat);
+        function.stew_duration_max = JsonHelper.parsePrimitiveListFromJson(json, "stew_duration_max", JsonElement::getAsFloat);
+
+        function.treasure_enchant = GsonHelper.getAsBoolean(json, "treasure_enchant", false);
+
+        function.conditions = JsonHelper.parseListFromJson(json, "conditions", MyLootCondition::fromJson);
+
+        return function;
+    }
 
     @Override
     public JsonElement toJson() {

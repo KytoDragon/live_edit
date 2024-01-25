@@ -1,9 +1,11 @@
 package de.kytodragon.live_edit.recipe;
 
 import de.kytodragon.live_edit.editing.EditCommandPacket;
+import de.kytodragon.live_edit.editing.MyLootTable;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
+import de.kytodragon.live_edit.integration.vanilla.LootTableManipulator;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 
@@ -33,6 +35,10 @@ public class RecipeManager {
 
     public void markRecipeForReplacement(RecipeType type, ResourceLocation recipeKey, MyRecipe recipe) {
         manipulators.get(type).markRecipeForReplacement(recipeKey, recipe);
+    }
+
+    public void markLootTableForReplacement(ResourceLocation lootTableKey, MyLootTable recipe) {
+        ((LootTableManipulator)manipulators.get(RecipeType.LOOT_TABLE)).markLootTableForReplacement(lootTableKey, recipe);
     }
 
     public void markItemForReplacement(Item item, Item replacement) {

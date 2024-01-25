@@ -1,9 +1,6 @@
 package de.kytodragon.live_edit.editing;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -16,13 +13,22 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class JsonHelper {
 
     public static ResourceLocation getResourceLocation(JsonObject json, String name) {
         return ResourceLocation.of(GsonHelper.getAsString(json, name), ':');
+    }
+
+    public static ResourceLocation getResourceLocationOrNull(JsonObject json, String name) {
+        String id = GsonHelper.getAsString(json, name, null);
+        if (id == null)
+            return null;
+        return ResourceLocation.of(id, ':');
     }
 
     public static Item getItem(JsonObject json, String name) {
@@ -87,5 +93,56 @@ public class JsonHelper {
             }
             json.add(name, json_result);
         }
+    }
+
+    public static <T> List<T> parseListFromJson(JsonObject json, String name, Function<JsonObject, T> deserializer) {
+
+        JsonArray jsonlist = GsonHelper.getAsJsonArray(json, name, null);
+        if (jsonlist == null)
+            return null;
+
+        List<T> result = new ArrayList<>(jsonlist.size());
+        for (JsonElement elem : jsonlist) {
+            if (!elem.isJsonObject())
+                throw new JsonSyntaxException("Expected " + name + ", fround " + GsonHelper.getType(elem));
+
+            result.add(deserializer.apply(elem.getAsJsonObject()));
+        }
+        return result;
+    }
+
+    public static <T> List<T> parseListFromJsonWithShortcut(JsonObject json, String name, Function<JsonElement, T> stringDeserializer, Function<JsonObject, T> deserializer) {
+
+        JsonArray jsonlist = GsonHelper.getAsJsonArray(json, name, null);
+        if (jsonlist == null)
+            return null;
+
+        List<T> result = new ArrayList<>(jsonlist.size());
+        for (JsonElement elem : jsonlist) {
+
+            if (GsonHelper.isStringValue(elem)) {
+                result.add(stringDeserializer.apply(elem));
+                continue;
+            }
+
+            if (!elem.isJsonObject())
+                throw new JsonSyntaxException("Expected " + name + ", fround " + GsonHelper.getType(elem));
+
+            result.add(deserializer.apply(elem.getAsJsonObject()));
+        }
+        return result;
+    }
+
+    public static <T> List<T> parsePrimitiveListFromJson(JsonObject json, String name, Function<JsonElement, T> deserializer) {
+
+        JsonArray jsonlist = GsonHelper.getAsJsonArray(json, name, null);
+        if (jsonlist == null)
+            return null;
+
+        List<T> result = new ArrayList<>(jsonlist.size());
+        for (JsonElement elem : jsonlist) {
+            result.add(deserializer.apply(elem));
+        }
+        return result;
     }
 }

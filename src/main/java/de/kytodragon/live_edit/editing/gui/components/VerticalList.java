@@ -8,6 +8,11 @@ public class VerticalList extends MyGuiComponent {
 
     @Override
     public void calculateBounds() {
+        if (propagate_size_change) {
+            width = -1;
+            height = -1;
+        }
+
         super.calculateBounds();
 
         // arrange each child below the previous

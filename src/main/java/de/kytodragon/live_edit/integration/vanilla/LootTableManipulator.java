@@ -1,5 +1,6 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyLootTable;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.recipe.LootTableItemReplacer;
 import de.kytodragon.live_edit.recipe.GeneralManipulationData;
@@ -37,6 +38,10 @@ public class LootTableManipulator extends IRecipeManipulator<ResourceLocation, L
     public Optional<LootTable> getRecipe(ResourceLocation key) {
         LootTable table = integration.getCurrentLootTables().get(key);
         return Optional.ofNullable(table);
+    }
+
+    public void markLootTableForReplacement(ResourceLocation lootTableKey, MyLootTable loot_table) {
+        recipes_to_replace.put(lootTableKey, null); // TODO
     }
 
     @Override

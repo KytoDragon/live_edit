@@ -23,7 +23,7 @@ public class LootFunctionsInput extends VerticalList {
         LootFunctionInput function = new LootFunctionInput(10, 0);
         functions.add(function);
         children.add(function);
-        this.calculateBounds();
+        propagate_size_change = true;
     }
 
     public void setLootFunctions(List<MyLootFunction> functions) {

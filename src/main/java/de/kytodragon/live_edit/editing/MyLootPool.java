@@ -2,6 +2,7 @@ package de.kytodragon.live_edit.editing;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.util.GsonHelper;
 
 import java.util.List;
 
@@ -15,6 +16,21 @@ public class MyLootPool implements IJsonProvider {
 
     public List<MyLootCondition> conditions;
     public List<MyLootEntry> entries;
+
+    public static MyLootPool fromJson(JsonObject json) {
+        MyLootPool pool = new MyLootPool();
+
+        pool.rollsMin = GsonHelper.getAsInt(json, "rollsMin", 1);
+        pool.rollsMax = GsonHelper.getAsInt(json, "rollsMax", 1);
+
+        pool.bonusRollsMin = GsonHelper.getAsInt(json, "bonusRollsMin", 0);
+        pool.bonusRollsMax = GsonHelper.getAsInt(json, "bonusRollsMax", 0);
+
+        pool.conditions = JsonHelper.parseListFromJson(json, "conditions", MyLootCondition::fromJson);
+        pool.entries = JsonHelper.parseListFromJson(json, "entries", MyLootEntry::fromJson);
+
+        return pool;
+    }
 
     @Override
     public JsonElement toJson() {
@@ -32,5 +48,4 @@ public class MyLootPool implements IJsonProvider {
         JsonHelper.addArrayToJson(json, "entries", entries);
         return json;
     }
-
 }

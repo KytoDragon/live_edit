@@ -21,6 +21,8 @@ public abstract class MyGuiComponent extends GuiComponent {
     public List<MyGuiComponent> children = new ArrayList<>();
     public boolean has_focus;
 
+    public boolean propagate_size_change;
+
     public MyGuiComponent(int x, int y) {
         this(x, y, -1, -1);
     }
@@ -155,9 +157,13 @@ public abstract class MyGuiComponent extends GuiComponent {
     }
 
     public void tick() {
+        boolean size_change = false;
         for (MyGuiComponent component : children) {
             component.tick();
+            size_change |= component.propagate_size_change;
         }
+
+        propagate_size_change = size_change;
     }
 
     public void calculateBounds() {

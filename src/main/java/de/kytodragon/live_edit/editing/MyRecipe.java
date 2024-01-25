@@ -8,7 +8,6 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,62 +37,49 @@ public class MyRecipe implements IJsonProvider {
         String type = GsonHelper.getAsString(json, "type");
         recipe.type = RecipeType.ALL_TYPES.get(type);
 
-        String id = GsonHelper.getAsString(json, "id");
-        recipe.id = ResourceLocation.of(id, ':');
+        recipe.id = JsonHelper.getResourceLocation(json, "id");
 
         recipe.group = GsonHelper.getAsString(json, "group", "");
 
-        JsonArray ingredients = GsonHelper.getAsJsonArray(json, "ingredients", null);
-        if (ingredients != null) {
-            recipe.ingredients = new ArrayList<>(ingredients.size());
-            for (JsonElement elem : ingredients) {
-                // since most ingredients and results are single items, this is a shortcut
-                if (GsonHelper.isStringValue(elem)) {
-                    ResourceLocation item_id = ResourceLocation.of(elem.getAsString(), ':');
-                    Item item = ForgeRegistries.ITEMS.getValue(item_id);
-                    recipe.ingredients.add(new MyIngredient.ItemIngredient(item));
-                    continue;
-                }
-
-                if (!elem.isJsonObject())
-                    throw new JsonSyntaxException("Expected ingredient, fround " + GsonHelper.getType(elem));
-
-                JsonObject ingredient = elem.getAsJsonObject();
-                String ingredient_type = GsonHelper.getAsString(ingredient, "type");
-                Function<JsonObject, MyIngredient> deserializer = ingredient_deserializers.get(ingredient_type);
-                if (deserializer == null)
-                    throw new JsonSyntaxException("Unknown ingredient type " + ingredient_type);
-                recipe.ingredients.add(deserializer.apply(ingredient));
-            }
-        }
+        recipe.ingredients = JsonHelper.parseListFromJsonWithShortcut(json, "ingredients", MyRecipe::getSimpleIngredient, MyRecipe::getComplexIngredient);
 
         recipe.shaped_width = GsonHelper.getAsInt(json, "shaped_width", 0);
 
-        JsonArray results = GsonHelper.getAsJsonArray(json, "results", null);
-        if (results != null) {
-            recipe.results = new ArrayList<>(results.size());
-            for (JsonElement elem : results) {
-                // since most ingredients and results are single items, this is a shortcut
-                if (GsonHelper.isStringValue(elem)) {
-                    ResourceLocation item_id = ResourceLocation.of(elem.getAsString(), ':');
-                    Item item = ForgeRegistries.ITEMS.getValue(item_id);
-                    recipe.results.add(new MyResult.ItemResult(item));
-                    continue;
-                }
-
-                if (!elem.isJsonObject())
-                    throw new JsonSyntaxException("Expected recipe result, fround " + GsonHelper.getType(elem));
-
-                JsonObject ingredient = elem.getAsJsonObject();
-                String ingredient_type = GsonHelper.getAsString(ingredient, "type");
-                Function<JsonObject, MyResult> deserializer = result_deserializers.get(ingredient_type);
-                if (deserializer == null)
-                    throw new JsonSyntaxException("Unknown recipe result type " + ingredient_type);
-                recipe.results.add(deserializer.apply(ingredient));
-            }
-        }
+        recipe.results = JsonHelper.parseListFromJsonWithShortcut(json, "results", MyRecipe::getSimpleResult, MyRecipe::getComplexResult);
 
         return recipe;
+    }
+
+    private static MyIngredient.ItemIngredient getSimpleIngredient(JsonElement elem) {
+        // since most ingredients and results are single items, this is a shortcut
+        ResourceLocation item_id = ResourceLocation.of(elem.getAsString(), ':');
+        Item item = ForgeRegistries.ITEMS.getValue(item_id);
+        return new MyIngredient.ItemIngredient(item);
+    }
+
+    private static MyIngredient getComplexIngredient(JsonObject ingredient) {
+        String ingredient_type = GsonHelper.getAsString(ingredient, "type");
+        Function<JsonObject, MyIngredient> deserializer = ingredient_deserializers.get(ingredient_type);
+        if (deserializer == null)
+            throw new JsonSyntaxException("Unknown ingredient type " + ingredient_type);
+
+        return deserializer.apply(ingredient);
+    }
+
+    private static MyResult.ItemResult getSimpleResult(JsonElement elem) {
+        // since most ingredients and results are single items, this is a shortcut
+        ResourceLocation item_id = ResourceLocation.of(elem.getAsString(), ':');
+        Item item = ForgeRegistries.ITEMS.getValue(item_id);
+        return new MyResult.ItemResult(item);
+    }
+
+    private static MyResult getComplexResult(JsonObject ingredient) {
+        String ingredient_type = GsonHelper.getAsString(ingredient, "type");
+        Function<JsonObject, MyResult> deserializer = result_deserializers.get(ingredient_type);
+        if (deserializer == null)
+            throw new JsonSyntaxException("Unknown recipe result type " + ingredient_type);
+
+        return deserializer.apply(ingredient);
     }
 
     @Override

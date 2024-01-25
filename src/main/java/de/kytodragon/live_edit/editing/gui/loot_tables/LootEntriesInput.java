@@ -26,7 +26,7 @@ public class LootEntriesInput extends VerticalList {
         LootEntryInput entry = new LootEntryInput(10, 0);
         entries.add(entry);
         children.add(entry);
-        this.calculateBounds();
+        propagate_size_change = true;
     }
 
     public void setLootEntries(List<MyLootEntry> entries) {

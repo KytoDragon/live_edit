@@ -30,7 +30,7 @@ public class LootTableInput extends MyGuiComponent {
         LootPoolInput pool = new LootPoolInput(0, 0);
         pools.add(pool);
         viewport.children.add(pool);
-        this.calculateBounds();
+        propagate_size_change = true;
     }
 
     public void setLootTable(MyLootTable loot_table) {

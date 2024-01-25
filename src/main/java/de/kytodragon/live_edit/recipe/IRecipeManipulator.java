@@ -9,7 +9,7 @@ import java.util.*;
 public abstract class IRecipeManipulator<K, R, I extends Integration> {
 
     private final HashSet<K> recipes_to_delete = new HashSet<>();
-    private final HashMap<K, R> recipes_to_replace = new HashMap<>();
+    protected final HashMap<K, R> recipes_to_replace = new HashMap<>();
     private final HashMap<K, R> recipes_to_add = new HashMap<>();
     protected I integration;
     protected RecipeType my_type;

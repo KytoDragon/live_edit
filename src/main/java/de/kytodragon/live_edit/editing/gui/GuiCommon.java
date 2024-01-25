@@ -148,6 +148,9 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
     protected void containerTick() {
         for (MyGuiComponent component : components) {
             component.tick();
+            if (component.propagate_size_change) {
+                component.calculateBounds();
+            }
         }
     }
 

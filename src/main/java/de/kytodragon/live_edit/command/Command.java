@@ -6,6 +6,7 @@ import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyLootTable;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
+import de.kytodragon.live_edit.editing.gui.LootTableEditingMenu;
 import de.kytodragon.live_edit.editing.gui.RecipeEditingMenu;
 import de.kytodragon.live_edit.recipe.*;
 import net.minecraft.commands.CommandBuildContext;
@@ -151,6 +152,22 @@ public class Command {
                 )
             )
             .then(Commands.literal("recipe")
+                .then(Commands.literal(RecipeType.LOOT_TABLE.name())
+                    .then(Commands.argument("loot_able", new RecipeArgument())
+                        .then(Commands.argument("replacement", new LootTableJsonArgument())
+                            .executes(ctx -> {
+                                RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
+                                ResourceLocation loot_table_key = RecipeArgument.getRecipe(ctx, type, "recipe");
+                                MyLootTable loot_table = LootTableJsonArgument.getLootTable(ctx, "replacement");
+
+                                RecipeManager.instance.markLootTableForReplacement(loot_table_key, loot_table);
+
+                                ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.loot_table.marked_for_replacement", loot_table_key.toString()), false);
+                                return 1;
+                            })
+                        )
+                    )
+                )
                 .then(Commands.argument("type", new RecipeTypeArgument())
                     .then(Commands.argument("recipe", new RecipeArgument())
                         .then(Commands.argument("replacement", new RecipeJsonArgument())
@@ -249,12 +266,23 @@ public class Command {
                         if (serverPlayer != null) {
                             RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
                             ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
-                            NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
-                                (int containerId, Inventory inventory, Player player) -> {
-                                    return new RecipeEditingMenu(containerId, inventory, type, recipe_key);
-                                },
-                                Component.translatable("commands.live_edit.recipe_menu_title", recipe_key.toString())
-                            ));
+
+                            if (type == RecipeType.LOOT_TABLE) {
+                                NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                                    (int containerId, Inventory inventory, Player player) -> {
+                                        return new LootTableEditingMenu(containerId, inventory, recipe_key);
+                                    },
+                                    Component.translatable("commands.live_edit.loot_table.menu_title", recipe_key.toString())
+                                ));
+
+                            } else {
+                                NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                                    (int containerId, Inventory inventory, Player player) -> {
+                                        return new RecipeEditingMenu(containerId, inventory, type, recipe_key);
+                                    },
+                                    Component.translatable("commands.live_edit.recipe.menu_title", recipe_key.toString())
+                                ));
+                            }
                         }
                         return 0;
                     })

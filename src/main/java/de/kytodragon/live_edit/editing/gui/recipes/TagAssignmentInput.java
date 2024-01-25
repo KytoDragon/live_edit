@@ -34,7 +34,7 @@ public class TagAssignmentInput extends MyGuiComponent implements IRecipeInput {
             items.add(item);
             list.children.add(item);
         }
-        this.calculateBounds();
+        propagate_size_change = true;
     }
 
     @Override

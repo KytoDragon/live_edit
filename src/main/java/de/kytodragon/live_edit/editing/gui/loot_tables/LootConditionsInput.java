@@ -26,7 +26,7 @@ public class LootConditionsInput extends VerticalList {
         LootConditionInput condition = new LootConditionInput(10, 0);
         conditions.add(condition);
         children.add(condition);
-        this.calculateBounds();
+        propagate_size_change = true;
     }
 
     public void setLootConditions(List<MyLootCondition> conditions) {
