@@ -18,10 +18,10 @@ public class StoneCuttingRecipeInput extends MyGuiComponent implements IRecipeIn
         super(x, y);
 
         ingredient = new ItemOrTagInput(20 , 10, true, true, false);
-        children.add(ingredient);
+        addChild(ingredient);
         result = new ItemInput(103, 10, true, false, true, true);
-        children.add(result);
-        children.add(new Decal(65, 11, VanillaTextures.ARROW_RIGHT));
+        addChild(result);
+        addChild(new Decal(65, 11, VanillaTextures.ARROW_RIGHT));
     }
 
     @Override

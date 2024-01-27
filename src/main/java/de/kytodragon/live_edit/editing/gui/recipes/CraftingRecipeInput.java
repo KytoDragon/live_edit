@@ -24,14 +24,14 @@ public class CraftingRecipeInput extends MyGuiComponent implements IRecipeInput 
         ingredients = new ItemOrTagInput[9];
         for (int i = 0; i < 9; i++) {
             ingredients[i] = new ItemOrTagInput(29*(i % 3) , 18 * (i / 3), true, true, false);
-            children.add(ingredients[i]);
+            addChild(ingredients[i]);
         }
         result = new ItemInput(123, 10, true, false, true, true);
-        children.add(result);
+        addChild(result);
         shaped = new CheckBox(90, 40);
-        children.add(shaped);
-        children.add(new Decal(90, 11, VanillaTextures.ARROW_RIGHT));
-        children.add(new TextComponent(105, 40, "shaped"));
+        addChild(shaped);
+        addChild(new Decal(90, 11, VanillaTextures.ARROW_RIGHT));
+        addChild(new TextComponent(105, 40, "shaped"));
     }
 
     @Override

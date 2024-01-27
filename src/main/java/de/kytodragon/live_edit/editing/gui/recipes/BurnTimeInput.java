@@ -22,10 +22,10 @@ public class BurnTimeInput extends MyGuiComponent implements IRecipeInput {
         super(x, y);
 
         ingredient = new ItemOrTagInput(20, 10, true, true, false);
-        children.add(ingredient);
+        addChild(ingredient);
         processing_time = new TimeInput(10, 36, false);
-        children.add(processing_time);
-        children.add(new Decal(70, 13, VanillaTextures.BURN_EMPTY));
+        addChild(processing_time);
+        addChild(new Decal(70, 13, VanillaTextures.BURN_EMPTY));
     }
 
     @Override

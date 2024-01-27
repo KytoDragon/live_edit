@@ -19,29 +19,29 @@ public class LootPoolInput extends VerticalList {
 
         TextComponent rolls_label = new TextComponent(0, 0, "Rolls:");
 
-        rollsMin = new IntegerInput(0, 0, 30, 10, 0);
+        rollsMin = new IntegerInput(60, 0, 30, 10, 0);
         rollsMin.allowNegative = true;
 
-        rollsMax = new IntegerInput(0, 0, 30, 10, 0);
+        rollsMax = new IntegerInput(90, 0, 30, 10, 0);
         rollsMax.allowNegative = true;
 
-        children.add(new ComponentGroup(0, 0, rolls_label, rollsMin, rollsMax));
+        addChild(new ComponentGroup(0, 0, rolls_label, rollsMin, rollsMax));
 
         TextComponent bonus_label = new TextComponent(0, 0, "Bonus rolls:");
 
-        bonusRollsMin = new IntegerInput(0, 0, 30, 10, 0);
+        bonusRollsMin = new IntegerInput(60, 0, 30, 10, 0);
         bonusRollsMin.allowNegative = true;
 
-        bonusRollsMax = new IntegerInput(0, 0, 30, 10, 0);
+        bonusRollsMax = new IntegerInput(90, 0, 30, 10, 0);
         bonusRollsMax.allowNegative = true;
 
-        children.add(new ComponentGroup(0, 0, bonus_label, bonusRollsMin, bonusRollsMax));
+        addChild(new ComponentGroup(0, 0, bonus_label, bonusRollsMin, bonusRollsMax));
 
         entries = new LootEntriesInput(0, 0);
-        children.add(entries);
+        addChild(entries);
 
         conditions = new LootConditionsInput(0, 0);
-        children.add(conditions);
+        addChild(conditions);
     }
 
     public void setLootPool(MyLootPool pool) {

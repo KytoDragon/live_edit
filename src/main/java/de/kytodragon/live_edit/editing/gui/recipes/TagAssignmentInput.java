@@ -23,8 +23,8 @@ public class TagAssignmentInput extends MyGuiComponent implements IRecipeInput {
         super(x, y);
 
         list = new ScrolledListPanel(0, 0, 160, 45);
-        children.add(list);
-        children.add(new Button(50, 46, 60, 12, "Add row", this::addNewRow));
+        addChild(list);
+        addChild(new Button(50, 46, 60, 12, "Add row", this::addNewRow));
     }
 
     private void addNewRow() {
@@ -32,7 +32,7 @@ public class TagAssignmentInput extends MyGuiComponent implements IRecipeInput {
         for (int column= 0; column < ITEMS_PER_ROW; column++) {
             ItemInput item = new ItemInput(4+column*18, startY, true, true, false, false);
             items.add(item);
-            list.children.add(item);
+            list.addChild(item);
         }
         propagate_size_change = true;
     }

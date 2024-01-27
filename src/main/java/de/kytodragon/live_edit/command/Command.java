@@ -41,6 +41,7 @@ public class Command {
         ArgumentTypeInfos.registerByClass(RecipeArgument.class, SingletonArgumentInfo.contextFree(RecipeArgument::new));
         ArgumentTypeInfos.registerByClass(RecipeTypeArgument.class, SingletonArgumentInfo.contextFree(RecipeTypeArgument::new));
         ArgumentTypeInfos.registerByClass(RecipeJsonArgument.class, SingletonArgumentInfo.contextFree(RecipeJsonArgument::new));
+        ArgumentTypeInfos.registerByClass(LootTableJsonArgument.class, SingletonArgumentInfo.contextFree(LootTableJsonArgument::new));
 
         event.getDispatcher().register(
             LiteralArgumentBuilder.<CommandSourceStack>literal("live-edit")
@@ -156,8 +157,7 @@ public class Command {
                     .then(Commands.argument("loot_able", new RecipeArgument())
                         .then(Commands.argument("replacement", new LootTableJsonArgument())
                             .executes(ctx -> {
-                                RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
-                                ResourceLocation loot_table_key = RecipeArgument.getRecipe(ctx, type, "recipe");
+                                ResourceLocation loot_table_key = RecipeArgument.getRecipe(ctx, RecipeType.LOOT_TABLE, "loot_able");
                                 MyLootTable loot_table = LootTableJsonArgument.getLootTable(ctx, "replacement");
 
                                 RecipeManager.instance.markLootTableForReplacement(loot_table_key, loot_table);

@@ -26,10 +26,10 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
         item.draw_result_slot = draw_result_slot;
 
         if (can_change && !only_one_item) {
-            children.add(new Button(19, 0, 9, 9, "+", () -> amountChange(1, only_one_stack)));
-            children.add(new Button(19, 9, 9, 9, "-", () -> amountChange(-1, only_one_stack)));
+            addChild(new Button(19, 0, 9, 9, "+", () -> amountChange(1, only_one_stack)));
+            addChild(new Button(19, 9, 9, 9, "-", () -> amountChange(-1, only_one_stack)));
         }
-        children.add(item);
+        addChild(item);
     }
 
     private void amountChange(int amount, boolean only_one_stack) {

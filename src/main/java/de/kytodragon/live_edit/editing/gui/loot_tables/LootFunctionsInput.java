@@ -14,25 +14,29 @@ public class LootFunctionsInput extends VerticalList {
         super(x, y);
 
         TextComponent label = new TextComponent(0, 0, "Functions:");
-        Button button = new Button(50, 46, 60, 12, "Add Function", this::addNewFunction);
+        Button button = new Button(50, 0, 60, 12, "Add Function", this::addNewFunction);
 
-        children.add(new ComponentGroup(0, 0, label, button));
+        addChild(new ComponentGroup(0, 0, label, button));
     }
 
     private void addNewFunction() {
         LootFunctionInput function = new LootFunctionInput(10, 0);
         functions.add(function);
-        children.add(function);
+        addChild(function);
+        width = -1;
+        height = -1;
         propagate_size_change = true;
     }
 
     public void setLootFunctions(List<MyLootFunction> functions) {
         this.functions.clear();
-        for (MyLootFunction function : functions) {
-            LootFunctionInput input = new LootFunctionInput(10, 0);
-            input.setLootFunction(function);
-            this.functions.add(input);
-            this.children.add(input);
+        if (functions != null) {
+            for (MyLootFunction function : functions) {
+                LootFunctionInput input = new LootFunctionInput(10, 0);
+                input.setLootFunction(function);
+                this.functions.add(input);
+                addChild(input);
+            }
         }
     }
 

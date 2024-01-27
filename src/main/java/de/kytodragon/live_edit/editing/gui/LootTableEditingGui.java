@@ -47,12 +47,18 @@ public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
     @Override
     protected void containerTick() {
 
-        if (loot_table == null) {
-            loot_table = menu.loot_table_slot.getLootTable();
+        try {
+            if (loot_table == null) {
+                loot_table = menu.loot_table_slot.getLootTable();
 
-            if (loot_table != null) {
-                loot_table_editor.setLootTable(loot_table);
+                if (loot_table != null) {
+                    loot_table_editor.setLootTable(loot_table);
+                    loot_table_editor.calculateBounds();
+                }
             }
+        } catch (Exception e) {
+            LiveEditMod.LOGGER.error("Cought error in loot table GUI tick-Method", e);
+            onClose();
         }
 
         super.containerTick();
@@ -69,11 +75,5 @@ public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
         PacketRegistry.INSTANCE.sendToServer(packet);
 
         onClose();
-    }
-
-    @Override
-    public void onClose() {
-        super.onClose();
-        MyGuiComponent.setFocusOn(null);
     }
 }

@@ -17,25 +17,29 @@ public class LootEntriesInput extends VerticalList {
         super(x, y);
 
         TextComponent label = new TextComponent(0, 0, "Entries:");
-        Button button = new Button(50, 46, 60, 12, "Add Entry", this::addNewEntry);
+        Button button = new Button(50, 0, 60, 12, "Add Entry", this::addNewEntry);
 
-        children.add(new ComponentGroup(0, 0, label, button));
+        addChild(new ComponentGroup(0, 0, label, button));
     }
 
     private void addNewEntry() {
         LootEntryInput entry = new LootEntryInput(10, 0);
         entries.add(entry);
-        children.add(entry);
+        addChild(entry);
+        width = -1;
+        height = -1;
         propagate_size_change = true;
     }
 
     public void setLootEntries(List<MyLootEntry> entries) {
         this.entries.clear();
-        for (MyLootEntry entry : entries) {
-            LootEntryInput input = new LootEntryInput(10, 0);
-            input.setLootEntry(entry);
-            this.entries.add(input);
-            this.children.add(input);
+        if (entries != null) {
+            for (MyLootEntry entry : entries) {
+                LootEntryInput input = new LootEntryInput(10, 0);
+                input.setLootEntry(entry);
+                this.entries.add(input);
+                this.addChild(input);
+            }
         }
     }
 

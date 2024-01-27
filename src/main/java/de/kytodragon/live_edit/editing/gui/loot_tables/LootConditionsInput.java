@@ -17,25 +17,29 @@ public class LootConditionsInput extends VerticalList {
         super(x, y);
 
         TextComponent label = new TextComponent(0, 0, "Conditions:");
-        Button button = new Button(50, 46, 60, 12, "Add Condition", this::addNewCondition);
+        Button button = new Button(50, 0, 60, 12, "Add Condition", this::addNewCondition);
 
-        children.add(new ComponentGroup(0, 0, label, button));
+        addChild(new ComponentGroup(0, 0, label, button));
     }
 
     private void addNewCondition() {
         LootConditionInput condition = new LootConditionInput(10, 0);
         conditions.add(condition);
-        children.add(condition);
+        addChild(condition);
+        width = -1;
+        height = -1;
         propagate_size_change = true;
     }
 
     public void setLootConditions(List<MyLootCondition> conditions) {
         this.conditions.clear();
-        for (MyLootCondition condition : conditions) {
-            LootConditionInput input = new LootConditionInput(10, 0);
-            input.setLootCondition(condition);
-            this.conditions.add(input);
-            this.children.add(input);
+        if (conditions != null) {
+            for (MyLootCondition condition : conditions) {
+                LootConditionInput input = new LootConditionInput(10, 0);
+                input.setLootCondition(condition);
+                this.conditions.add(input);
+                addChild(input);
+            }
         }
     }
 

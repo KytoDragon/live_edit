@@ -19,15 +19,15 @@ public class SmithingRecipeInput extends MyGuiComponent implements IRecipeInput 
         super(x, y);
 
         base = new ItemOrTagInput(10, 30, true, true, false);
-        children.add(base);
+        addChild(base);
         addition = new ItemOrTagInput(59, 30, true, true, false);
-        children.add(addition);
+        addChild(addition);
         result = new ItemInput(123, 30, true, false, true, true);
-        children.add(result);
-        children.add(new Decal(90, 32, VanillaTextures.ARROW_RIGHT));
-        children.add(new Decal(10, -3, VanillaTextures.SMITHING_HAMMER));
-        children.add(new Decal(59, 30, VanillaTextures.SMITHING_SLOT));
-        children.add(new Decal(42, 32, VanillaTextures.LARGE_PLUS));
+        addChild(result);
+        addChild(new Decal(90, 32, VanillaTextures.ARROW_RIGHT));
+        addChild(new Decal(10, -3, VanillaTextures.SMITHING_HAMMER));
+        addChild(new Decal(59, 30, VanillaTextures.SMITHING_SLOT));
+        addChild(new Decal(42, 32, VanillaTextures.LARGE_PLUS));
     }
 
     @Override

@@ -18,9 +18,12 @@ public abstract class MyGuiComponent extends GuiComponent {
     protected Minecraft minecraft;
     protected static MyGuiComponent focused;
 
+    public static MyGuiComponent popup;
+
     public List<MyGuiComponent> children = new ArrayList<>();
     public boolean has_focus;
 
+    protected MyGuiComponent parent;
     public boolean propagate_size_change;
 
     public MyGuiComponent(int x, int y) {
@@ -145,6 +148,13 @@ public abstract class MyGuiComponent extends GuiComponent {
     }
 
     public static void setFocusOn(MyGuiComponent component) {
+        if (popup != null) {
+            if (popup == component) {
+                return;
+            } else {
+                popup = null;
+            }
+        }
         if (focused == null && component != null) {
             component.has_focus = true;
             focused = component;
@@ -157,7 +167,7 @@ public abstract class MyGuiComponent extends GuiComponent {
     }
 
     public void tick() {
-        boolean size_change = false;
+        boolean size_change = propagate_size_change;
         for (MyGuiComponent component : children) {
             component.tick();
             size_change |= component.propagate_size_change;
@@ -178,5 +188,29 @@ public abstract class MyGuiComponent extends GuiComponent {
                 this.height = Math.max(height, component.y + component.height);
             }
         }
+        propagate_size_change = false;
+    }
+
+    public static void setPopup(MyGuiComponent popup, int x, int y) {
+        MyGuiComponent.popup = popup;
+        if (focused != null && focused != popup) {
+            focused.setFocused(false);
+            focused = null;
+        }
+        for (MyGuiComponent parent = popup.parent; parent != null; parent = parent.parent) {
+            x += parent.x;
+            if (parent instanceof ScrolledListPanel panel) {
+                y += (int)panel.getContentYOffset();
+            } else {
+                y += parent.y;
+            }
+        }
+        popup.x = x;
+        popup.y = y;
+    }
+
+    public void addChild(MyGuiComponent child) {
+        children.add(child);
+        child.parent = this;
     }
 }

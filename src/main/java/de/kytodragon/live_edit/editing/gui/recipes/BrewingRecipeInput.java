@@ -24,15 +24,15 @@ public class BrewingRecipeInput extends MyGuiComponent implements IRecipeInput {
         super(x, y);
 
         base = new ItemOrTagInput(45, 34, true, true, false);
-        children.add(base);
+        addChild(base);
         addition = new ItemOrTagInput(70, 0, true, true, false);
-        children.add(addition);
+        addChild(addition);
         result = new ItemInput(93, 34, true, false, true, false);
-        children.add(result);
-        children.add(new Decal(60, 5, VanillaTextures.ARROW_DOWN));
-        children.add(new Decal(45, 34, VanillaTextures.POTION_SLOT));
-        children.add(new Decal(93, 34, VanillaTextures.POTION_SLOT));
-        children.add(new Decal(64, 17, VanillaTextures.BREWING_PIPES));
+        addChild(result);
+        addChild(new Decal(60, 5, VanillaTextures.ARROW_DOWN));
+        addChild(new Decal(45, 34, VanillaTextures.POTION_SLOT));
+        addChild(new Decal(93, 34, VanillaTextures.POTION_SLOT));
+        addChild(new Decal(64, 17, VanillaTextures.BREWING_PIPES));
     }
 
     @Override

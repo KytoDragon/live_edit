@@ -65,56 +65,61 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
     @Override
     protected void containerTick() {
 
-        if (recipe == null) {
-            recipe = menu.recipe_slot.getRecipe();
+        try {
+            if (recipe == null) {
+                recipe = menu.recipe_slot.getRecipe();
 
-            if (recipe != null) {
-                RecipeInputFactory factory = recipeMapper.get(recipe.type);
-                if (factory != null) {
-                    recipe_editor = factory.getGUIComponent(8, 20);
-                    recipe_editor.setRecipe(recipe);
-                    MyGuiComponent component = recipe_editor.getGUIComponent();
-                    component.calculateBounds();
-                    components.add(component);
-                } else {
-
-                    ingredient_list = new ScrolledListPanel(8, 20, 80, 60);
-                    int heigth = 0;
-                    for (MyIngredient ingredient : recipe.ingredients) {
-                        IngredientInputFactory inputFactory = ingredientMapper.get(ingredient.getClass());
-                        if (inputFactory == null) {
-                            LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for ingredient class " + ingredient.getClass());
-                            onClose();
-                            return;
-                        }
-                        IIngredientInput input = inputFactory.getGUIComponent(0, heigth);
-                        input.setIngredient(ingredient);
-                        MyGuiComponent component = input.getGUIComponent();
+                if (recipe != null) {
+                    RecipeInputFactory factory = recipeMapper.get(recipe.type);
+                    if (factory != null) {
+                        recipe_editor = factory.getGUIComponent(8, 20);
+                        recipe_editor.setRecipe(recipe);
+                        MyGuiComponent component = recipe_editor.getGUIComponent();
                         component.calculateBounds();
-                        heigth += component.height;
-                        ingredient_list.children.add(component);
-                    }
-                    components.add(ingredient_list);
+                        components.add(component);
+                    } else {
 
-                    result_list = new ScrolledListPanel(88, 20, 80, 60);
-                    heigth = 0;
-                    for (MyResult result : recipe.results) {
-                        ResultInputFactory inputFactory = resultMapper.get(result.getClass());
-                        if (inputFactory == null) {
-                            LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for result class " + result.getClass());
-                            onClose();
-                            return;
+                        ingredient_list = new ScrolledListPanel(8, 20, 80, 60);
+                        int heigth = 0;
+                        for (MyIngredient ingredient : recipe.ingredients) {
+                            IngredientInputFactory inputFactory = ingredientMapper.get(ingredient.getClass());
+                            if (inputFactory == null) {
+                                LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for ingredient class " + ingredient.getClass());
+                                onClose();
+                                return;
+                            }
+                            IIngredientInput input = inputFactory.getGUIComponent(0, heigth);
+                            input.setIngredient(ingredient);
+                            MyGuiComponent component = input.getGUIComponent();
+                            component.calculateBounds();
+                            heigth += component.height;
+                            ingredient_list.addChild(component);
                         }
-                        IResultInput input = inputFactory.getGUIComponent(0, heigth);
-                        input.setResult(result);
-                        MyGuiComponent component = input.getGUIComponent();
-                        component.calculateBounds();
-                        heigth += component.height;
-                        result_list.children.add(component);
+                        components.add(ingredient_list);
+
+                        result_list = new ScrolledListPanel(88, 20, 80, 60);
+                        heigth = 0;
+                        for (MyResult result : recipe.results) {
+                            ResultInputFactory inputFactory = resultMapper.get(result.getClass());
+                            if (inputFactory == null) {
+                                LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for result class " + result.getClass());
+                                onClose();
+                                return;
+                            }
+                            IResultInput input = inputFactory.getGUIComponent(0, heigth);
+                            input.setResult(result);
+                            MyGuiComponent component = input.getGUIComponent();
+                            component.calculateBounds();
+                            heigth += component.height;
+                            result_list.addChild(component);
+                        }
+                        components.add(result_list);
                     }
-                    components.add(result_list);
                 }
             }
+        } catch (Exception e) {
+            LiveEditMod.LOGGER.error("Cought error in recipe editing GUI tick-Method", e);
+            onClose();
         }
 
         super.containerTick();

@@ -16,10 +16,10 @@ public class ExperienceInput extends MyGuiComponent implements IResultInput {
     public ExperienceInput(int x, int y) {
         super(x, y, 40+9+16, 18);
         input = new FloatInput(0, 0, 40, 18, 0);
-        children.add(input);
+        addChild(input);
 
-        children.add(new Button(40, 0, 9, 9, "+", () -> amountChange(1)));
-        children.add(new Button(40, 9, 9, 9, "-", () -> amountChange(-1)));
+        addChild(new Button(40, 0, 9, 9, "+", () -> amountChange(1)));
+        addChild(new Button(40, 9, 9, 9, "-", () -> amountChange(-1)));
     }
 
     private void amountChange(int amount) {

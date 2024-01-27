@@ -19,13 +19,13 @@ public class ComposterInput extends MyGuiComponent implements IRecipeInput {
         super(x, y);
 
         ingredient = new ItemOrTagInput(20, 10, true, true, false);
-        children.add(ingredient);
+        addChild(ingredient);
         compost_chance = new ChanceInput(90, 10);
-        children.add(compost_chance);
+        addChild(compost_chance);
         ItemComponent composter = new ItemComponent(60, 10, new ItemStack(Items.COMPOSTER));
         composter.can_change = false;
         composter.no_background = true;
-        children.add(composter);
+        addChild(composter);
     }
 
     @Override

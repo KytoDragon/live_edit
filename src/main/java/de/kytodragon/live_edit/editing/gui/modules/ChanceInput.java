@@ -14,11 +14,11 @@ public class ChanceInput extends MyGuiComponent implements IResultInput {
     public ChanceInput(int x, int y) {
         super(x, y);
         input = new FloatInput(0, 0, 30, 18, 0);
-        children.add(input);
+        addChild(input);
 
-        children.add(new Button(30, 0, 9, 9, "+", () -> amountChange(1)));
-        children.add(new Button(30, 9, 9, 9, "-", () -> amountChange(-1)));
-        children.add(new TextComponent(42, 2, "%"));
+        addChild(new Button(30, 0, 9, 9, "+", () -> amountChange(1)));
+        addChild(new Button(30, 9, 9, 9, "-", () -> amountChange(-1)));
+        addChild(new TextComponent(42, 2, "%"));
     }
 
     private void amountChange(int amount) {

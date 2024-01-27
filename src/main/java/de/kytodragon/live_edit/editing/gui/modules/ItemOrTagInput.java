@@ -32,14 +32,14 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
         tag.can_change = can_change;
 
         if (can_change) {
-            children.add(new Button(only_one_item ? 19 : 19+9, 0, 9, 9, "t", this::switchMode));
+            addChild(new Button(only_one_item ? 19 : 19+9, 0, 9, 9, "t", this::switchMode));
 
             if (!only_one_item) {
-                children.add(new Button(19, 0, 9, 9, "+", () -> amountChange(1, only_one_stack)));
-                children.add(new Button(19, 9, 9, 9, "-", () -> amountChange(-1, only_one_stack)));
+                addChild(new Button(19, 0, 9, 9, "+", () -> amountChange(1, only_one_stack)));
+                addChild(new Button(19, 9, 9, 9, "-", () -> amountChange(-1, only_one_stack)));
             }
         }
-        children.add(item);
+        addChild(item);
     }
 
     private void switchMode() {
@@ -47,13 +47,13 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
             item.itemStack = tag.current_item.copy();
             is_tag = false;
             children.remove(tag);
-            children.add(item);
+            addChild(item);
         } else  {
             tag.setAmount(item.itemStack.getCount());
             tag.setTagFromItem(item.itemStack.getItem(), true);
             is_tag = true;
             children.remove(item);
-            children.add(tag);
+            addChild(tag);
         }
     }
 
@@ -101,12 +101,12 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
         if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
             is_tag = false;
             item.itemStack = itemIngredient.item.copy();
-            children.add(item);
+            addChild(item);
         } else if (ingredient instanceof MyIngredient.TagIngredient tagIngredient) {
             is_tag = true;
             tag.amount = tagIngredient.tag_amount;
             tag.setTag(tagIngredient.tag);
-            children.add(tag);
+            addChild(tag);
         }
     }
 

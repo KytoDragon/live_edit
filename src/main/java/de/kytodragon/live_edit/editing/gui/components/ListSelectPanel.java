@@ -1,16 +1,16 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Copy of ScrollPanel that actually works
- */
-public class ScrolledListPanel extends MyGuiComponent {
+import java.util.List;
+import java.util.function.Consumer;
+
+public class ListSelectPanel extends MyGuiComponent {
 
     private boolean scrolling;
     protected float scrollDistance;
@@ -23,11 +23,24 @@ public class ScrolledListPanel extends MyGuiComponent {
     private static final int border = 4;
     private static final int barWidth = 6;
     private static final int scrollAmount = 16;
-    private final int barLeft;
 
-    public ScrolledListPanel(int x, int y, int width, int height) {
+    private final int barLeft;
+    private final int element_height;
+
+    private final List<String> options;
+    private final Consumer<String> selector;
+
+    public ListSelectPanel(int x, int y, int width, int height, List<String> options, Consumer<String> selector) {
         super(x, y, width, height);
         barLeft = x + width - barWidth;
+
+        this.options = options;
+        this.selector = selector;
+        element_height = minecraft.font.lineHeight;
+
+        for (int i = 0; i < options.size(); i++) {
+            addChild(new TextComponent(0, element_height * i, options.get(i)));
+        }
     }
 
     @Override
@@ -37,9 +50,9 @@ public class ScrolledListPanel extends MyGuiComponent {
         this.fillGradient(pose, x, y, x+width, y+height, bgColorFrom, bgColorTo);
 
         pose.pushPose();
-        pose.translate(x, (int)getContentYOffset(), 0);
+        pose.translate(x, y + border - (int)scrollDistance, 0);
         mouseX -= x;
-        mouseY -= (int)getContentYOffset();
+        mouseY -= y + border - (int)scrollDistance;
         for (MyGuiComponent component : children) {
             component.renderBackground(pose, partialTick, mouseX, mouseY);
         }
@@ -53,9 +66,9 @@ public class ScrolledListPanel extends MyGuiComponent {
         scissorWithPose(pose, x, y, width, height);
 
         pose.pushPose();
-        pose.translate(x, (int)getContentYOffset(), 0);
+        pose.translate(x, y + border - (int)scrollDistance, 0);
         mouseX -= x;
-        mouseY -= (int)getContentYOffset();
+        mouseY -= y + border - (int)scrollDistance;
         for (MyGuiComponent component : children) {
             component.renderForeground(pose, partialTick, mouseX, mouseY);
         }
@@ -71,7 +84,6 @@ public class ScrolledListPanel extends MyGuiComponent {
                 barTop = y;
             }
 
-            int barLeft = x + width - barWidth;
             GuiComponent.fill(pose, barLeft, y, barLeft + barWidth, y+height, barBgColor);
             GuiComponent.fill(pose, barLeft, barTop, barLeft + barWidth, barTop + barHeight, barColor);
             GuiComponent.fill(pose, barLeft, barTop, barLeft + barWidth - 1, barTop + barHeight - 1, barBorderColor);
@@ -84,9 +96,9 @@ public class ScrolledListPanel extends MyGuiComponent {
             return;
 
         pose.pushPose();
-        pose.translate(x, (int)getContentYOffset(), 0);
+        pose.translate(x, y + border - (int)scrollDistance, 0);
         mouseX -= x;
-        mouseY -= (int)getContentYOffset();
+        mouseY -= y + border - (int)scrollDistance;
         for (MyGuiComponent component : children) {
             component.renderOverlay(pose, partialTick, mouseX, mouseY);
         }
@@ -98,20 +110,16 @@ public class ScrolledListPanel extends MyGuiComponent {
         if (!isInside(mouseX, mouseY))
             return false;
 
-        int barLeft = x + width - barWidth;
         scrolling = mouse_button == 0 && mouseX >= barLeft && mouseX < barLeft + barWidth;
         if (scrolling) {
             return true;
         }
 
-        int mouseListY = ((int)mouseY) - getContentHeight() + (int)getContentYOffset();
-        if (mouseX >= x && mouseX <= x + width && mouseListY < 0) {
-            mouseX -= x;
-            mouseY -= getContentYOffset();
-            for (MyGuiComponent component : children) {
-                if (component.mouseClicked(mouseX, mouseY, mouse_button, carried))
-                    return true;
-            }
+        int mouseListY = ((int)mouseY) - y + (int)scrollDistance - border;
+        int selected = mouseListY / element_height;
+        if (selected >= 0 && selected < options.size()) {
+            selector.accept(options.get(selected));
+            return true;
         }
         return false;
     }
@@ -128,16 +136,6 @@ public class ScrolledListPanel extends MyGuiComponent {
             applyScrollLimits();
             return true;
         }
-
-        int mouseListY = ((int)mouseY) - getContentHeight() - (int)getContentYOffset();
-        if (mouseX >= x && mouseX <= x + width && mouseListY < 0) {
-            mouseX -= x;
-            mouseY -= getContentYOffset();
-            for (MyGuiComponent component : children) {
-                if (component.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY))
-                    return true;
-            }
-        }
         return false;
     }
 
@@ -146,21 +144,9 @@ public class ScrolledListPanel extends MyGuiComponent {
         if (!isInside(mouseX, mouseY))
             return false;
 
-        if (super.mouseReleased(mouseX, mouseY, mouse_button))
-            return true;
         if (scrolling) {
             scrolling = false;
             return true;
-        }
-
-        int mouseListY = ((int)mouseY) - getContentHeight() - (int)getContentYOffset();
-        if (mouseX >= x && mouseX <= x + width && mouseListY < 0) {
-            mouseX -= x;
-            mouseY -= getContentYOffset();
-            for (MyGuiComponent component : children) {
-                if (component.mouseReleased(mouseX, mouseY, mouse_button))
-                    return true;
-            }
         }
         return false;
     }
@@ -174,16 +160,6 @@ public class ScrolledListPanel extends MyGuiComponent {
             scrollDistance += (float) (-scroll * scrollAmount);
             applyScrollLimits();
             return true;
-        }
-
-        int mouseListY = ((int)mouseY) - getContentHeight() - (int)getContentYOffset();
-        if (mouseX >= x && mouseX <= x + width && mouseListY < 0) {
-            mouseX -= x;
-            mouseY -= getContentYOffset();
-            for (MyGuiComponent component : children) {
-                if (component.mouseScrolled(mouseX, mouseY, scroll))
-                    return true;
-            }
         }
         return false;
     }
@@ -231,9 +207,5 @@ public class ScrolledListPanel extends MyGuiComponent {
             scrollDistance = 0.0F;
         if (scrollDistance > max)
             scrollDistance = max;
-    }
-
-    public double getContentYOffset() {
-        return y + border - scrollDistance;
     }
 }

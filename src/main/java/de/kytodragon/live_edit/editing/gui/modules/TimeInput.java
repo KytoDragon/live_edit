@@ -22,11 +22,11 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
         super(x, y);
         this.can_be_empty = can_be_empty;
         input = new IntegerInput(0, 0, 40, 18, 0);
-        children.add(input);
+        addChild(input);
 
-        children.add(new Button(40, 0, 9, 9, "+", () -> amountChange(1)));
-        children.add(new Button(40, 9, 9, 9, "-", () -> amountChange(-1)));
-        children.add(new Decal(49, 1, VanillaTextures.CLOCK));
+        addChild(new Button(40, 0, 9, 9, "+", () -> amountChange(1)));
+        addChild(new Button(40, 9, 9, 9, "-", () -> amountChange(-1)));
+        addChild(new Decal(49, 1, VanillaTextures.CLOCK));
     }
 
     public int getValue() {

@@ -27,6 +27,8 @@ minecraft {
         configureEach {
             workingDirectory project.file('run')
 
+            jvmArg "-XX:+AllowEnhancedClassRedefinition"
+
             // "SCAN": For mods scan.
             // "REGISTRIES": For firing of registry events.
             // "REGISTRYDUMP": For getting the contents of all registries.

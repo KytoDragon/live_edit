@@ -26,14 +26,14 @@ public class SmeltingRecipeInput extends MyGuiComponent implements IRecipeInput 
         super(x, y);
 
         ingredient = new ItemOrTagInput(20, 10, true, true, false);
-        children.add(ingredient);
+        addChild(ingredient);
         result = new ItemInput(103, 10, true, false, true, true);
-        children.add(result);
+        addChild(result);
         processing_time = new TimeInput(10, 36, false);
-        children.add(processing_time);
+        addChild(processing_time);
         experience = new ExperienceInput(90, 36);
-        children.add(experience);
-        children.add(new Decal(65, 11, VanillaTextures.ARROW_RIGHT));
+        addChild(experience);
+        addChild(new Decal(65, 11, VanillaTextures.ARROW_RIGHT));
     }
 
     @Override
