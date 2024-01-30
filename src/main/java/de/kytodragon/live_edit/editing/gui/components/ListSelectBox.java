@@ -36,7 +36,8 @@ public class ListSelectBox extends MyGuiComponent {
 
     private void selecValue(String value) {
         label.setText(value);
-        selector.accept(value);
+        if (selector != null)
+            selector.accept(value);
         if (MyGuiComponent.popup == select_popup) {
             MyGuiComponent.popup = null;
         }

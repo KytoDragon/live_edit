@@ -42,9 +42,9 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
 
         this.inventoryLabelY = this.imageHeight - 94;
 
-        components.add(new Background(0, 0, 176, 176));
-        components.add(menu.inventoryGui);
-        components.add(new Button(100, 80, 30, 12, "Save", this::sendRecipeToServer));
+        content.addChild(new Background(0, 0, 176, 176));
+        content.addChild(menu.inventoryGui);
+        content.addChild(new Button(100, 80, 30, 12, "Save", this::sendRecipeToServer));
     }
 
     public static void clientSetup(RegisterEvent event) {
@@ -76,7 +76,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                         recipe_editor.setRecipe(recipe);
                         MyGuiComponent component = recipe_editor.getGUIComponent();
                         component.calculateBounds();
-                        components.add(component);
+                        content.addChild(component);
                     } else {
 
                         ingredient_list = new ScrolledListPanel(8, 20, 80, 60);
@@ -95,7 +95,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                             heigth += component.height;
                             ingredient_list.addChild(component);
                         }
-                        components.add(ingredient_list);
+                        content.addChild(ingredient_list);
 
                         result_list = new ScrolledListPanel(88, 20, 80, 60);
                         heigth = 0;
@@ -113,7 +113,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                             heigth += component.height;
                             result_list.addChild(component);
                         }
-                        components.add(result_list);
+                        content.addChild(result_list);
                     }
                 }
             }

@@ -4,7 +4,6 @@ import de.kytodragon.live_edit.LiveEditMod;
 import de.kytodragon.live_edit.editing.*;
 import de.kytodragon.live_edit.editing.gui.components.Background;
 import de.kytodragon.live_edit.editing.gui.components.Button;
-import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
 import de.kytodragon.live_edit.editing.gui.loot_tables.LootTableInput;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -31,10 +30,10 @@ public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
 
         loot_table_editor = new LootTableInput(10, 10);
 
-        components.add(new Background(0, 0, 176, 176));
-        components.add(loot_table_editor);
-        components.add(menu.inventoryGui);
-        components.add(new Button(100, 80, 30, 12, "Save", this::sendLootTableToServer));
+        content.addChild(new Background(0, 0, 176, 176));
+        content.addChild(loot_table_editor);
+        content.addChild(menu.inventoryGui);
+        content.addChild(new Button(100, 80, 30, 12, "Save", this::sendLootTableToServer));
     }
 
     public static void clientSetup(RegisterEvent event) {
