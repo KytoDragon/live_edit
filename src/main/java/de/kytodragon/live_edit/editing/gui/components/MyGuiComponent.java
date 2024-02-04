@@ -22,8 +22,9 @@ public abstract class MyGuiComponent extends GuiComponent {
 
     public List<MyGuiComponent> children = new ArrayList<>();
     public boolean has_focus;
+    public boolean is_visible = true;
 
-    protected MyGuiComponent parent;
+    public MyGuiComponent parent;
     public boolean propagate_size_change;
 
     public MyGuiComponent(int x, int y) {
@@ -44,7 +45,8 @@ public abstract class MyGuiComponent extends GuiComponent {
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            component.renderBackground(pose, partialTick, mouseX, mouseY);
+            if (component.is_visible)
+                component.renderBackground(pose, partialTick, mouseX, mouseY);
         }
         pose.popPose();
     }
@@ -55,7 +57,8 @@ public abstract class MyGuiComponent extends GuiComponent {
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            component.renderForeground(pose, partialTick, mouseX, mouseY);
+            if (component.is_visible)
+                component.renderForeground(pose, partialTick, mouseX, mouseY);
         }
         pose.popPose();
     }
@@ -66,7 +69,8 @@ public abstract class MyGuiComponent extends GuiComponent {
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            component.renderOverlay(pose, partialTick, mouseX, mouseY);
+            if (component.is_visible)
+                component.renderOverlay(pose, partialTick, mouseX, mouseY);
         }
         pose.popPose();
     }
@@ -78,7 +82,7 @@ public abstract class MyGuiComponent extends GuiComponent {
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            if (component.mouseClicked(mouseX, mouseY, mouse_button, carried))
+            if (component.is_visible && component.mouseClicked(mouseX, mouseY, mouse_button, carried))
                 return true;
         }
         return false;
@@ -91,7 +95,7 @@ public abstract class MyGuiComponent extends GuiComponent {
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            if (component.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY))
+            if (component.is_visible && component.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY))
                 return true;
         }
         return false;
@@ -104,7 +108,7 @@ public abstract class MyGuiComponent extends GuiComponent {
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            if (component.mouseReleased(mouseX, mouseY, mouse_button))
+            if (component.is_visible && component.mouseReleased(mouseX, mouseY, mouse_button))
                 return true;
         }
         return false;
@@ -117,23 +121,25 @@ public abstract class MyGuiComponent extends GuiComponent {
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
-            if (component.mouseScrolled(mouseX, mouseY, scroll))
+            if (component.is_visible && component.mouseScrolled(mouseX, mouseY, scroll))
                 return true;
         }
         return false;
     }
 
     public boolean keyPressed(int key, int scancode, int unknown) {
+
         for (MyGuiComponent component : children) {
-            if (component.keyPressed(key, scancode, unknown))
+            if (component.is_visible && component.keyPressed(key, scancode, unknown))
                 return true;
         }
         return false;
     }
 
     public boolean charTyped(char character, int scancode) {
+
         for (MyGuiComponent component : children) {
-            if (component.charTyped(character, scancode))
+            if (component.is_visible && component.charTyped(character, scancode))
                 return true;
         }
         return false;
@@ -184,8 +190,10 @@ public abstract class MyGuiComponent extends GuiComponent {
             width = 0;
             height = 0;
             for (MyGuiComponent component : children) {
-                this.width = Math.max(width, component.x + component.width);
-                this.height = Math.max(height, component.y + component.height);
+                if (component.is_visible) {
+                    this.width = Math.max(width, component.x + component.width);
+                    this.height = Math.max(height, component.y + component.height);
+                }
             }
         }
         propagate_size_change = false;

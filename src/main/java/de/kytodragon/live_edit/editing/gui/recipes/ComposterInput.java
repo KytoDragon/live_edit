@@ -22,7 +22,8 @@ public class ComposterInput extends MyGuiComponent implements IRecipeInput {
         addChild(ingredient);
         compost_chance = new ChanceInput(90, 10);
         addChild(compost_chance);
-        ItemComponent composter = new ItemComponent(60, 10, new ItemStack(Items.COMPOSTER));
+        ItemComponent composter = new ItemComponent(60, 10);
+        composter.itemstack = new ItemStack(Items.COMPOSTER);
         composter.can_change = false;
         composter.no_background = true;
         addChild(composter);

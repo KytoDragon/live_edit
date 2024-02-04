@@ -8,11 +8,11 @@ import java.util.List;
 
 public class MyLootPool implements IJsonProvider {
 
-    public int rollsMin;
-    public int rollsMax;
+    public int rolls_min;
+    public int rolls_max;
 
-    public int bonusRollsMin;
-    public int bonusRollsMax;
+    public int bonus_rolls_min;
+    public int bonus_rolls_max;
 
     public List<MyLootCondition> conditions;
     public List<MyLootEntry> entries;
@@ -20,11 +20,11 @@ public class MyLootPool implements IJsonProvider {
     public static MyLootPool fromJson(JsonObject json) {
         MyLootPool pool = new MyLootPool();
 
-        pool.rollsMin = GsonHelper.getAsInt(json, "rollsMin", 1);
-        pool.rollsMax = GsonHelper.getAsInt(json, "rollsMax", 1);
+        pool.rolls_min = GsonHelper.getAsInt(json, "rolls_min", 1);
+        pool.rolls_max = GsonHelper.getAsInt(json, "rolls_max", 1);
 
-        pool.bonusRollsMin = GsonHelper.getAsInt(json, "bonusRollsMin", 0);
-        pool.bonusRollsMax = GsonHelper.getAsInt(json, "bonusRollsMax", 0);
+        pool.bonus_rolls_min = GsonHelper.getAsInt(json, "bonus_rolls_min", 0);
+        pool.bonus_rolls_max = GsonHelper.getAsInt(json, "bonus_rolls_max", 0);
 
         pool.conditions = JsonHelper.parseListFromJson(json, "conditions", MyLootCondition::fromJson);
         pool.entries = JsonHelper.parseListFromJson(json, "entries", MyLootEntry::fromJson);
@@ -35,14 +35,14 @@ public class MyLootPool implements IJsonProvider {
     @Override
     public JsonElement toJson() {
         JsonObject json = new JsonObject();
-        if (rollsMin != 1)
-            json.addProperty("rollsMin", rollsMin);
-        if (rollsMax != 1)
-            json.addProperty("rollsMax", rollsMax);
-        if (bonusRollsMin != 0)
-            json.addProperty("bonusRollsMin", bonusRollsMin);
-        if (bonusRollsMax != 0)
-            json.addProperty("bonusRollsMax", bonusRollsMax);
+        if (rolls_min != 1)
+            json.addProperty("rolls_min", rolls_min);
+        if (rolls_max != 1)
+            json.addProperty("rolls_max", rolls_max);
+        if (bonus_rolls_min != 0)
+            json.addProperty("bonus_rolls_min", bonus_rolls_min);
+        if (bonus_rolls_max != 0)
+            json.addProperty("bonus_rolls_max", bonus_rolls_max);
 
         JsonHelper.addArrayToJson(json, "conditions", conditions);
         JsonHelper.addArrayToJson(json, "entries", entries);

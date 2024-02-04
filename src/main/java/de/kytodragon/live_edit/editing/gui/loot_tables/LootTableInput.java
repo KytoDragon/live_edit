@@ -10,16 +10,16 @@ public class LootTableInput extends MyGuiComponent {
     private final LootFunctionsInput functions;
     private final ScrolledListPanel viewport;
 
-    public LootTableInput(int x, int y) {
-        super(x, y);
+    public LootTableInput(int x, int y, int width, int height) {
+        super(x, y, width, height);
 
-        viewport = new ScrolledListPanel(0, 0, 160, 80);
-        functions = new LootFunctionsInput(0, 0);
-        pools = new LootPoolsInput(0, 0);
+        viewport = new ScrolledListPanel(0, 0, width, height);
+        functions = new LootFunctionsInput(2, 0);
+        pools = new LootPoolsInput(2, 0);
 
         addChild(viewport);
         viewport.addChild(pools);
-        //viewport.addChild(functions); // TODO fix alignment
+        //viewport.addChild(functions);
     }
 
     public void setLootTable(MyLootTable loot_table) {

@@ -1,4 +1,4 @@
-package de.kytodragon.live_edit.editing.gui;
+package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

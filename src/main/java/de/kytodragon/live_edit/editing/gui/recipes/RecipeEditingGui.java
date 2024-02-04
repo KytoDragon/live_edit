@@ -1,9 +1,8 @@
-package de.kytodragon.live_edit.editing.gui;
+package de.kytodragon.live_edit.editing.gui.recipes;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.editing.EditCommandPacket;
-import de.kytodragon.live_edit.editing.gui.recipes.IRecipeInput;
-import de.kytodragon.live_edit.editing.gui.recipes.RecipeInputFactory;
+import de.kytodragon.live_edit.editing.gui.GuiCommon;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
@@ -37,13 +36,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
 
     public RecipeEditingGui(RecipeEditingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 176;
 
-        this.inventoryLabelY = this.imageHeight - 94;
-
-        content.addChild(new Background(0, 0, 176, 176));
-        content.addChild(menu.inventoryGui);
         content.addChild(new Button(100, 80, 30, 12, "Save", this::sendRecipeToServer));
     }
 
@@ -75,7 +68,6 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                         recipe_editor = factory.getGUIComponent(8, 20);
                         recipe_editor.setRecipe(recipe);
                         MyGuiComponent component = recipe_editor.getGUIComponent();
-                        component.calculateBounds();
                         content.addChild(component);
                     } else {
 
@@ -91,7 +83,6 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                             IIngredientInput input = inputFactory.getGUIComponent(0, heigth);
                             input.setIngredient(ingredient);
                             MyGuiComponent component = input.getGUIComponent();
-                            component.calculateBounds();
                             heigth += component.height;
                             ingredient_list.addChild(component);
                         }
@@ -109,12 +100,12 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                             IResultInput input = inputFactory.getGUIComponent(0, heigth);
                             input.setResult(result);
                             MyGuiComponent component = input.getGUIComponent();
-                            component.calculateBounds();
                             heigth += component.height;
                             result_list.addChild(component);
                         }
                         content.addChild(result_list);
                     }
+                    content.calculateBounds();
                 }
             }
         } catch (Exception e) {

@@ -6,11 +6,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector4f;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.editing.gui.VanillaTextures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
@@ -45,18 +46,10 @@ public class TagComponent extends MyGuiComponent {
 
     private final ITagManager<Item> tag_manager;
 
-    public TagComponent(int x, int y, MyIngredient.TagIngredient tag) {
-        this(x, y, tag.tag);
-    }
-
-    public TagComponent(int x, int y, MyResult.TagResult tag) {
-        this(x, y, tag.tag);
-    }
-
-    public TagComponent(int x, int y, TagKey<Item> tag) {
+    public TagComponent(int x, int y) {
         super(x, y, 18, 18);
         tag_manager = ForgeRegistries.ITEMS.tags();
-        setTag(tag);
+        setTag(null);
     }
 
     public void setTag(TagKey<Item> tag) {
@@ -65,6 +58,18 @@ public class TagComponent extends MyGuiComponent {
         current_item_pos = 0;
         cycle = 0;
         tick();
+    }
+
+    public void setTagId(ResourceLocation id) {
+        setTag(TagKey.create(Registry.ITEM_REGISTRY, id));
+    }
+
+    public ResourceLocation getTagId() {
+        if (tag == null) {
+            return null;
+        } else {
+            return tag.location();
+        }
     }
 
     public void setAmount(int amount) {

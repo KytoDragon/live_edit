@@ -3,7 +3,7 @@ package de.kytodragon.live_edit.integration.vanilla;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.editing.gui.RecipeEditingGui;
+import de.kytodragon.live_edit.editing.gui.recipes.RecipeEditingGui;
 import de.kytodragon.live_edit.editing.gui.modules.*;
 import de.kytodragon.live_edit.editing.gui.recipes.*;
 import de.kytodragon.live_edit.integration.Integration;

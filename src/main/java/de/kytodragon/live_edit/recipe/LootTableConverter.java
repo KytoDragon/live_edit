@@ -68,11 +68,11 @@ public class LootTableConverter {
             result.conditions.add(convertCondition(condition));
         }
         FloatPair rolls = convertNumberGenerator(pool.getRolls());
-        result.rollsMin = (int)rolls.min;
-        result.rollsMax = (int)rolls.max;
+        result.rolls_min = (int)rolls.min;
+        result.rolls_max = (int)rolls.max;
         FloatPair bonusRolls = convertNumberGenerator(pool.getBonusRolls());
-        result.bonusRollsMin = (int)bonusRolls.min;
-        result.bonusRollsMax = (int)bonusRolls.max;
+        result.bonus_rolls_min = (int)bonusRolls.min;
+        result.bonus_rolls_max = (int)bonusRolls.max;
 
         return result;
     }
@@ -131,7 +131,7 @@ public class LootTableConverter {
                 EntityFlagsPredicateMixin flags = (EntityFlagsPredicateMixin) predicate.live_edit_mixin_getFlags();
                 if (flags.live_edit_mixin_getIsBaby() != null || flags.live_edit_mixin_getIsCrouching() != null
                     || flags.live_edit_mixin_getIsSprinting() != null || flags.live_edit_mixin_getIsSwimming() != null
-                    || flags.live_edit_mixin_getIsOnFire() != Boolean.FALSE) {
+                    || flags.live_edit_mixin_getIsOnFire() != Boolean.TRUE) {
                     throw new UnsupportedOperationException("unsupported entity flag condition");
                 }
                 result.type = Condition.ENTITY_IS_ON_FIRE;
@@ -285,6 +285,9 @@ public class LootTableConverter {
         } else if (condition.getType() == LootItemConditions.TABLE_BONUS) {
             BonusLevelTableCondition bonus = (BonusLevelTableCondition) condition;
             if (bonus.enchantment == Enchantments.BLOCK_FORTUNE) {
+                if (bonus.values.length > 5) {
+                    throw new UnsupportedOperationException("unsupported fortune level: " + (bonus.values.length - 1));
+                }
                 result.type = Condition.FORTUNE;
                 result.fortune_chances = new ArrayList<>();
                 for (float f : bonus.values) {
@@ -330,7 +333,7 @@ public class LootTableConverter {
                 result.id = ForgeRegistries.ITEMS.getKey(((LootItemMixin)singleton).live_edit_mixin_getItem());
             } else if (result.type == LootPoolEntries.TAG) {
                 result.id = ((TagEntryMixin)singleton).live_edit_mixin_getTag().location();
-                result.dropAllItemsFromTag = !((TagEntryMixin)singleton).live_edit_mixin_getExpand();
+                result.drop_all_items_from_tag = !((TagEntryMixin)singleton).live_edit_mixin_getExpand();
             } else if (result.type == LootPoolEntries.EMPTY) {
             } else if (result.type == LootPoolEntries.REFERENCE) {
                 result.id = ((LootTableReferenceMixin)singleton).live_edit_mixin_getName();

@@ -3,6 +3,7 @@ package de.kytodragon.live_edit.editing.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.LiveEditMod;
+import de.kytodragon.live_edit.editing.gui.components.Background;
 import de.kytodragon.live_edit.editing.gui.components.ComponentGroup;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -11,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-public abstract class GuiCommon<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
+public abstract class GuiCommon<T extends MenuCommon> extends AbstractContainerScreen<T> {
 
     protected final MyGuiComponent content = new ComponentGroup(0, 0);
 
@@ -19,6 +20,14 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
         super(menu, playerInventory, title);
         this.leftPos = 0;
         this.topPos = 0;
+        this.imageWidth = menu.imageWidth;
+        this.imageHeight = menu.imageHeight;
+
+        this.inventoryLabelY = this.imageHeight - 94;
+        // TODO inventoryLabelX
+
+        content.addChild(new Background(0, 0, this.imageWidth, this.imageHeight));
+        content.addChild(menu.inventoryGui);
     }
 
     @Override
@@ -42,10 +51,10 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
         if (MyGuiComponent.popup != null) {
             pose.pushPose();
             // Text with shadow gets draw slightly above the current Z, translate to make sure the popup is above them.
-            pose.translate(this.leftPos, this.topPos, 1);
-            MyGuiComponent.popup.renderBackground(pose, partialTick, mouseX - this.leftPos, mouseY - this.topPos);
-            MyGuiComponent.popup.renderForeground(pose, partialTick, mouseX - this.leftPos, mouseY - this.topPos);
-            MyGuiComponent.popup.renderOverlay(pose, partialTick, mouseX - this.leftPos, mouseY - this.topPos);
+            pose.translate(0, 0, 1);
+            MyGuiComponent.popup.renderBackground(pose, partialTick, mouseX, mouseY);
+            MyGuiComponent.popup.renderForeground(pose, partialTick, mouseX, mouseY);
+            MyGuiComponent.popup.renderOverlay(pose, partialTick, mouseX, mouseY);
             pose.popPose();
         }
         RenderSystem.enableDepthTest();
@@ -63,7 +72,7 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
 
         try {
             if (MyGuiComponent.popup != null) {
-                if (MyGuiComponent.popup.mouseClicked(mouseX - this.leftPos, mouseY - this.topPos, mouse_button, menu.getCarried()))
+                if (MyGuiComponent.popup.mouseClicked(mouseX, mouseY, mouse_button, menu.getCarried()))
                     return true;
                 MyGuiComponent.popup = null;
                 return true;
@@ -82,7 +91,7 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
         super.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY);
 
         if (MyGuiComponent.popup != null) {
-            if (MyGuiComponent.popup.mouseDragged(mouseX - this.leftPos, mouseY - this.topPos, mouse_button, deltaX, deltaY))
+            if (MyGuiComponent.popup.mouseDragged(mouseX, mouseY, mouse_button, deltaX, deltaY))
                 return true;
         }
 
@@ -94,7 +103,7 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
         super.mouseReleased(mouseX, mouseY, mouse_button);
 
         if (MyGuiComponent.popup != null) {
-            if (MyGuiComponent.popup.mouseReleased(mouseX - this.leftPos, mouseY - this.topPos, mouse_button))
+            if (MyGuiComponent.popup.mouseReleased(mouseX, mouseY, mouse_button))
                 return true;
         }
 
@@ -107,7 +116,7 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
             return true;
 
         if (MyGuiComponent.popup != null) {
-            if (MyGuiComponent.popup.mouseScrolled(mouseX - this.leftPos, mouseY - this.topPos, scroll))
+            if (MyGuiComponent.popup.mouseScrolled(mouseX, mouseY, scroll))
                 return true;
         }
 
@@ -142,6 +151,8 @@ public abstract class GuiCommon<T extends AbstractContainerMenu> extends Abstrac
 
     @Override
     protected void containerTick() {
+        content.x = this.leftPos;
+        content.y = this.topPos;
 
         try {
             if (MyGuiComponent.popup != null) {

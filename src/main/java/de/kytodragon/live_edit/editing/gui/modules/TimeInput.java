@@ -2,7 +2,7 @@ package de.kytodragon.live_edit.editing.gui.modules;
 
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.editing.gui.VanillaTextures;
+import de.kytodragon.live_edit.editing.gui.components.VanillaTextures;
 import de.kytodragon.live_edit.editing.gui.components.Button;
 import de.kytodragon.live_edit.editing.gui.components.Decal;
 import de.kytodragon.live_edit.editing.gui.components.IntegerInput;
@@ -21,7 +21,7 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
     public TimeInput(int x, int y, boolean can_be_empty) {
         super(x, y);
         this.can_be_empty = can_be_empty;
-        input = new IntegerInput(0, 0, 40, 18, 0);
+        input = new IntegerInput(0, 0, 40, 18);
         addChild(input);
 
         addChild(new Button(40, 0, 9, 9, "+", () -> amountChange(1)));
@@ -30,7 +30,7 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
     }
 
     public int getValue() {
-        return input.value;
+        return input.getValue();
     }
 
     private void amountChange(int amount) {
@@ -40,7 +40,7 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
             amount *= 25;
         }
 
-        int new_amount = input.value + amount;
+        int new_amount = input.getValue() + amount;
         if (new_amount < 0)
             new_amount = 0;
         if (new_amount == 0 && !can_be_empty)
@@ -62,7 +62,7 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
 
     @Override
     public MyIngredient getIngredient() {
-        return new MyIngredient.TimeIngredient(input.value);
+        return new MyIngredient.TimeIngredient(input.getValue());
     }
 
     @Override
@@ -74,6 +74,6 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
 
     @Override
     public MyResult getResult() {
-        return new MyResult.TimeResult(input.value);
+        return new MyResult.TimeResult(input.getValue());
     }
 }

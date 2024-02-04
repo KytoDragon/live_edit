@@ -9,4 +9,14 @@ public class ComponentGroup extends MyGuiComponent {
             addChild(component);
         }
     }
+
+    @Override
+    public void calculateBounds() {
+        if (propagate_size_change) {
+            width = -1;
+            height = -1;
+        }
+
+        super.calculateBounds();
+    }
 }

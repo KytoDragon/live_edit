@@ -1,6 +1,7 @@
-package de.kytodragon.live_edit.editing.gui;
+package de.kytodragon.live_edit.editing.gui.components;
 
 import de.kytodragon.live_edit.LiveEditMod;
+import de.kytodragon.live_edit.editing.gui.components.Texture;
 import net.minecraft.resources.ResourceLocation;
 
 public class VanillaTextures {

@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class MyLootEntry implements IJsonProvider {
     public List<MyLootCondition> conditions;
     public List<MyLootEntry> children;
     public List<MyLootFunction> functions;
-    public boolean dropAllItemsFromTag;
+    public boolean drop_all_items_from_tag;
 
     public static MyLootEntry fromJson(JsonObject json) {
         MyLootEntry entry = new MyLootEntry();
@@ -36,7 +35,7 @@ public class MyLootEntry implements IJsonProvider {
         entry.children = JsonHelper.parseListFromJson(json, "children", MyLootEntry::fromJson);
         entry.functions = JsonHelper.parseListFromJson(json, "functions", MyLootFunction::fromJson);
 
-        entry.dropAllItemsFromTag = GsonHelper.getAsBoolean(json, "dropAllItemsFromTag", false);
+        entry.drop_all_items_from_tag = GsonHelper.getAsBoolean(json, "drop_all_items_from_tag", false);
 
         return entry;
     }
@@ -52,8 +51,8 @@ public class MyLootEntry implements IJsonProvider {
             json.addProperty("quality", quality);
         if (id != null)
             json.addProperty("id", id.toString());
-        if (dropAllItemsFromTag)
-            json.addProperty("dropAllItemsFromTag", dropAllItemsFromTag);
+        if (drop_all_items_from_tag)
+            json.addProperty("drop_all_items_from_tag", drop_all_items_from_tag);
 
         JsonHelper.addArrayToJson(json, "conditions", conditions);
         JsonHelper.addArrayToJson(json, "children", children);

@@ -1,10 +1,9 @@
-package de.kytodragon.live_edit.editing.gui;
+package de.kytodragon.live_edit.editing.gui.loot_tables;
 
 import de.kytodragon.live_edit.LiveEditMod;
 import de.kytodragon.live_edit.editing.*;
-import de.kytodragon.live_edit.editing.gui.components.Background;
+import de.kytodragon.live_edit.editing.gui.GuiCommon;
 import de.kytodragon.live_edit.editing.gui.components.Button;
-import de.kytodragon.live_edit.editing.gui.loot_tables.LootTableInput;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
@@ -23,17 +22,11 @@ public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
 
     public LootTableEditingGui(LootTableEditingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 176;
 
-        this.inventoryLabelY = this.imageHeight - 94;
+        loot_table_editor = new LootTableInput(10, 16, imageWidth - 14, imageHeight - 120);
 
-        loot_table_editor = new LootTableInput(10, 10);
-
-        content.addChild(new Background(0, 0, 176, 176));
         content.addChild(loot_table_editor);
-        content.addChild(menu.inventoryGui);
-        content.addChild(new Button(100, 80, 30, 12, "Save", this::sendLootTableToServer));
+        content.addChild(new Button(100, this.inventoryLabelY - 2, 30, 12, "Save", this::sendLootTableToServer));
     }
 
     public static void clientSetup(RegisterEvent event) {
@@ -52,7 +45,7 @@ public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
 
                 if (loot_table != null) {
                     loot_table_editor.setLootTable(loot_table);
-                    loot_table_editor.calculateBounds();
+                    content.calculateBounds();
                 }
             }
         } catch (Exception e) {

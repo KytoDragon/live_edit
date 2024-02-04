@@ -1,7 +1,7 @@
 package de.kytodragon.live_edit.editing.gui.recipes;
 
 import de.kytodragon.live_edit.editing.MyRecipe;
-import de.kytodragon.live_edit.editing.gui.VanillaTextures;
+import de.kytodragon.live_edit.editing.gui.components.VanillaTextures;
 import de.kytodragon.live_edit.editing.gui.components.CheckBox;
 import de.kytodragon.live_edit.editing.gui.components.Decal;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;

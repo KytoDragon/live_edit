@@ -2,14 +2,15 @@ package de.kytodragon.live_edit.editing.gui.loot_tables;
 
 import de.kytodragon.live_edit.editing.MyLootEntry;
 import de.kytodragon.live_edit.editing.gui.components.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -20,10 +21,12 @@ public class LootEntryInput extends VerticalList {
     private final IntegerInput quality;
     private final ItemComponent item;
     private final TagComponent tag;
-    private final TextInput loot_table_reference;
-    private final CheckBox dropAllItemsFromTag;
+    private final TextInput loot_table_reference_text;
+    private final ListSelectBox loot_table_reference_list;
+    private final CheckBox drop_all_items_from_tag;
     private final LootFunctionsInput functions;
     private final LootConditionsInput conditions;
+    private final LootEntriesInput components;
 
     public LootEntryInput(int x, int y) {
         super(x, y);
@@ -32,31 +35,82 @@ public class LootEntryInput extends VerticalList {
         type = new ListSelectBox(0, 0, 160, types, this::setType);
         addChild(type);
 
-        weight = new IntegerInput(0, 0, 20, 16, 0);
-        addChild(weight);
-        quality = new IntegerInput(0, 0, 20, 16, 0);
-        addChild(quality);
+        TextComponent weight_label = new TextComponent(0, 0, "Weight:");
+        weight = new IntegerInput(40, 0, 20, 12);
+        addChild(new ComponentGroup(0, 0, weight_label, weight));
+        TextComponent quality_label = new TextComponent(0, 0, "Quality:");
+        quality = new IntegerInput(40, 0, 20, 12);
+        addChild(new ComponentGroup(0, 0, quality_label, quality));
 
-        item = new ItemComponent(0, 0, ItemStack.EMPTY);
+        item = new ItemComponent(0, 0);
+        item.only_one_item = true;
         addChild(item);
-        tag = new TagComponent(0, 0, (TagKey<Item>)null);
+        tag = new TagComponent(0, 0);
         addChild(tag);
-        loot_table_reference = new TextInput(0, 0, 60, 16);
-        addChild(loot_table_reference);
 
-        dropAllItemsFromTag = new CheckBox(0, 0);
-        addChild(dropAllItemsFromTag);
+        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
+        if (server == null) {
+            loot_table_reference_text = new TextInput(0, 0, 160, 16);
+            addChild(loot_table_reference_text);
+            loot_table_reference_list = null;
+
+        } else {
+            loot_table_reference_list = new ListSelectBox(0, 0, 160, server.getLootTables().getIds(), null);
+            addChild(loot_table_reference_list);
+            loot_table_reference_text = null;
+        }
+
+        TextComponent tag_all_label = new TextComponent(0, 0, "Drop all:");
+        drop_all_items_from_tag = new CheckBox(40, 0);
+        addChild(new ComponentGroup(0, 0, tag_all_label, drop_all_items_from_tag));
 
         functions = new LootFunctionsInput(0, 0);
         addChild(functions);
 
         conditions = new LootConditionsInput(0, 0);
         addChild(conditions);
+
+        components = new LootEntriesInput(0, 0);
+        addChild(components);
+
+        setType(types.get(0));
     }
 
     private void setType(String type_name) {
         LootPoolEntryType type = Registry.LOOT_POOL_ENTRY_TYPE.get(ResourceLocation.of(type_name, ':'));
-        // TODO change widgets based on type
+        setVisiblityBasedOnType(type);
+    }
+
+    private void setVisiblityBasedOnType(LootPoolEntryType type) {
+
+        item.is_visible = false;
+        tag.is_visible = false;
+        if (loot_table_reference_list != null) {
+            loot_table_reference_list.is_visible = false;
+        } else {
+            loot_table_reference_text.is_visible = false;
+        }
+        drop_all_items_from_tag.parent.is_visible = false;
+        quality.parent.is_visible = false;
+        components.is_visible = false;
+
+        if (type == LootPoolEntries.ITEM) {
+            item.is_visible = true;
+        } else if (type == LootPoolEntries.TAG) {
+            tag.is_visible = true;
+        } else if (type == LootPoolEntries.REFERENCE) {
+            if (loot_table_reference_list != null) {
+                loot_table_reference_list.is_visible = true;
+            } else {
+                loot_table_reference_text.is_visible = true;
+            }
+            drop_all_items_from_tag.parent.is_visible = true;
+            quality.parent.is_visible = true;
+        } else if (type == LootPoolEntries.ALTERNATIVES || type == LootPoolEntries.GROUP || type == LootPoolEntries.SEQUENCE) {
+            components.is_visible = true;
+        }
+
+        this.propagate_size_change = true;
     }
 
     public void setLootEntry(MyLootEntry entry) {
@@ -66,40 +120,50 @@ public class LootEntryInput extends VerticalList {
 
         if (entry.id != null) {
             if (entry.type == LootPoolEntries.ITEM) {
-                item.itemStack = ForgeRegistries.ITEMS.getValue(entry.id).getDefaultInstance();
+                item.setItemId(entry.id);
             } else if (entry.type == LootPoolEntries.TAG) {
-                tag.setTag(TagKey.create(Registry.ITEM_REGISTRY, entry.id));
+                tag.setTagId(entry.id);
             } else if (entry.type == LootPoolEntries.REFERENCE) {
-                loot_table_reference.setValue(entry.id.toString());
+                if (loot_table_reference_list != null) {
+                    loot_table_reference_list.setValue(entry.id.toString());
+                } else {
+                    loot_table_reference_text.setValue(entry.id.toString());
+                }
             }
         }
 
-        dropAllItemsFromTag.value = entry.dropAllItemsFromTag;
+        drop_all_items_from_tag.value = entry.drop_all_items_from_tag;
         conditions.setLootConditions(entry.conditions);
         functions.setLootFunctions(entry.functions);
+        components.setLootEntries(entry.children);
+
+        setVisiblityBasedOnType(entry.type);
     }
 
     public MyLootEntry getLootEntry() {
         MyLootEntry entry = new MyLootEntry();
         entry.type = Registry.LOOT_POOL_ENTRY_TYPE.get(ResourceLocation.of(type.getValue(), ':'));
-        entry.weight = weight.value;
-        entry.quality = quality.value;
+        entry.weight = weight.getValue();
+        entry.quality = quality.getValue();
 
         if (entry.type == LootPoolEntries.ITEM) {
-            entry.id = ForgeRegistries.ITEMS.getKey(item.itemStack.getItem());
+            entry.id = item.getItemId();
         } else if (entry.type == LootPoolEntries.TAG) {
-            if (tag.tag != null) {
-                entry.id = tag.tag.location();
-            } else {
-                entry.id = null;
-            }
+            entry.id = tag.getTagId();
         } else if (entry.type == LootPoolEntries.REFERENCE) {
-            entry.id = ResourceLocation.of(loot_table_reference.getValue(), ':');
+            String loot_table_id;
+            if (loot_table_reference_list != null) {
+                loot_table_id = loot_table_reference_list.getValue();
+            } else {
+                loot_table_id = loot_table_reference_text.getValue();
+            }
+            entry.id = ResourceLocation.of(loot_table_id, ':');
         }
 
-        entry.dropAllItemsFromTag = dropAllItemsFromTag.value;
+        entry.drop_all_items_from_tag = drop_all_items_from_tag.value;
         entry.conditions = conditions.getLootConditions();
         entry.functions = functions.getLootFunctions();
+        entry.children = components.getLootEntries();
         return entry;
     }
 }

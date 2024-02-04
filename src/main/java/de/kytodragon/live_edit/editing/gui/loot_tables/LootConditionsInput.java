@@ -17,7 +17,7 @@ public class LootConditionsInput extends VerticalList {
         super(x, y);
 
         TextComponent label = new TextComponent(0, 0, "Conditions:");
-        Button button = new Button(50, 0, 60, 12, "Add Condition", this::addNewCondition);
+        Button button = new Button(60, 0, 80, 12, "Add Condition", this::addNewCondition);
 
         addChild(new ComponentGroup(0, 0, label, button));
     }

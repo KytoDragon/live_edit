@@ -18,8 +18,12 @@ public class VerticalList extends MyGuiComponent {
         // arrange each child below the previous
         int current_y = 0;
         for (MyGuiComponent child : children) {
-            child.y = current_y;
-            current_y += child.height;
+            if (child.is_visible) {
+                child.y = current_y;
+                current_y += child.height;
+            } else {
+                child.y = 0;
+            }
         }
         this.height = current_y;
     }

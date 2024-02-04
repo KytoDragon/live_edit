@@ -14,7 +14,7 @@ public class LootFunctionsInput extends VerticalList {
         super(x, y);
 
         TextComponent label = new TextComponent(0, 0, "Functions:");
-        Button button = new Button(50, 0, 60, 12, "Add Function", this::addNewFunction);
+        Button button = new Button(60, 0, 80, 12, "Add Function", this::addNewFunction);
 
         addChild(new ComponentGroup(0, 0, label, button));
     }

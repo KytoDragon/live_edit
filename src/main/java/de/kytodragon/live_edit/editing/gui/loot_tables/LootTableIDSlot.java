@@ -1,4 +1,4 @@
-package de.kytodragon.live_edit.editing.gui;
+package de.kytodragon.live_edit.editing.gui.loot_tables;
 
 import de.kytodragon.live_edit.editing.MyLootTable;
 import de.kytodragon.live_edit.integration.vanilla.LootTableManipulator;

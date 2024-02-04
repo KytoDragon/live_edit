@@ -6,7 +6,6 @@ import de.kytodragon.live_edit.editing.gui.components.Button;
 import de.kytodragon.live_edit.editing.gui.components.ItemComponent;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.world.item.ItemStack;
 
 public class ItemInput extends MyGuiComponent implements IIngredientInput, IResultInput {
 
@@ -19,7 +18,7 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
     public ItemInput(int x, int y, boolean can_change, boolean only_one_item, boolean only_one_stack, boolean draw_result_slot) {
         super(x, y);
 
-        item = new ItemComponent(0, 0, ItemStack.EMPTY);
+        item = new ItemComponent(0, 0);
         item.can_change = can_change;
         item.only_one_item = only_one_item;
         item.only_one_stack = only_one_stack;
@@ -39,19 +38,19 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
             amount *= 64;
         }
 
-        if (item.itemStack.isEmpty())
+        if (item.itemstack.isEmpty())
             return;
 
-        int new_amount = item.itemStack.getCount() + amount;
+        int new_amount = item.itemstack.getCount() + amount;
         if (new_amount <= 0)
             new_amount = 1;
-        if (only_one_stack && new_amount > item.itemStack.getMaxStackSize())
-            new_amount = item.itemStack.getMaxStackSize();
-        item.itemStack.setCount(new_amount);
+        if (only_one_stack && new_amount > item.itemstack.getMaxStackSize())
+            new_amount = item.itemstack.getMaxStackSize();
+        item.itemstack.setCount(new_amount);
     }
 
     public boolean isEmpty() {
-        return item.itemStack.isEmpty();
+        return item.itemstack.isEmpty();
     }
 
     @Override
@@ -62,24 +61,24 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
     @Override
     public void setIngredient(MyIngredient ingredient) {
         if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
-            item.itemStack = itemIngredient.item.copy();
+            item.itemstack = itemIngredient.item.copy();
         }
     }
 
     @Override
     public MyIngredient getIngredient() {
-        return new MyIngredient.ItemIngredient(item.itemStack.copy());
+        return new MyIngredient.ItemIngredient(item.itemstack.copy());
     }
 
     @Override
     public void setResult(MyResult result) {
         if (result instanceof MyResult.ItemResult itemResult) {
-            item.itemStack = itemResult.item.copy();
+            item.itemstack = itemResult.item.copy();
         }
     }
 
     @Override
     public MyResult getResult() {
-        return new MyResult.ItemResult(item.itemStack.copy());
+        return new MyResult.ItemResult(item.itemstack.copy());
     }
 }

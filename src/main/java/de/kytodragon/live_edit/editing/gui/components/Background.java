@@ -1,8 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import de.kytodragon.live_edit.editing.gui.Texture;
-import de.kytodragon.live_edit.editing.gui.VanillaTextures;
 
 public class Background extends MyGuiComponent {
 

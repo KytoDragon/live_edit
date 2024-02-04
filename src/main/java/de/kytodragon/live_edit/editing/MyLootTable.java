@@ -9,7 +9,7 @@ import java.util.List;
 public class MyLootTable implements IJsonProvider {
 
     public ResourceLocation id;
-    public List<ResourceLocation> requiredParams;
+    public List<ResourceLocation> requiredParams; // TODO are these neccesary?
     public List<ResourceLocation> optionalParams;
 
     public List<MyLootPool> pools;
@@ -35,8 +35,8 @@ public class MyLootTable implements IJsonProvider {
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.addProperty("id", id.toString());
-        JsonHelper.addResourceLocationsToJson(json, "requiredParams", requiredParams);
-        JsonHelper.addResourceLocationsToJson(json, "optionalParams", optionalParams);
+        //JsonHelper.addResourceLocationsToJson(json, "requiredParams", requiredParams);
+        //JsonHelper.addResourceLocationsToJson(json, "optionalParams", optionalParams);
         JsonHelper.addArrayToJson(json, "pools", pools);
         JsonHelper.addArrayToJson(json, "functions", functions);
 

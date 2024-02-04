@@ -5,21 +5,20 @@ import java.text.ParseException;
 
 public class FloatInput extends EditBoxWrapper {
 
-    public float value;
-    public boolean allowNegative = false;
+    private float value;
+    public boolean allow_negative = false;
     private final DecimalFormat positive_format;
     private final DecimalFormat negativ_format;
 
-    public FloatInput(int x, int y, int width, int height, float value) {
-        super(x, y, width, height, Float.toString(value));
-        this.value = value;
+    public FloatInput(int x, int y, int width, int height) {
+        super(x, y, width, height, "0");
 
         positive_format = new DecimalFormat("###0.##;###0.##");
         negativ_format = new DecimalFormat("###0.##");
 
         edit_box.setFilter(text -> {
             try {
-                if (allowNegative) {
+                if (allow_negative) {
                     negativ_format.parse(text);
                 } else {
                     positive_format.parse(text);
@@ -34,6 +33,10 @@ public class FloatInput extends EditBoxWrapper {
     public void setValue(float value) {
         this.value = value;
         edit_box.setValue(negativ_format.format(value));
+    }
+
+    public float getValue() {
+        return this.value;
     }
 
     @Override

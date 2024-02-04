@@ -1,7 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import de.kytodragon.live_edit.editing.gui.VanillaTextures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
@@ -17,7 +16,6 @@ public class CheckBox extends MyGuiComponent {
 
     @Override
     public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-
         if (value) {
             VanillaTextures.CHECKBOX_FILLED.draw(this, pose, x, y);
         } else {

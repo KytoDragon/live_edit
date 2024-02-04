@@ -13,7 +13,7 @@ public class ChanceInput extends MyGuiComponent implements IResultInput {
 
     public ChanceInput(int x, int y) {
         super(x, y);
-        input = new FloatInput(0, 0, 30, 18, 0);
+        input = new FloatInput(0, 0, 30, 18);
         addChild(input);
 
         addChild(new Button(30, 0, 9, 9, "+", () -> amountChange(1)));
@@ -28,7 +28,7 @@ public class ChanceInput extends MyGuiComponent implements IResultInput {
             amount *= 25;
         }
 
-        float new_amount = input.value + amount;
+        float new_amount = input.getValue() + amount;
         if (new_amount < 0)
             new_amount = 0;
         if (new_amount > 100)
@@ -45,6 +45,6 @@ public class ChanceInput extends MyGuiComponent implements IResultInput {
 
     @Override
     public MyResult getResult() {
-        return new MyResult.ChanceResult(input.value / 100);
+        return new MyResult.ChanceResult(input.getValue() / 100);
     }
 }

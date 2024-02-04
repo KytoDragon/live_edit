@@ -1,8 +1,11 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ListSelectBox extends MyGuiComponent {
@@ -10,6 +13,10 @@ public class ListSelectBox extends MyGuiComponent {
     private final TextComponent label;
     private final ListSelectPanel select_popup;
     private final Consumer<String> selector;
+
+    public ListSelectBox(int x, int y, int width, Collection<ResourceLocation> options, Consumer<String> selector) {
+        this(x, y, width, options.stream().filter(Objects::nonNull).map(ResourceLocation::toString).toList(), selector);
+    }
 
     public ListSelectBox(int x, int y, int width, List<String> options, Consumer<String> selector) {
         super(x, y, width, 0);

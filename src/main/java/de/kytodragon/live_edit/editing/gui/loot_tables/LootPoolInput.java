@@ -5,11 +5,11 @@ import de.kytodragon.live_edit.editing.gui.components.*;
 
 public class LootPoolInput extends VerticalList {
 
-    private final IntegerInput rollsMin;
-    private final IntegerInput rollsMax;
+    private final IntegerInput rolls_min;
+    private final IntegerInput rolls_max;
 
-    private final IntegerInput bonusRollsMin;
-    private final IntegerInput bonusRollsMax;
+    private final IntegerInput bonus_rolls_min;
+    private final IntegerInput bonus_rolls_max;
 
     private final LootEntriesInput entries;
     private final LootConditionsInput conditions;
@@ -19,23 +19,23 @@ public class LootPoolInput extends VerticalList {
 
         TextComponent rolls_label = new TextComponent(0, 0, "Rolls:");
 
-        rollsMin = new IntegerInput(60, 0, 30, 10, 0);
-        rollsMin.allowNegative = true;
+        rolls_min = new IntegerInput(60, 0, 30, 12);
+        rolls_min.allow_negative = true;
 
-        rollsMax = new IntegerInput(90, 0, 30, 10, 0);
-        rollsMax.allowNegative = true;
+        rolls_max = new IntegerInput(90, 0, 30, 12);
+        rolls_max.allow_negative = true;
 
-        addChild(new ComponentGroup(0, 0, rolls_label, rollsMin, rollsMax));
+        addChild(new ComponentGroup(0, 0, rolls_label, rolls_min, rolls_max));
 
         TextComponent bonus_label = new TextComponent(0, 0, "Bonus rolls:");
 
-        bonusRollsMin = new IntegerInput(60, 0, 30, 10, 0);
-        bonusRollsMin.allowNegative = true;
+        bonus_rolls_min = new IntegerInput(60, 0, 30, 12);
+        bonus_rolls_min.allow_negative = true;
 
-        bonusRollsMax = new IntegerInput(90, 0, 30, 10, 0);
-        bonusRollsMax.allowNegative = true;
+        bonus_rolls_max = new IntegerInput(90, 0, 30, 12);
+        bonus_rolls_max.allow_negative = true;
 
-        addChild(new ComponentGroup(0, 0, bonus_label, bonusRollsMin, bonusRollsMax));
+        addChild(new ComponentGroup(0, 0, bonus_label, bonus_rolls_min, bonus_rolls_max));
 
         entries = new LootEntriesInput(0, 0);
         addChild(entries);
@@ -45,20 +45,20 @@ public class LootPoolInput extends VerticalList {
     }
 
     public void setLootPool(MyLootPool pool) {
-        rollsMin.setValue(pool.rollsMin);
-        rollsMax.setValue(pool.rollsMax);
-        bonusRollsMin.setValue(pool.bonusRollsMin);
-        bonusRollsMax.setValue(pool.bonusRollsMax);
+        rolls_min.setValue(pool.rolls_min);
+        rolls_max.setValue(pool.rolls_max);
+        bonus_rolls_min.setValue(pool.bonus_rolls_min);
+        bonus_rolls_max.setValue(pool.bonus_rolls_max);
         entries.setLootEntries(pool.entries);
         conditions.setLootConditions(pool.conditions);
     }
 
     public MyLootPool getLootPool() {
         MyLootPool pool = new MyLootPool();
-        pool.rollsMin = rollsMin.value;
-        pool.rollsMax = rollsMax.value;
-        pool.bonusRollsMin = bonusRollsMin.value;
-        pool.bonusRollsMax = bonusRollsMax.value;
+        pool.rolls_min = rolls_min.getValue();
+        pool.rolls_max = rolls_max.getValue();
+        pool.bonus_rolls_min = bonus_rolls_min.getValue();
+        pool.bonus_rolls_max = bonus_rolls_max.getValue();
         pool.entries = entries.getLootEntries();
         pool.conditions = conditions.getLootConditions();
         return pool;
