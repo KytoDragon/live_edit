@@ -27,6 +27,9 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.network.NetworkHooks;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,6 +56,7 @@ public class Command {
             .then(replaceCommands(event.getBuildContext()))
             .then(encodeRecipesCommand())
             .then(openGUICommand())
+            .then(testRecipesCommand())
         );
     }
 
@@ -76,7 +80,7 @@ public class Command {
                         Stream<Pair<RecipeType, ResourceLocation>> matching_recipes = manipulators.flatMap(manipulator -> findItem(manipulator, item));
                         String list = matching_recipes.map(pair -> "\n\u2022 " + pair.getLeft().name() + " " + pair.getRight().toString())
                                             .collect(Collectors.joining());
-                        ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.list", list), false);
+                        ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.list", list), false);
                         return 0;
                     })
                 )
@@ -107,7 +111,7 @@ public class Command {
                             RecipeManager.instance.markRecipeForDeletion(type, recipe_key);
                         }
 
-                        ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.recipe.marked_for_deletion", recipe_key.toString()), false);
+                        ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.marked_for_deletion", recipe_key.toString()), false);
                         return 1;
                     })
                 )
@@ -146,7 +150,7 @@ public class Command {
                             Item replacement = ItemArgument.getItem(ctx, "replacement").getItem();
                             RecipeManager.instance.markItemForReplacement(item, replacement);
 
-                            ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.item.marked_for_replacement", item.toString(), replacement.toString()), false);
+                            ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.item.marked_for_replacement", item.toString(), replacement.toString()), false);
                             return 1;
                         })
                     )
@@ -162,7 +166,7 @@ public class Command {
 
                                 RecipeManager.instance.markLootTableForReplacement(loot_table_key, loot_table);
 
-                                ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.loot_table.marked_for_replacement", loot_table_key.toString()), false);
+                                ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.loot_table.marked_for_replacement", loot_table_key.toString()), false);
                                 return 1;
                             })
                         )
@@ -178,7 +182,7 @@ public class Command {
 
                                 RecipeManager.instance.markRecipeForReplacement(type, recipe_key, recipe);
 
-                                ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.recipe.marked_for_replacement", recipe_key.toString()), false);
+                                ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.marked_for_replacement", recipe_key.toString()), false);
                                 return 1;
                             })
                         )
@@ -200,7 +204,7 @@ public class Command {
 
                                 RecipeManager.instance.markRecipeForAddition(type, recipe_key, recipe);
 
-                                ctx.getSource().sendSuccess(Component.translatable("commands.live_edit.recipe.marked_for_addition", recipe_key.toString()), false);
+                                ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.marked_for_addition", recipe_key.toString()), false);
                                 return 1;
                             })
                         )
@@ -272,7 +276,7 @@ public class Command {
                                     (int containerId, Inventory inventory, Player player) -> {
                                         return new LootTableEditingMenu(containerId, inventory, recipe_key);
                                     },
-                                    Component.translatable("commands.live_edit.loot_table.menu_title", recipe_key.toString())
+                                    Component.translatable("live_edit.commands.loot_table.menu_title", recipe_key.toString())
                                 ));
 
                             } else {
@@ -280,7 +284,7 @@ public class Command {
                                     (int containerId, Inventory inventory, Player player) -> {
                                         return new RecipeEditingMenu(containerId, inventory, type, recipe_key);
                                     },
-                                    Component.translatable("commands.live_edit.recipe.menu_title", recipe_key.toString())
+                                    Component.translatable("live_edit.commands.recipe.menu_title", recipe_key.toString())
                                 ));
                             }
                         }
@@ -288,5 +292,50 @@ public class Command {
                     })
                 )
             );
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> testRecipesCommand() {
+        return Commands.literal("test")
+            .then(Commands.argument("type", new RecipeTypeArgument(true))
+                .executes(ctx -> {
+                    RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
+                    List<ResourceLocation> failures;
+                    if (type == RecipeType.ALL) {
+                        failures = new ArrayList<>();
+                        for (RecipeType actual_type : RecipeManager.instance.manipulators.keySet()) {
+                            failures.addAll(testAllRecipesOfType(actual_type, RecipeManager.instance.manipulators.get(actual_type)));
+                        }
+                    } else {
+                        failures = testAllRecipesOfType(type, RecipeManager.instance.manipulators.get(type));
+                    }
+                    String list = failures.stream().map(key -> "\n\u2022 " + key.toString())
+                        .collect(Collectors.joining());
+
+                    ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.test", list), false);
+                    return 1;
+                })
+            );
+    }
+
+    private static <R> List<ResourceLocation> testAllRecipesOfType(RecipeType type, IRecipeManipulator<ResourceLocation, R, ?> manipulator) {
+        Collection<R> currentRecipes = manipulator.getCurrentRecipes();
+        List<ResourceLocation> failures = new ArrayList<>();
+        if (type == RecipeType.LOOT_TABLE) {
+            for (R table : currentRecipes) {
+                try {
+                    LootTableConverter.convertLootTable((LootTable) table);
+                } catch (UnsupportedOperationException e) {
+                    failures.add(manipulator.getKey(table));
+                }
+            }
+
+        } else {
+            for (R recipe : currentRecipes) {
+                if (manipulator.encodeRecipe(recipe) == null) {
+                    failures.add(manipulator.getKey(recipe));
+                }
+            }
+        }
+        return failures;
     }
 }

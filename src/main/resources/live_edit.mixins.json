@@ -14,7 +14,6 @@
         "loot_tables.AlternativeLootItemConditionMixin",
         "loot_tables.AlternativesEntryMixin",
         "loot_tables.CompositeEntryBaseMixin",
-        "loot_tables.DamageSourcePredicateMixin",
         "loot_tables.EntityFlagsPredicateMixin",
         "loot_tables.EntityPredicateMixin",
         "loot_tables.EntryGroupMixin",

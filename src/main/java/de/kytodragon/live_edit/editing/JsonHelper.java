@@ -24,6 +24,10 @@ public class JsonHelper {
         return ResourceLocation.of(GsonHelper.getAsString(json, name), ':');
     }
 
+    public static ResourceLocation getResourceLocation(JsonElement json) {
+        return ResourceLocation.of(json.getAsString(), ':');
+    }
+
     public static ResourceLocation getResourceLocationOrNull(JsonObject json, String name) {
         String id = GsonHelper.getAsString(json, name, null);
         if (id == null)
@@ -33,6 +37,12 @@ public class JsonHelper {
 
     public static Item getItem(JsonObject json, String name) {
         Item item = ForgeRegistries.ITEMS.getValue(getResourceLocation(json, name));
+        Objects.requireNonNull(item);
+        return item;
+    }
+
+    public static Item getItem(JsonElement json) {
+        Item item = ForgeRegistries.ITEMS.getValue(getResourceLocation(json));
         Objects.requireNonNull(item);
         return item;
     }

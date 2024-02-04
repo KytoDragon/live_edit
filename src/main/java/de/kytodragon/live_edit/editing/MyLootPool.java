@@ -15,6 +15,7 @@ public class MyLootPool implements IJsonProvider {
     public int bonus_rolls_max;
 
     public List<MyLootCondition> conditions;
+    public List<MyLootFunction> functions;
     public List<MyLootEntry> entries;
 
     public static MyLootPool fromJson(JsonObject json) {
@@ -28,6 +29,7 @@ public class MyLootPool implements IJsonProvider {
 
         pool.conditions = JsonHelper.parseListFromJson(json, "conditions", MyLootCondition::fromJson);
         pool.entries = JsonHelper.parseListFromJson(json, "entries", MyLootEntry::fromJson);
+        pool.functions = JsonHelper.parseListFromJson(json, "functions", MyLootFunction::fromJson);
 
         return pool;
     }
@@ -46,6 +48,7 @@ public class MyLootPool implements IJsonProvider {
 
         JsonHelper.addArrayToJson(json, "conditions", conditions);
         JsonHelper.addArrayToJson(json, "entries", entries);
+        JsonHelper.addArrayToJson(json, "functions", functions);
         return json;
     }
 }

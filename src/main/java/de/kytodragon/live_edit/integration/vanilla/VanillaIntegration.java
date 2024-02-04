@@ -57,6 +57,7 @@ public class VanillaIntegration implements Integration {
         MyRecipe.ingredient_deserializers.put("tag", MyIngredient.TagIngredient::fromJson);
         MyRecipe.ingredient_deserializers.put("fluid", MyIngredient.FluidIngredient::fromJson);
         MyRecipe.ingredient_deserializers.put("time", MyIngredient.TimeIngredient::fromJson);
+        MyRecipe.ingredient_deserializers.put("item_list", MyIngredient.ItemListIngredient::fromJson);
 
         MyRecipe.result_deserializers.put("item", MyResult.ItemResult::fromJson);
         MyRecipe.result_deserializers.put("time", MyResult.TimeResult::fromJson);

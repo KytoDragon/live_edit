@@ -1,14 +1,15 @@
 {
-    "commands.live_edit.list": "Recipe list: %s",
-    "commands.live_edit.recipe.marked_for_deletion": "Recipe %s marked for deletion",
-    "commands.live_edit.recipe_type_not_found": "Unknown recipe type %s",
-    "commands.live_edit.item.marked_for_replacement": "Marked item %s for replacement with item %s",
-    "commands.live_edit.recipe.menu_title": "Edit Recipe %s",
-    "live_edit.tooltip.tags": "Accepts any %s",
-    "commands.live_edit.recipe.marked_for_replacement": "Marked recipe %s for replacement",
-    "commands.live_edit.recipe.marked_for_addition": "Marked recipe %s for addition",
-    "commands.live_edit.recipe.could_not_parse": "Could not parse recipe, error: %s",
-    "commands.live_edit.loot_table.could_not_parse": "Could not parse loot table, error: %s",
-    "commands.live_edit.loot_table.menu_title": "Edit Loot Table %s",
-    "commands.live_edit.loot_table.marked_for_replacement": "Marked loot table %s for replacement"
+    "live_edit.commands.item.marked_for_replacement": "Marked item %s for replacement with item %s",
+    "live_edit.commands.loot_table.could_not_parse": "Could not parse loot table, error: %s",
+    "live_edit.commands.loot_table.marked_for_replacement": "Marked loot table %s for replacement",
+    "live_edit.commands.loot_table.menu_title": "Edit Loot Table %s",
+    "live_edit.commands.recipe.could_not_parse": "Could not parse recipe, error: %s",
+    "live_edit.commands.recipe.list": "Recipe list: %s",
+    "live_edit.commands.recipe.marked_for_addition": "Marked recipe %s for addition",
+    "live_edit.commands.recipe.marked_for_deletion": "Recipe %s marked for deletion",
+    "live_edit.commands.recipe.marked_for_replacement": "Marked recipe %s for replacement",
+    "live_edit.commands.recipe.menu_title": "Edit Recipe %s",
+    "live_edit.commands.recipe.type_not_found": "Unknown recipe type %s",
+    "live_edit.commands.recipe.test": "Unsupported recipes:%s",
+    "live_edit.tooltip.tags": "Accepts any %s"
 }

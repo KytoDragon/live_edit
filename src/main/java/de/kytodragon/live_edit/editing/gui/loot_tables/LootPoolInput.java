@@ -13,6 +13,7 @@ public class LootPoolInput extends VerticalList {
 
     private final LootEntriesInput entries;
     private final LootConditionsInput conditions;
+    private final LootFunctionsInput functions;
 
     public LootPoolInput(int x, int y) {
         super(x, y);
@@ -42,6 +43,9 @@ public class LootPoolInput extends VerticalList {
 
         conditions = new LootConditionsInput(0, 0);
         addChild(conditions);
+
+        functions = new LootFunctionsInput(0, 0);
+        addChild(functions);
     }
 
     public void setLootPool(MyLootPool pool) {
@@ -51,6 +55,7 @@ public class LootPoolInput extends VerticalList {
         bonus_rolls_max.setValue(pool.bonus_rolls_max);
         entries.setLootEntries(pool.entries);
         conditions.setLootConditions(pool.conditions);
+        functions.setLootFunctions(pool.functions);
     }
 
     public MyLootPool getLootPool() {
@@ -61,6 +66,7 @@ public class LootPoolInput extends VerticalList {
         pool.bonus_rolls_max = bonus_rolls_max.getValue();
         pool.entries = entries.getLootEntries();
         pool.conditions = conditions.getLootConditions();
+        pool.functions = functions.getLootFunctions();
         return pool;
     }
 }

@@ -125,8 +125,18 @@ public class IngredientReplacer {
         Ingredient.Value[] values = ((IngredientMixin) ingredient).live_edit_mixin_getRawIngrediants();
         if (values.length == 0)
             return new MyIngredient.ItemIngredient(Items.AIR); // Dummy item for shaped crafting
-        if (values.length != 1)
-            return null;
+
+        if (values.length > 1) {
+            MyIngredient.ItemListIngredient item_list = new MyIngredient.ItemListIngredient();
+            for (Ingredient.Value value : values) {
+                if (value instanceof Ingredient.ItemValue itemValue) {
+                    item_list.item_list.addAll(itemValue.getItems());
+                } else {
+                    return null;
+                }
+            }
+            return item_list;
+        }
 
         Ingredient.Value value = values[0];
         if (value instanceof Ingredient.ItemValue itemValue) {
@@ -134,7 +144,6 @@ public class IngredientReplacer {
         } else if (value instanceof Ingredient.TagValue tagValue) {
             return new MyIngredient.TagIngredient(((IngredientTagValueMixin)tagValue).live_edit_mixin_getTag());
         } else {
-            // no item lists for now
             return null;
         }
     }

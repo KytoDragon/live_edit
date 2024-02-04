@@ -22,7 +22,7 @@ public class RecipeTypeArgument implements ArgumentType<RecipeType> {
 
     private static final Collection<String> EXAMPLES = List.of(RecipeType.CRAFTING.name());
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_RECIPE_TYPE = new DynamicCommandExceptionType((name) -> {
-        return Component.translatable("commands.live_edit.recipe_type_not_found", name);
+        return Component.translatable("live_edit.commands.recipe.type_not_found", name);
     });
 
     private final boolean allow_all;
@@ -61,10 +61,15 @@ public class RecipeTypeArgument implements ArgumentType<RecipeType> {
     }
 
     private Stream<RecipeType> getRealRecipeTypes() {
-        return RecipeManager.instance.manipulators.entrySet().stream()
+        Stream<RecipeType> result = RecipeManager.instance.manipulators.entrySet().stream()
                 .filter(s -> s.getValue().isRealImplementation())
-                .filter(s -> allow_all || s.getKey() != RecipeType.ALL)
                 .map(Map.Entry::getKey);
+
+        if (allow_all) {
+            result = Stream.concat(Stream.of(RecipeType.ALL), result);
+        }
+
+        return result;
     }
 
     @Override

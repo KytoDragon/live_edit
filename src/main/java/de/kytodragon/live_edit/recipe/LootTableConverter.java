@@ -54,18 +54,18 @@ public class LootTableConverter {
     }
 
     private static MyLootPool convertPool(LootPool pool) {
-        if (((LootPoolMixin)pool).live_edit_mixin_getFunctions().length > 0) {
-            throw new UnsupportedOperationException("function for entire pool");
-        }
-
         MyLootPool result = new MyLootPool();
         result.entries = new ArrayList<>();
         result.conditions = new ArrayList<>();
+        result.functions = new ArrayList<>();
         for (LootPoolEntryContainer entry : ((LootPoolMixin)pool).live_edit_mixin_getEntries()) {
             result.entries.add(convertEntry(entry));
         }
         for (LootItemCondition condition : ((LootPoolMixin)pool).live_edit_mixin_getConditions()) {
             result.conditions.add(convertCondition(condition));
+        }
+        for (LootItemFunction function : ((LootPoolMixin)pool).live_edit_mixin_getFunctions()) {
+            result.functions.add(convertFunction(function));
         }
         FloatPair rolls = convertNumberGenerator(pool.getRolls());
         result.rolls_min = (int)rolls.min;
@@ -155,13 +155,13 @@ public class LootTableConverter {
 
             } else if (predicate.live_edit_mixin_getEntityType() != EntityTypePredicate.ANY) {
                 if (predicate.live_edit_mixin_getEntityType().serializeToJson().getAsString().startsWith("#")) {
-                    result.type = Condition.KILLED_BY_ENTITY_OF_TYPE;
-                    TypePredicateMixin type = (TypePredicateMixin) predicate.live_edit_mixin_getEntityType();
-                    result.id = EntityType.getKey(type.live_edit_mixin_getType());
-                } else {
                     result.type = Condition.KILLED_BY_ENTITY_IN_TAG;
                     TagPredicateMixin type = (TagPredicateMixin) predicate.live_edit_mixin_getEntityType();
                     result.id = type.live_edit_mixin_getTag().location();
+                } else {
+                    result.type = Condition.KILLED_BY_ENTITY_OF_TYPE;
+                    TypePredicateMixin type = (TypePredicateMixin) predicate.live_edit_mixin_getEntityType();
+                    result.id = EntityType.getKey(type.live_edit_mixin_getType());
                 }
 
             } else {
@@ -180,32 +180,33 @@ public class LootTableConverter {
             }
 
         } else if (condition.getType() == LootItemConditions.DAMAGE_SOURCE_PROPERTIES) {
-            DamageSourcePredicateMixin damageSource = (DamageSourcePredicateMixin) condition;
+            DamageSourceCondition damageSourceCondition = (DamageSourceCondition) condition;
+            DamageSourcePredicate damageSource = damageSourceCondition.predicate;
             int num_predicates = 0;
-            if (damageSource.live_edit_mixin_getIsProjectile() != null)
+            if (damageSource.isProjectile != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getIsExplosion() != null)
+            if (damageSource.isExplosion != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getBypassesArmor() != null)
+            if (damageSource.bypassesArmor != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getBypassesInvulnerability() != null)
+            if (damageSource.bypassesInvulnerability != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getBypassesMagic() != null)
+            if (damageSource.bypassesMagic != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getIsFire() != null)
+            if (damageSource.isFire != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getIsMagic() != null)
+            if (damageSource.isMagic != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getIsLightning() != null)
+            if (damageSource.isLightning != null)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getDirectEntity() != null)
+            if (damageSource.directEntity != EntityPredicate.ANY)
                 num_predicates++;
-            if (damageSource.live_edit_mixin_getSourceEntity() != null)
+            if (damageSource.sourceEntity != EntityPredicate.ANY)
                 num_predicates++;
             if (num_predicates != 1) {
                 throw new UnsupportedOperationException("multiple damage source conditions");
             }
-            if (damageSource.live_edit_mixin_getIsLightning() == Boolean.TRUE) {
+            if (damageSource.isLightning == Boolean.TRUE) {
                 result.type = Condition.KILLED_BY_LIGHTNING;
             } else {
                 throw new UnsupportedOperationException("unsupported damage source condition");
@@ -451,6 +452,24 @@ public class LootTableConverter {
 
         } else if (function.getType() == LootItemFunctions.EXPLOSION_DECAY) {
             result.type = Function.EXPLOSION_DECAY;
+
+        } else if (function.getType() == LootItemFunctions.LIMIT_COUNT) {
+            LimitCount limit = (LimitCount) function;
+            result.type = Function.LIMIT_COUNT;
+            if (limit.limiter.min != null) {
+                FloatPair limiterMin = convertNumberGenerator(limit.limiter.min);
+                if (limiterMin.min != limiterMin.max) {
+                    throw new UnsupportedOperationException("unknown limit count modifier");
+                }
+                result.min_count = limiterMin.min;
+            }
+            if (limit.limiter.max != null) {
+                FloatPair limiterMax = convertNumberGenerator(limit.limiter.max);
+                if (limiterMax.min != limiterMax.max) {
+                    throw new UnsupportedOperationException("unknown limit count modifier");
+                }
+                result.max_count = limiterMax.max;
+            }
 
         } else {
             throw new UnsupportedOperationException("unknown loot function");

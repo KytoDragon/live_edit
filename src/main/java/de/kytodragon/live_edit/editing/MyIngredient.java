@@ -11,11 +11,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public abstract class MyIngredient implements IJsonProvider {
 
-    // List<ItemStack> item_list;
     // TagKey<Fluid> fluid_tag;
     // int custom_ingredient;
     // int custom_amount;
@@ -117,6 +118,36 @@ public abstract class MyIngredient implements IJsonProvider {
         public static TimeIngredient fromJson(JsonObject json) {
             int time = GsonHelper.getAsInt(json, "time");
             return new TimeIngredient(time);
+        }
+    }
+
+    public static class ItemListIngredient extends MyIngredient {
+        public List<ItemStack> item_list = new ArrayList<>();
+
+        @Override
+        public JsonElement toJson() {
+
+            JsonObject json = new JsonObject();
+            json.addProperty("type", "item_list");
+            JsonArray list = new JsonArray();
+
+            for (ItemStack item : item_list) {
+                ResourceLocation item_id = ForgeRegistries.ITEMS.getKey(item.getItem());
+                Objects.requireNonNull(item_id);
+                json.addProperty("item", item_id.toString());
+            }
+            json.add("item_list", list);
+            return json;
+        }
+
+        public static ItemListIngredient fromJson(JsonObject json) {
+            ItemListIngredient result = new ItemListIngredient();
+            for (JsonElement elem : json.getAsJsonArray("item_list")) {
+                Item item = JsonHelper.getItem(elem);
+                result.item_list.add(item.getDefaultInstance());
+            }
+
+            return result;
         }
     }
 }

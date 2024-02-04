@@ -24,6 +24,7 @@ public class MyLootFunction implements IJsonProvider {
         FORTUNE_UNIFORM, // additional count per level of fortune
         FORTUNE_BINOMIAL, // number of tries and chance per try
         EXPLOSION_DECAY,
+        LIMIT_COUNT,
     }
 
     public Function type;
