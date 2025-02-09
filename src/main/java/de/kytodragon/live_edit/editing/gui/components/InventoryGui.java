@@ -1,6 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
@@ -37,10 +37,10 @@ public class InventoryGui extends MyGuiComponent {
     }
 
     @Override
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
 
         for (Slot slot : slots) {
-            VanillaTextures.EMPTY_SLOT.draw(this, pose, slot.x - 1, slot.y - 1);
+            VanillaTextures.EMPTY_SLOT.draw(graphics, slot.x - 1, slot.y - 1);
         }
     }
 }

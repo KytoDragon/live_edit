@@ -1,11 +1,11 @@
 package de.kytodragon.live_edit.editing.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.LiveEditMod;
 import de.kytodragon.live_edit.editing.gui.components.Background;
 import de.kytodragon.live_edit.editing.gui.components.ComponentGroup;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -31,39 +31,39 @@ public abstract class GuiCommon<T extends MenuCommon> extends AbstractContainerS
     }
 
     @Override
-    public void render(PoseStack pose, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         content.x = this.leftPos;
         content.y = this.topPos;
 
         RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        super.renderBackground(pose);
-        super.render(pose, mouseX, mouseY, partialTick);
+        super.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTick);
 
         RenderSystem.disableDepthTest();
-        content.renderForeground(pose, partialTick, mouseX, mouseY);
+        content.renderForeground(graphics, partialTick, mouseX, mouseY);
 
-        super.renderTooltip(pose, mouseX, mouseY);
+        super.renderTooltip(graphics, mouseX, mouseY);
 
-        content.renderOverlay(pose, partialTick, mouseX, mouseY);
+        content.renderOverlay(graphics, partialTick, mouseX, mouseY);
 
         if (MyGuiComponent.popup != null) {
-            pose.pushPose();
+            graphics.pose().pushPose();
             // Text with shadow gets draw slightly above the current Z, translate to make sure the popup is above them.
-            pose.translate(0, 0, 1);
-            MyGuiComponent.popup.renderBackground(pose, partialTick, mouseX, mouseY);
-            MyGuiComponent.popup.renderForeground(pose, partialTick, mouseX, mouseY);
-            MyGuiComponent.popup.renderOverlay(pose, partialTick, mouseX, mouseY);
-            pose.popPose();
+            graphics.pose().translate(0, 0, 1);
+            MyGuiComponent.popup.renderBackground(graphics, partialTick, mouseX, mouseY);
+            MyGuiComponent.popup.renderForeground(graphics, partialTick, mouseX, mouseY);
+            MyGuiComponent.popup.renderOverlay(graphics, partialTick, mouseX, mouseY);
+            graphics.pose().popPose();
         }
         RenderSystem.enableDepthTest();
     }
 
     @Override
-    protected void renderBg(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         RenderSystem.disableDepthTest();
-        content.renderBackground(pose, partialTick, mouseX, mouseY);
+        content.renderBackground(graphics, partialTick, mouseX, mouseY);
     }
 
     @Override

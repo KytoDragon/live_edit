@@ -4,15 +4,18 @@ import de.kytodragon.live_edit.editing.MyLootEntry;
 import de.kytodragon.live_edit.editing.gui.components.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
 import java.util.List;
+import java.util.Locale;
 
 public class LootEntryInput extends VerticalList {
 
@@ -31,7 +34,7 @@ public class LootEntryInput extends VerticalList {
     public LootEntryInput(int x, int y) {
         super(x, y);
 
-        List<String> types = Registry.LOOT_POOL_ENTRY_TYPE.keySet().stream().map(ResourceLocation::toString).toList();
+        List<String> types = BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.keySet().stream().map(ResourceLocation::toString).toList();
         type = new ListSelectBox(0, 0, 160, types, this::setType);
         addChild(type);
 
@@ -55,7 +58,7 @@ public class LootEntryInput extends VerticalList {
             loot_table_reference_list = null;
 
         } else {
-            loot_table_reference_list = new ListSelectBox(0, 0, 160, server.getLootTables().getIds(), null);
+            loot_table_reference_list = new ListSelectBox(0, 0, 160, server.getLootData().getKeys(LootDataType.TABLE), null);
             addChild(loot_table_reference_list);
             loot_table_reference_text = null;
         }
@@ -77,7 +80,7 @@ public class LootEntryInput extends VerticalList {
     }
 
     private void setType(String type_name) {
-        LootPoolEntryType type = Registry.LOOT_POOL_ENTRY_TYPE.get(ResourceLocation.of(type_name, ':'));
+        LootPoolEntryType type = BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.get(ResourceLocation.of(type_name, ':'));
         setVisiblityBasedOnType(type);
     }
 
@@ -114,7 +117,7 @@ public class LootEntryInput extends VerticalList {
     }
 
     public void setLootEntry(MyLootEntry entry) {
-        type.setValue(Registry.LOOT_POOL_ENTRY_TYPE.getKey(entry.type).toString());
+        type.setValue(BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.getKey(entry.type).toString());
         weight.setValue(entry.weight);
         quality.setValue(entry.quality);
 
@@ -142,7 +145,7 @@ public class LootEntryInput extends VerticalList {
 
     public MyLootEntry getLootEntry() {
         MyLootEntry entry = new MyLootEntry();
-        entry.type = Registry.LOOT_POOL_ENTRY_TYPE.get(ResourceLocation.of(type.getValue(), ':'));
+        entry.type = BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.get(ResourceLocation.of(type.getValue(), ':'));
         entry.weight = weight.getValue();
         entry.quality = quality.getValue();
 

@@ -1,7 +1,5 @@
 package de.kytodragon.live_edit.editing.gui.recipes;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.gui.components.Texture;
 import de.kytodragon.live_edit.editing.gui.components.VanillaTextures;
@@ -11,6 +9,7 @@ import de.kytodragon.live_edit.editing.gui.modules.ExperienceInput;
 import de.kytodragon.live_edit.editing.gui.modules.ItemInput;
 import de.kytodragon.live_edit.editing.gui.modules.ItemOrTagInput;
 import de.kytodragon.live_edit.editing.gui.modules.TimeInput;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.List;
 
@@ -60,14 +59,13 @@ public class SmeltingRecipeInput extends MyGuiComponent implements IRecipeInput 
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        super.renderForeground(pose, partialTick, mouseX, mouseY);
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        super.renderForeground(graphics, partialTick, mouseX, mouseY);
 
         Texture texture = VanillaTextures.ARROW_RIGHT_FILLED;
         int width = texture.width() * progress / processing_time.getValue();
         if (width > texture.width())
             width = texture.width();
-        RenderSystem.setShaderTexture(0, texture.texture_id());
-        this.blit(pose, x+65, y+11, texture.startX(), texture.startY(), width, texture.height());
+        graphics.blit(texture.texture_id(), x+65, y+11, texture.startX(), texture.startY(), width, texture.height());
     }
 }

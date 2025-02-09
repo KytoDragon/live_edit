@@ -3,6 +3,8 @@ package de.kytodragon.live_edit.editing.gui.loot_tables;
 import de.kytodragon.live_edit.editing.MyLootCondition;
 import de.kytodragon.live_edit.editing.MyLootCondition.Condition;
 import de.kytodragon.live_edit.editing.gui.components.*;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -61,7 +63,7 @@ public class LootConditionInput extends VerticalList {
         addChild(tool_item);
         tool_tag = new TagComponent(0, 0);
         addChild(tool_tag);
-        biome_id = new ListSelectBox(0, 0, 160, ForgeRegistries.BIOMES.getKeys(), null);
+        biome_id = new ListSelectBox(0, 0, 160, minecraft.getSingleplayerServer().registryAccess().registryOrThrow(Registries.BIOME).keySet(), null);
         addChild(biome_id);
         entity_type = new ListSelectBox(0, 0, 160, ForgeRegistries.ENTITY_TYPES.getKeys(), null);
         addChild(entity_type);

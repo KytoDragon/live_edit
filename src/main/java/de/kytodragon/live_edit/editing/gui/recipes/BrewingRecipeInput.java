@@ -1,7 +1,5 @@
 package de.kytodragon.live_edit.editing.gui.recipes;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.gui.components.Texture;
 import de.kytodragon.live_edit.editing.gui.components.VanillaTextures;
@@ -9,6 +7,7 @@ import de.kytodragon.live_edit.editing.gui.components.Decal;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
 import de.kytodragon.live_edit.editing.gui.modules.ItemInput;
 import de.kytodragon.live_edit.editing.gui.modules.ItemOrTagInput;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.List;
 
@@ -58,14 +57,13 @@ public class BrewingRecipeInput extends MyGuiComponent implements IRecipeInput {
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        super.renderForeground(pose, partialTick, mouseX, mouseY);
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        super.renderForeground(graphics, partialTick, mouseX, mouseY);
 
         Texture texture = VanillaTextures.ARROW_DOWN_FILLED;
         int height = texture.height() * progress / BREWING_TIME;
         if (height > texture.height())
             height = texture.height();
-        RenderSystem.setShaderTexture(0, texture.texture_id());
-        this.blit(pose, x+60, y+5, texture.startX(), texture.startY(), texture.width(), height);
+        graphics.blit(texture.texture_id(), x+60, y+5, texture.startX(), texture.startY(), texture.width(), height);
     }
 }

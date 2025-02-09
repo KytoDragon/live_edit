@@ -22,7 +22,7 @@ public class CraftingRecipeManipulator extends StandardRecipeManipulator<Craftin
 
     @Override
     public CraftingRecipe manipulate(CraftingRecipe _recipe, GeneralManipulationData data) {
-        ItemStack resultStack = _recipe.getResultItem();
+        ItemStack resultStack = _recipe.getResultItem(null);
         NonNullList<Ingredient> ingredients = _recipe.getIngredients();
         boolean resultNeedsReplacement = isToReplace(resultStack, data);
         boolean ingredientsNeedReplacement = isToReplace(ingredients, data);
@@ -40,11 +40,11 @@ public class CraftingRecipeManipulator extends StandardRecipeManipulator<Craftin
                     return _recipe;
                 }
 
-                return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.getWidth(), recipe.getHeight(), ingredients, resultStack);
+                return new ShapedRecipe(recipe.getId(), recipe.getGroup(), null, recipe.getWidth(), recipe.getHeight(), ingredients, resultStack);
 
             } else if (_recipe instanceof ShapelessRecipe recipe) {
 
-                return new ShapelessRecipe(recipe.getId(), recipe.getGroup(), resultStack, ingredients);
+                return new ShapelessRecipe(recipe.getId(), recipe.getGroup(), null, resultStack, ingredients);
 
             } else {
                 // CustonRecipe, we can not change these as they use hardcoded ingredients
@@ -70,7 +70,7 @@ public class CraftingRecipeManipulator extends StandardRecipeManipulator<Craftin
         result.id = recipe.getId();
         result.group = recipe.getGroup();
         result.ingredients = encodeIngredients(recipe.getIngredients());
-        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()));
+        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem(null)));
         result.type = RecipeType.CRAFTING;
         if (recipe instanceof ShapedRecipe shaped)
             result.shaped_width = shaped.getRecipeWidth();
@@ -82,9 +82,9 @@ public class CraftingRecipeManipulator extends StandardRecipeManipulator<Craftin
         ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
         if (recipe.shaped_width > 0) {
             int shaped_height = (recipe.ingredients.size() + recipe.shaped_width - 1) / recipe.shaped_width;
-            return new ShapedRecipe(recipe.id, recipe.group, recipe.shaped_width, shaped_height, decodeIngredients(recipe.ingredients), result);
+            return new ShapedRecipe(recipe.id, recipe.group, null, recipe.shaped_width, shaped_height, decodeIngredients(recipe.ingredients), result);
         } else {
-            return new ShapelessRecipe(recipe.id, recipe.group, result, decodeIngredients(recipe.ingredients));
+            return new ShapelessRecipe(recipe.id, recipe.group, null, result, decodeIngredients(recipe.ingredients));
         }
     }
 }

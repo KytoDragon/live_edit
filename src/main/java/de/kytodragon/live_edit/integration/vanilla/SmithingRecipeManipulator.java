@@ -10,22 +10,23 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.UpgradeRecipe;
+import net.minecraft.world.item.crafting.SmithingRecipe;
+import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 
 import java.util.List;
 
 import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
 
-public class SmithingRecipeManipulator extends StandardRecipeManipulator<UpgradeRecipe, Container> {
+public class SmithingRecipeManipulator extends StandardRecipeManipulator<SmithingRecipe, Container> {
 
     public SmithingRecipeManipulator() {
         type = net.minecraft.world.item.crafting.RecipeType.SMITHING;
     }
 
     @Override
-    public UpgradeRecipe manipulate(UpgradeRecipe recipe, GeneralManipulationData data) {
+    public SmithingRecipe manipulate(SmithingRecipe recipe, GeneralManipulationData data) {
         UpgradeRecipeMixin upgrade = (UpgradeRecipeMixin) recipe;
-        ItemStack resultStack = recipe.getResultItem();
+        ItemStack resultStack = recipe.getResultItem(null);
         Ingredient base = upgrade.live_edit_mixin_getBase();
         Ingredient addition = upgrade.live_edit_mixin_getAddition();
         boolean resultNeedsReplacement = isToReplace(resultStack, data);
@@ -40,13 +41,13 @@ public class SmithingRecipeManipulator extends StandardRecipeManipulator<Upgrade
 
         if (resultNeedsReplacement || baseNeedReplacement || additionNeedReplacement) {
 
-            return new UpgradeRecipe(recipe.getId(), base, addition, resultStack);
+            return new SmithingTransformRecipe(recipe.getId(), base, addition, null, resultStack);
         }
         return recipe;
     }
 
     @Override
-    public MyRecipe encodeRecipe(UpgradeRecipe recipe) {
+    public MyRecipe encodeRecipe(SmithingRecipe recipe) {
         UpgradeRecipeMixin upgrade = (UpgradeRecipeMixin) recipe;
 
         MyIngredient base = encodeIngredient(upgrade.live_edit_mixin_getBase());
@@ -58,15 +59,15 @@ public class SmithingRecipeManipulator extends StandardRecipeManipulator<Upgrade
         MyRecipe result = new MyRecipe();
         result.id = getKey(recipe);
         result.ingredients = List.of(base, addition);
-        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()));
+        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem(null)));
         result.type = RecipeType.SMITHING;
         return result;
     }
 
     @Override
-    public UpgradeRecipe decodeRecipe(MyRecipe recipe) {
+    public SmithingRecipe decodeRecipe(MyRecipe recipe) {
         ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
         NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients);
-        return new UpgradeRecipe(recipe.id, ingredients.get(0), ingredients.get(1), result);
+        return new SmithingTransformRecipe(recipe.id, ingredients.get(0), ingredients.get(1), null, result);
     }
 }

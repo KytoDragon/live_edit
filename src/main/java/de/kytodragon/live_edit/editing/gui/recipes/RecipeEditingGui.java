@@ -1,9 +1,9 @@
 package de.kytodragon.live_edit.editing.gui.recipes;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.editing.EditCommandPacket;
 import de.kytodragon.live_edit.editing.gui.GuiCommon;
 import de.kytodragon.live_edit.integration.PacketRegistry;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -48,10 +48,10 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
     }
 
     @Override
-    protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
-        super.renderLabels(pose, mouseX, mouseY);
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        super.renderLabels(graphics, mouseX, mouseY);
         if (menu.recipe_slot.id != null) {
-            //this.font.draw(pose, menu.recipe_slot.id.toString(), 10, 20, 0x404040);
+            //graphics.drawString(this.font, menu.recipe_slot.id.toString(), 10, 20, 0x404040);
         }
     }
 

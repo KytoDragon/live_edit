@@ -1,6 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
@@ -8,17 +8,20 @@ import net.minecraftforge.client.gui.widget.ExtendedButton;
 public class Button extends MyGuiComponent {
 
     private final ExtendedButton button;
+    private final String text;
 
     public Button(int x, int y, int width, int height, String text, Runnable onPress) {
         super(x, y, width, height);
-        button = new ExtendedButton(x, y, width, height, Component.literal(text), b -> {
+        this.text = text;
+        button = new ExtendedButton(x, y, width, height, Component.literal(""), b -> {
             onPress.run();
         });
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        button.render(pose, mouseX, mouseY, partialTick);
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        button.render(graphics, mouseX, mouseY, partialTick);
+        graphics.drawCenteredString(minecraft.font, text, x + this.width / 2 + 1, y + (this.height - 10) / 2 + 1, button.getFGColor());
     }
 
     @Override

@@ -23,7 +23,7 @@ public class LiveEditMod {
     public static final String MODID = "live_edit";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public LiveEditMod() {
+    public LiveEditMod(FMLJavaModLoadingContext context) {
         PacketRegistry.registerServerPacket(EditCommandPacket.class, EditCommandPacket::new);
         Integration.addAllIntegration(RecipeManager.instance);
 
@@ -31,13 +31,13 @@ public class LiveEditMod {
         MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
         MinecraftForge.EVENT_BUS.addListener(Command::onRegisterCommandEvent);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerLogin);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(RecipeEditingGui::clientSetup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(LootTableEditingGui::clientSetup);
+        context.getModEventBus().addListener(RecipeEditingGui::clientSetup);
+        context.getModEventBus().addListener(LootTableEditingGui::clientSetup);
     }
 
     public void onServerStarting(ServerStartedEvent event) {
         RecipeManager.instance.initServer(event.getServer());
-        RecipeManager.instance.manipulateAllRecipesAndReload();
+        //RecipeManager.instance.manipulateAllRecipesAndReload();
     }
 
     public void onServerStopping(ServerStoppedEvent event) {

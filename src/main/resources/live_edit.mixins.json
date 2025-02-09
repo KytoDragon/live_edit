@@ -27,7 +27,6 @@
         "loot_tables.LootPoolSingletonContainerMixin",
         "loot_tables.LootTableMixin",
         "loot_tables.LootTableReferenceMixin",
-        "loot_tables.LootTablesMixin",
         "loot_tables.SequentialEntryMixin",
         "loot_tables.SlimePredicateMixin",
         "loot_tables.TagEntryMixin",

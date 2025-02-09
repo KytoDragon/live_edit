@@ -1,7 +1,7 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
@@ -15,11 +15,11 @@ public class CheckBox extends MyGuiComponent {
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (value) {
-            VanillaTextures.CHECKBOX_FILLED.draw(this, pose, x, y);
+            VanillaTextures.CHECKBOX_FILLED.draw(graphics, x, y);
         } else {
-            VanillaTextures.CHECKBOX_EMPTY.draw(this, pose, x, y);
+            VanillaTextures.CHECKBOX_EMPTY.draw(graphics, x, y);
         }
     }
 

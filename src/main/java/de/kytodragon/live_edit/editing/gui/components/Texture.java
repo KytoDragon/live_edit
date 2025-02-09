@@ -1,8 +1,7 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 public record Texture (
@@ -12,9 +11,7 @@ public record Texture (
     int width,
     int height) {
 
-    public void draw(GuiComponent component, PoseStack pose, int x, int y) {
-        RenderSystem.setShaderTexture(0, texture_id);
-
-        component.blit(pose, x, y, startX, startY, width, height);
+    public void draw(GuiGraphics graphics, int x, int y) {
+        graphics.blit(texture_id, x, y, startX, startY, width, height);
     }
 }

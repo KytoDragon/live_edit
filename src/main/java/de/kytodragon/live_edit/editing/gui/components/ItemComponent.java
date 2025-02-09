@@ -1,8 +1,8 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector4f;
+import net.minecraft.client.gui.GuiGraphics;
+import org.joml.Vector4f;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
@@ -44,55 +44,47 @@ public class ItemComponent extends MyGuiComponent {
     }
 
     @Override
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (!no_background) {
             if (draw_result_slot) {
-                VanillaTextures.RESULT_SLOT.draw(this, pose, x - 4, y - 4);
+                VanillaTextures.RESULT_SLOT.draw(graphics, x - 4, y - 4);
             } else {
-                VanillaTextures.EMPTY_SLOT.draw(this, pose, x, y);
+                VanillaTextures.EMPTY_SLOT.draw(graphics, x, y);
             }
         }
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (itemstack.isEmpty())
             return;
 
         // Apply the translation of the current pose to the item-view-matrix
-        Vector4f itemPos = new Vector4f(0, 0, 0, 1);
-        itemPos.transform(pose.last().pose());
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.pushPose();
-        posestack.translate(itemPos.x(), itemPos.y(), 0);
-        RenderSystem.applyModelViewMatrix();
-
-        ItemRenderer itemRenderer = minecraft.getItemRenderer();
+        graphics.pose().pushPose();
         // blitOffset of 100 means the final image is rendered at z = 250 (+50 in ItemRenderer.tryRenderGuiItem, +100 in ItemRenderer.renderGuiItem)
-        itemRenderer.blitOffset = 100.0F;
-        itemRenderer.renderAndDecorateItem(itemstack, x+1, y+1);
-        itemRenderer.renderGuiItemDecorations(minecraft.font, itemstack, x+1, y+1);
+        graphics.pose().translate(0, 0, 100.0F);
+
+        graphics.renderItem(itemstack, x+1, y+1);
+        graphics.renderItemDecorations(minecraft.font, itemstack, x+1, y+1);
 
         // Undo translation
-        posestack.popPose();
-        RenderSystem.applyModelViewMatrix();
+        graphics.pose().popPose();
 
         if (isInside(mouseX, mouseY)) {
 
             // Z of 300 is above our item at 250 and behind floating items at 350
-            fillGradient(pose, x+1, y+1, x+1 + 16, y+1 + 16, 0x80FFFFFF, 0x80FFFFFF, 300);
+            graphics.fillGradient(x+1, y+1, x+1 + 16, y+1 + 16, 0x80FFFFFF, 0x80FFFFFF, 300);
         }
-        itemRenderer.blitOffset = 0.0F;
     }
 
     @Override
-    public void renderOverlay(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderOverlay(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (isInside(mouseX, mouseY) && !itemstack.isEmpty()) {
             List<Component> lines = itemstack.getTooltipLines(minecraft.player, minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
             Optional<TooltipComponent> image = itemstack.getTooltipImage();
 
             if (minecraft.options.advancedItemTooltips) {
-                String modid = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(itemstack.getItem())).getNamespace();
+                String modid = itemstack.getItem().getCreatorModId(itemstack);
                 String modname = ModList.get().getModContainerById(modid)
                     .map(ModContainer::getModInfo)
                     .map(IModInfo::getDisplayName)
@@ -103,13 +95,13 @@ public class ItemComponent extends MyGuiComponent {
 
             // renderTooltip will clamp the tooltip position to the screen size before the current pose ist considered.
             // Therefore translate to the current position. TODO Will tooltips correctly flip sides on the right screen edge?
-            pose.pushPose();
-            pose.translate(x, y, 0);
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, y, 0);
             mouseX -= x;
             mouseY -= y;
             Objects.requireNonNull(minecraft.screen);
-            minecraft.screen.renderTooltip(pose, lines, image, mouseX, mouseY);
-            pose.popPose();
+            graphics.renderTooltip(minecraft.font, lines, image, mouseX, mouseY);
+            graphics.pose().popPose();
         }
     }
 

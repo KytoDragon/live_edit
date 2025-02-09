@@ -1,6 +1,7 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.font.FontSet;
 
 public class TextComponent extends MyGuiComponent {
 
@@ -22,7 +23,7 @@ public class TextComponent extends MyGuiComponent {
     }
 
     @Override
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        minecraft.font.draw(pose, text, x, y, 0x404040);
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        graphics.drawString(minecraft.font, text, x, y, 0x404040, false);
     }
 }

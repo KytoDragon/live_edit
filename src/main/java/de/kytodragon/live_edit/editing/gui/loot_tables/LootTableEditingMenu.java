@@ -3,11 +3,12 @@ package de.kytodragon.live_edit.editing.gui.loot_tables;
 import de.kytodragon.live_edit.editing.gui.MenuCommon;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 
 public class LootTableEditingMenu extends MenuCommon {
 
-    public static final MenuType<LootTableEditingMenu> MENU_TYPE = new MenuType<>(LootTableEditingMenu::new);
+    public static final MenuType<LootTableEditingMenu> MENU_TYPE = new MenuType<>(LootTableEditingMenu::new, FeatureFlagSet.of());
     public LootTableIDSlot loot_table_slot;
 
     public LootTableEditingMenu(int containerId, Inventory inventory, ResourceLocation loot_table_id) {

@@ -3,7 +3,8 @@ package de.kytodragon.live_edit.editing.gui.components;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
+import net.minecraft.client.gui.GuiGraphics;
+import org.joml.Matrix4f;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.item.ItemStack;
@@ -33,24 +34,24 @@ public abstract class EditBoxWrapper extends MyGuiComponent {
     protected abstract void setText(String text);
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int i = has_focus ? 0xFFFFFFFF : 0xFFA0A0A0;
-        fill(pose, x, y, x + width, y + height, i);
-        fill(pose, x+1, y+1, x + width - 1, y + height - 1, 0xFF808080);
+        graphics.fill(x, y, x + width, y + height, i);
+        graphics.fill(x+1, y+1, x + width - 1, y + height - 1, 0xFF808080);
 
-        pose.pushPose();
-        pose.translate(x, y, 0);
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, y, 0);
         mouseX -= x;
         mouseY -= y;
-        edit_box.render(pose, mouseX, mouseY, partialTick);
-        pose.popPose();
+        edit_box.render(graphics, mouseX, mouseY, partialTick);
+        graphics.pose().popPose();
 
         // The EditBox draws the highlight in the wrong position (not respecting pose)
         if (edit_box.getCursorPosition() != highlight_pos) {
             String text = edit_box.getValue();
             int highlight_start = minecraft.font.width(text.substring(0, edit_box.getCursorPosition()));
             int highlight_end = minecraft.font.width(text.substring(0, highlight_pos));
-            renderHighlight(pose, x + 2 + highlight_start, y + 2, highlight_end + highlight_start, height - 4);
+            renderHighlight(graphics, x + 2 + highlight_start, y + 2, highlight_end + highlight_start, height - 4);
         }
     }
 
@@ -58,7 +59,7 @@ public abstract class EditBoxWrapper extends MyGuiComponent {
     public boolean mouseClicked(double mouseX, double mouseY, int mouse_button, ItemStack carried) {
         boolean result = edit_box.mouseClicked(mouseX - x, mouseY - y, mouse_button);
         if (!result && isInside(mouseX, mouseY))
-            edit_box.setFocus(true);
+            edit_box.setFocused(true);
         if (edit_box.isFocused())
             MyGuiComponent.setFocusOn(this);
         return result;
@@ -67,7 +68,7 @@ public abstract class EditBoxWrapper extends MyGuiComponent {
     @Override
     protected void setFocused(boolean focus) {
         has_focus = focus;
-        edit_box.setFocus(focus);
+        edit_box.setFocused(focus);
     }
 
     @Override
@@ -94,7 +95,7 @@ public abstract class EditBoxWrapper extends MyGuiComponent {
         return edit_box.charTyped(character, scanncode);
     }
 
-    private void renderHighlight(PoseStack pose, int startX, int startY, int width, int height) {
+    private void renderHighlight(GuiGraphics graphics, int startX, int startY, int width, int height) {
         if (width < 0) {
             startX += width;
             width = -width;
@@ -108,12 +109,11 @@ public abstract class EditBoxWrapper extends MyGuiComponent {
             width = (this.x + 2 + this.width - 4) - startX;
         }
 
-        Matrix4f matrix = pose.last().pose();
+        Matrix4f matrix = graphics.pose().last().pose();
 
         // Draw a quad that inverts colors
         RenderSystem.setShader(GameRenderer::getPositionShader);
         RenderSystem.setShaderColor(0.0F, 0.0F, 1.0F, 1.0F);
-        RenderSystem.disableTexture();
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
 
@@ -126,7 +126,6 @@ public abstract class EditBoxWrapper extends MyGuiComponent {
         BufferUploader.drawWithShader(bufferbuilder.end());
 
         RenderSystem.disableColorLogicOp();
-        RenderSystem.enableTexture();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

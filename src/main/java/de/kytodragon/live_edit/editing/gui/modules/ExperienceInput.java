@@ -1,12 +1,12 @@
 package de.kytodragon.live_edit.editing.gui.modules;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.editing.gui.components.Texture;
 import de.kytodragon.live_edit.editing.gui.components.VanillaTextures;
 import de.kytodragon.live_edit.editing.gui.components.Button;
 import de.kytodragon.live_edit.editing.gui.components.FloatInput;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 
 public class ExperienceInput extends MyGuiComponent implements IResultInput {
@@ -36,8 +36,8 @@ public class ExperienceInput extends MyGuiComponent implements IResultInput {
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        super.renderForeground(pose, partialTick, mouseX, mouseY);
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        super.renderForeground(graphics, partialTick, mouseX, mouseY);
 
         float value = input.getValue();
         if (value > 0) {
@@ -65,7 +65,7 @@ public class ExperienceInput extends MyGuiComponent implements IResultInput {
             } else {
                 t = VanillaTextures.EXPERIENCE_ORBS[0];
             }
-            t.draw(this, pose, x+49, y+1);
+            t.draw(graphics, x+49, y+1);
         }
     }
 

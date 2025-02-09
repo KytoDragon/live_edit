@@ -80,7 +80,7 @@ public class Command {
                         Stream<Pair<RecipeType, ResourceLocation>> matching_recipes = manipulators.flatMap(manipulator -> findItem(manipulator, item));
                         String list = matching_recipes.map(pair -> "\n\u2022 " + pair.getLeft().name() + " " + pair.getRight().toString())
                                             .collect(Collectors.joining());
-                        ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.list", list), false);
+                        ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.recipe.list", list), false);
                         return 0;
                     })
                 )
@@ -110,8 +110,9 @@ public class Command {
                             recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
                             RecipeManager.instance.markRecipeForDeletion(type, recipe_key);
                         }
+                        final ResourceLocation final_recipe_key = recipe_key;
 
-                        ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.marked_for_deletion", recipe_key.toString()), false);
+                        ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.recipe.marked_for_deletion", final_recipe_key.toString()), false);
                         return 1;
                     })
                 )
@@ -128,11 +129,11 @@ public class Command {
                         if (type == RecipeType.LOOT_TABLE) {
                             MyLootTable table = getEncodedLootTable(RecipeManager.instance.manipulators.get(type), recipe_key);
                             if (table != null)
-                                ctx.getSource().sendSuccess(Component.literal(table.toJsonString()), false);
+                                ctx.getSource().sendSuccess(() -> Component.literal(table.toJsonString()), false);
                         } else {
                             MyRecipe recipe = getEncodedRecipe(RecipeManager.instance.manipulators.get(type), recipe_key);
                             if (recipe != null)
-                                ctx.getSource().sendSuccess(Component.literal(recipe.toJsonString()), false);
+                                ctx.getSource().sendSuccess(() -> Component.literal(recipe.toJsonString()), false);
                         }
                         return 1;
                     })
@@ -150,7 +151,7 @@ public class Command {
                             Item replacement = ItemArgument.getItem(ctx, "replacement").getItem();
                             RecipeManager.instance.markItemForReplacement(item, replacement);
 
-                            ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.item.marked_for_replacement", item.toString(), replacement.toString()), false);
+                            ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.item.marked_for_replacement", item.toString(), replacement.toString()), false);
                             return 1;
                         })
                     )
@@ -166,7 +167,7 @@ public class Command {
 
                                 RecipeManager.instance.markLootTableForReplacement(loot_table_key, loot_table);
 
-                                ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.loot_table.marked_for_replacement", loot_table_key.toString()), false);
+                                ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.loot_table.marked_for_replacement", loot_table_key.toString()), false);
                                 return 1;
                             })
                         )
@@ -182,7 +183,7 @@ public class Command {
 
                                 RecipeManager.instance.markRecipeForReplacement(type, recipe_key, recipe);
 
-                                ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.marked_for_replacement", recipe_key.toString()), false);
+                                ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.recipe.marked_for_replacement", recipe_key.toString()), false);
                                 return 1;
                             })
                         )
@@ -204,7 +205,7 @@ public class Command {
 
                                 RecipeManager.instance.markRecipeForAddition(type, recipe_key, recipe);
 
-                                ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.marked_for_addition", recipe_key.toString()), false);
+                                ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.recipe.marked_for_addition", recipe_key.toString()), false);
                                 return 1;
                             })
                         )
@@ -311,7 +312,7 @@ public class Command {
                     String list = failures.stream().map(key -> "\n\u2022 " + key.toString())
                         .collect(Collectors.joining());
 
-                    ctx.getSource().sendSuccess(Component.translatable("live_edit.commands.recipe.test", list), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.recipe.test", list), false);
                     return 1;
                 })
             );

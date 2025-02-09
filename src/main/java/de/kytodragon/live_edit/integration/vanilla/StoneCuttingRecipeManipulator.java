@@ -22,7 +22,7 @@ public class StoneCuttingRecipeManipulator extends StandardRecipeManipulator<Sto
 
     @Override
     public StonecutterRecipe manipulate(StonecutterRecipe recipe, GeneralManipulationData data) {
-        ItemStack resultStack = recipe.getResultItem();
+        ItemStack resultStack = recipe.getResultItem(null);
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         boolean resultNeedsReplacement = isToReplace(resultStack, data);
         boolean ingredientsNeedReplacement = isToReplace(ingredients, data);
@@ -49,7 +49,7 @@ public class StoneCuttingRecipeManipulator extends StandardRecipeManipulator<Sto
         result.id = recipe.getId();
         result.group = recipe.getGroup();
         result.ingredients = encodeIngredients(recipe.getIngredients());
-        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()));
+        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem(null)));
         result.type = RecipeType.STONECUTTING;
         return result;
     }

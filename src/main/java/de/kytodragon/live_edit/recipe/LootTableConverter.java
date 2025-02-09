@@ -6,7 +6,11 @@ import de.kytodragon.live_edit.editing.MyLootFunction.Function;
 import de.kytodragon.live_edit.mixins.loot_tables.*;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -23,6 +27,7 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraftforge.common.loot.CanToolPerformAction;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -172,7 +177,7 @@ public class LootTableConverter {
             result.type = Condition.INVERTED_CONDITION;
             result.inverted = convertCondition(((InvertedLootItemConditionMixin)condition).live_edit_mixin_getTerm());
 
-        } else if (condition.getType() == LootItemConditions.ALTERNATIVE) {
+        } else if (condition.getType() == LootItemConditions.ANY_OF) {
             result.type = Condition.ALTERNATIVES;
             result.alternatives = new ArrayList<>();
             for (LootItemCondition alternative : ((AlternativeLootItemConditionMixin)condition).live_edit_mixin_getTerms()) {
@@ -182,31 +187,10 @@ public class LootTableConverter {
         } else if (condition.getType() == LootItemConditions.DAMAGE_SOURCE_PROPERTIES) {
             DamageSourceCondition damageSourceCondition = (DamageSourceCondition) condition;
             DamageSourcePredicate damageSource = damageSourceCondition.predicate;
-            int num_predicates = 0;
-            if (damageSource.isProjectile != null)
-                num_predicates++;
-            if (damageSource.isExplosion != null)
-                num_predicates++;
-            if (damageSource.bypassesArmor != null)
-                num_predicates++;
-            if (damageSource.bypassesInvulnerability != null)
-                num_predicates++;
-            if (damageSource.bypassesMagic != null)
-                num_predicates++;
-            if (damageSource.isFire != null)
-                num_predicates++;
-            if (damageSource.isMagic != null)
-                num_predicates++;
-            if (damageSource.isLightning != null)
-                num_predicates++;
-            if (damageSource.directEntity != EntityPredicate.ANY)
-                num_predicates++;
-            if (damageSource.sourceEntity != EntityPredicate.ANY)
-                num_predicates++;
-            if (num_predicates != 1) {
+            if (damageSource.tags.size() != 1) {
                 throw new UnsupportedOperationException("multiple damage source conditions");
             }
-            if (damageSource.isLightning == Boolean.TRUE) {
+            if (damageSource.tags.get(0).tag.location().equals(DamageTypes.LIGHTNING_BOLT.location())) {
                 result.type = Condition.KILLED_BY_LIGHTNING;
             } else {
                 throw new UnsupportedOperationException("unsupported damage source condition");

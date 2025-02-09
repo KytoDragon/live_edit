@@ -3,35 +3,28 @@ package de.kytodragon.live_edit.integration.vanilla;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.editing.gui.recipes.RecipeEditingGui;
 import de.kytodragon.live_edit.editing.gui.modules.*;
 import de.kytodragon.live_edit.editing.gui.recipes.*;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import de.kytodragon.live_edit.mixins.BrewingRecipeRegistryMixin;
-import de.kytodragon.live_edit.mixins.loot_tables.LootTablesMixin;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
-import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.PlayerList;
-import net.minecraft.tags.TagKey;
-import net.minecraft.tags.TagNetworkSerialization;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.*;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.storage.loot.LootDataId;
+import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITagManager;
@@ -109,7 +102,7 @@ public class VanillaIntegration implements Integration {
 
         MinecraftForge.EVENT_BUS.addListener(this::onFuelBurnTimeRequest);
 
-        PacketRegistry.registerClientPacket(VanillaUpdatePacket.class, VanillaUpdatePacket::new);
+        //PacketRegistry.registerClientPacket(VanillaUpdatePacket.class, VanillaUpdatePacket::new);
     }
 
     @Override
@@ -117,7 +110,7 @@ public class VanillaIntegration implements Integration {
     public void initServer(MinecraftServer server) {
         this.server = server;
         vanilla_recipe_manager = server.getRecipeManager();
-        vanilla_item_registry = Registry.ITEM;
+        vanilla_item_registry = BuiltInRegistries.ITEM;
 
         forge_tag_manager = ForgeRegistries.ITEMS.tags();
         Objects.requireNonNull(forge_tag_manager);
@@ -156,37 +149,7 @@ public class VanillaIntegration implements Integration {
     @Override
     public void reload() {
 
-        VanillaUpdatePacket client_packet = new VanillaUpdatePacket();
-        client_packet.new_burn_times = server_data.new_burn_times;
-        client_packet.new_compostables = server_data.new_compostables;
-        client_packet.new_potions = server_data.new_potions;
-        if (FMLEnvironment.dist.isDedicatedServer()) {
-            // Burn times, compostables and new potion recipes are updates the same between client and server,
-            // so just accept the packet on the server side to update these settings.
-            acceptClientPacket(client_packet);
-        }
-        PacketRegistry.INSTANCE.send(PacketDistributor.ALL.noArg(), client_packet);
-        last_client_packet = client_packet;
-
-        Map<TagKey<Item>, List<Holder<Item>>> vanilla_map = new HashMap<>();
-        server_data.new_tags.forEach(tag -> {
-            List<Holder<Item>> list = tag.content.stream().map(ForgeRegistries.ITEMS::getHolder).map(Optional::orElseThrow).toList();
-            vanilla_map.put(tag.key, list);
-        });
-        vanilla_item_registry.bindTags(vanilla_map);
-        Blocks.rebuildCache();
-
-        if (FMLEnvironment.dist.isDedicatedServer()) {
-            // In single player this hapens via the ClientboundUpdateTagsPacket
-            MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.TagsUpdatedEvent(server.registryAccess(), false, false));
-        }
-        vanilla_recipe_manager.replaceRecipes(server_data.new_recipes);
-
-        ((LootTablesMixin)server.getLootTables()).live_edit_mixin_setTables(server_data.new_tables);
-
-        PlayerList player_list = server.getPlayerList();
-        player_list.broadcastAll(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registryAccess())));
-        player_list.broadcastAll(new ClientboundUpdateRecipesPacket(server_data.new_recipes));
+        // TODO write data pack
 
         server_data = null;
     }
@@ -242,7 +205,11 @@ public class VanillaIntegration implements Integration {
     }
 
     public Map<ResourceLocation, LootTable> getCurrentLootTables() {
-        return ((LootTablesMixin)server.getLootTables()).live_edit_mixin_getTables();
+        Map<ResourceLocation, LootTable> tables = new HashMap<>();
+        server.getLootData().typeKeys.get(LootDataType.TABLE).forEach(id -> {
+            tables.put(id, server.getLootData().getElement(new LootDataId<LootTable>(LootDataType.TABLE, id)));
+        });
+        return tables;
     }
 
     private static class NewServerData {

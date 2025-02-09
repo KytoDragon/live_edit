@@ -4,11 +4,12 @@ import de.kytodragon.live_edit.editing.gui.MenuCommon;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 
 public class RecipeEditingMenu extends MenuCommon {
 
-    public static final MenuType<RecipeEditingMenu> MENU_TYPE = new MenuType<>(RecipeEditingMenu::new);
+    public static final MenuType<RecipeEditingMenu> MENU_TYPE = new MenuType<>(RecipeEditingMenu::new, FeatureFlagSet.of());
     public RecipeIDSlot recipe_slot;
 
     public RecipeEditingMenu(int containerId, Inventory inventory, RecipeType type, ResourceLocation recipe_id) {

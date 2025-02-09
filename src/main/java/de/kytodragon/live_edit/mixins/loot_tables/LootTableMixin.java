@@ -1,5 +1,6 @@
 package de.kytodragon.live_edit.mixins.loot_tables;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -20,7 +21,7 @@ public interface LootTableMixin {
 
     @SuppressWarnings("SameReturnValue")
     @Invoker("<init>")
-    static LootTable create(LootContextParamSet paramSet, LootPool[] pools, LootItemFunction[] functions) {
+    static LootTable create(LootContextParamSet paramSet, ResourceLocation rl, LootPool[] pools, LootItemFunction[] functions) {
         return null;
     }
 }

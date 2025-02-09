@@ -64,10 +64,6 @@ public class LootTableIDSlot extends Slot {
 
     @Override
     public void set(ItemStack item) {
-    }
-
-    @Override
-    public void initialize(ItemStack item) {
         if (item.getTag() != null) {
             CompoundTag tag = item.getTag();
             if (tag.get("loot_table_id") != null) {

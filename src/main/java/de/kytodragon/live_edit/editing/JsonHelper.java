@@ -2,7 +2,7 @@ package de.kytodragon.live_edit.editing;
 
 import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -54,11 +54,11 @@ public class JsonHelper {
     }
 
     public static TagKey<Item> getItemTag(JsonObject json, String name) {
-        return TagKey.create(Registry.ITEM_REGISTRY, getResourceLocation(json, name));
+        return TagKey.create(Registries.ITEM, getResourceLocation(json, name));
     }
 
     public static TagKey<Fluid> getFluidTag(JsonObject json, String name) {
-        return TagKey.create(Registry.FLUID_REGISTRY, getResourceLocation(json, name));
+        return TagKey.create(Registries.FLUID, getResourceLocation(json, name));
     }
 
     @Nullable

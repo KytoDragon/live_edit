@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class CoockingRecipeManipulator <T extends AbstractCookingRecipe> extends
 
     @Override
     public T manipulate(T recipe, GeneralManipulationData data) {
-        ItemStack resultStack = recipe.getResultItem();
+        ItemStack resultStack = recipe.getResultItem(null);
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         boolean resultNeedsReplacement = isToReplace(resultStack, data);
         boolean ingredientsNeedReplacement = isToReplace(ingredients, data);
@@ -36,13 +37,13 @@ public class CoockingRecipeManipulator <T extends AbstractCookingRecipe> extends
             ingredients = replace(ingredients, data);
 
         if (resultNeedsReplacement || ingredientsNeedReplacement) {
-            recipe = constructor.create(recipe.getId(), recipe.getGroup(), ingredients.get(0), resultStack, recipe.getExperience(), recipe.getCookingTime());
+            recipe = constructor.create(recipe.getId(), recipe.getGroup(), null, ingredients.get(0), resultStack, recipe.getExperience(), recipe.getCookingTime());
         }
         return recipe;
     }
 
     public interface CoockinRecipeCreator<T extends AbstractCookingRecipe> {
-        T create(ResourceLocation key, String group, Ingredient ingredient, ItemStack result, float experience, int cookingTime);
+        T create(ResourceLocation key, String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime);
     }
 
 
@@ -59,7 +60,7 @@ public class CoockingRecipeManipulator <T extends AbstractCookingRecipe> extends
         result.id = recipe.getId();
         result.group = recipe.getGroup();
         result.ingredients = ingredients;
-        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem()), new MyResult.ExperienceResult(recipe.getExperience()));
+        result.results = List.of(new MyResult.ItemResult(recipe.getResultItem(null)), new MyResult.ExperienceResult(recipe.getExperience()));
         result.type = my_type;
         return result;
     }
@@ -70,6 +71,6 @@ public class CoockingRecipeManipulator <T extends AbstractCookingRecipe> extends
         float experience = ((MyResult.ExperienceResult)recipe.results.get(1)).experience;
         NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients, 1);
         int coocking_time = ((MyIngredient.TimeIngredient)recipe.ingredients.get(1)).processing_time;
-        return constructor.create(recipe.id, recipe.group, ingredients.get(0), result, experience, coocking_time);
+        return constructor.create(recipe.id, recipe.group, null, ingredients.get(0), result, experience, coocking_time);
     }
 }

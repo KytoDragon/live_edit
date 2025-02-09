@@ -1,7 +1,7 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class Decal extends MyGuiComponent {
 
@@ -13,8 +13,8 @@ public class Decal extends MyGuiComponent {
     }
 
     @Override
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         RenderSystem.disableDepthTest();
-        texture.draw(this, pose, x, y);
+        texture.draw(graphics, x, y);
     }
 }

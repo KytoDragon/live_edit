@@ -6,6 +6,7 @@ import de.kytodragon.live_edit.editing.gui.components.Button;
 import de.kytodragon.live_edit.editing.gui.components.ItemComponent;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemInput extends MyGuiComponent implements IIngredientInput, IResultInput {
 
@@ -60,7 +61,9 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
 
     @Override
     public void setIngredient(MyIngredient ingredient) {
-        if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
+        if (ingredient == null) {
+            item.itemstack = ItemStack.EMPTY;
+        } else if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
             item.itemstack = itemIngredient.item.copy();
         }
     }
@@ -72,7 +75,9 @@ public class ItemInput extends MyGuiComponent implements IIngredientInput, IResu
 
     @Override
     public void setResult(MyResult result) {
-        if (result instanceof MyResult.ItemResult itemResult) {
+        if (result == null) {
+            item.itemstack = ItemStack.EMPTY;
+        } else if (result instanceof MyResult.ItemResult itemResult) {
             item.itemstack = itemResult.item.copy();
         }
     }

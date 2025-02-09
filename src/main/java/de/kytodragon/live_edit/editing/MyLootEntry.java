@@ -2,7 +2,7 @@ package de.kytodragon.live_edit.editing;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
@@ -24,7 +24,7 @@ public class MyLootEntry implements IJsonProvider {
         MyLootEntry entry = new MyLootEntry();
 
         ResourceLocation type = JsonHelper.getResourceLocation(json, "type");
-        entry.type = Registry.LOOT_POOL_ENTRY_TYPE.get(type);
+        entry.type = BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.get(type);
 
         entry.weight = GsonHelper.getAsInt(json, "weight", 1);
         entry.quality = GsonHelper.getAsInt(json, "quality", 0);
@@ -44,7 +44,7 @@ public class MyLootEntry implements IJsonProvider {
     public JsonElement toJson() {
         JsonObject json = new JsonObject();
         //noinspection DataFlowIssue
-        json.addProperty("type", Registry.LOOT_POOL_ENTRY_TYPE.getKey(type).toString());
+        json.addProperty("type", BuiltInRegistries.LOOT_POOL_ENTRY_TYPE.getKey(type).toString());
         if (weight != 1)
             json.addProperty("weight", weight);
         if (quality != 0)

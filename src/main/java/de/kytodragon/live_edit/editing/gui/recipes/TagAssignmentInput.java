@@ -42,12 +42,15 @@ public class TagAssignmentInput extends MyGuiComponent implements IRecipeInput {
         key = ((MyResult.TagResult)recipe.results.get(0)).tag;
 
         if (items.size() < recipe.ingredients.size()) {
-            for (int row = 0; row < (recipe.ingredients.size() - items.size()) / ITEMS_PER_ROW + 1; row++) {
+            for (int row = 0; row < recipe.ingredients.size() / ITEMS_PER_ROW + 1; row++) {
                 addNewRow();
             }
         }
         for (int i = 0; i < recipe.ingredients.size(); i++) {
             items.get(i).setIngredient(recipe.ingredients.get(i));
+        }
+        for (int i = recipe.ingredients.size(); i < items.size(); i++) {
+            items.get(i).setIngredient(null);
         }
     }
 
@@ -56,7 +59,8 @@ public class TagAssignmentInput extends MyGuiComponent implements IRecipeInput {
         MyRecipe recipe = new MyRecipe();
         recipe.ingredients = new ArrayList<>(items.size());
         for (ItemInput item : items) {
-            recipe.ingredients.add(item.getIngredient());
+            if (!item.isEmpty())
+                recipe.ingredients.add(item.getIngredient());
         }
         recipe.results = List.of(new MyResult.TagResult(key));
         return recipe;

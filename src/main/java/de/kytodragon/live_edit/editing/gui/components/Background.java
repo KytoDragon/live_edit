@@ -1,6 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class Background extends MyGuiComponent {
 
@@ -9,7 +9,7 @@ public class Background extends MyGuiComponent {
     }
 
     @Override
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
 
         for (int y = 0; y < height; y += 16) {
             for (int x = 0; x < width; x += 16) {
@@ -39,7 +39,7 @@ public class Background extends MyGuiComponent {
                         texture = VanillaTextures.BACKGROUND_MIDDLE;
                     }
                 }
-                texture.draw(this, pose, this.x + x, this.y + y);
+                texture.draw(graphics, this.x + x, this.y + y);
             }
         }
     }

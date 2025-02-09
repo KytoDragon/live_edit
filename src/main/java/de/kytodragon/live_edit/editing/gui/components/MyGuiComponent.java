@@ -1,14 +1,13 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class MyGuiComponent extends GuiComponent {
+public abstract class MyGuiComponent {
 
     public int x;
     public int y;
@@ -39,40 +38,40 @@ public abstract class MyGuiComponent extends GuiComponent {
         this.minecraft = Minecraft.getInstance();
     }
 
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        pose.pushPose();
-        pose.translate(x, y, 0);
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, y, 0);
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
             if (component.is_visible)
-                component.renderBackground(pose, partialTick, mouseX, mouseY);
+                component.renderBackground(graphics, partialTick, mouseX, mouseY);
         }
-        pose.popPose();
+        graphics.pose().popPose();
     }
 
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        pose.pushPose();
-        pose.translate(x, y, 0);
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, y, 0);
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
             if (component.is_visible)
-                component.renderForeground(pose, partialTick, mouseX, mouseY);
+                component.renderForeground(graphics, partialTick, mouseX, mouseY);
         }
-        pose.popPose();
+        graphics.pose().popPose();
     }
 
-    public void renderOverlay(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        pose.pushPose();
-        pose.translate(x, y, 0);
+    public void renderOverlay(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, y, 0);
         mouseX -= x;
         mouseY -= y;
         for (MyGuiComponent component : children) {
             if (component.is_visible)
-                component.renderOverlay(pose, partialTick, mouseX, mouseY);
+                component.renderOverlay(graphics, partialTick, mouseX, mouseY);
         }
-        pose.popPose();
+        graphics.pose().popPose();
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int mouse_button, ItemStack carried) {

@@ -67,10 +67,6 @@ public class RecipeIDSlot extends Slot {
 
     @Override
     public void set(ItemStack item) {
-    }
-
-    @Override
-    public void initialize(ItemStack item) {
         if (item.getTag() != null) {
             CompoundTag tag = item.getTag();
             if (tag.get("recipe_type") != null && tag.get("recipe_id") != null) {

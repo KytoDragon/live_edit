@@ -1,9 +1,8 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Vector4f;
-import net.minecraft.client.gui.GuiComponent;
+import org.joml.Vector4f;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,41 +28,41 @@ public class ScrolledListPanel extends MyGuiComponent {
     }
 
     @Override
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        scissorWithPose(pose, x, y, width, height);
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        scissorWithPose(graphics, x, y, width, height);
 
-        this.fillGradient(pose, x, y, x+width, y+height, bgColorFrom, bgColorTo);
+        graphics.fillGradient(x, y, x+width, y+height, bgColorFrom, bgColorTo);
 
-        pose.pushPose();
-        pose.translate(x, (int)getContentYOffset(), 0);
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, (int)getContentYOffset(), 0);
         mouseX -= x;
         mouseY -= (int)getContentYOffset();
         for (MyGuiComponent component : children) {
             if (component.is_visible) {
-                component.renderBackground(pose, partialTick, mouseX, mouseY);
+                component.renderBackground(graphics, partialTick, mouseX, mouseY);
             }
         }
-        pose.popPose();
+        graphics.pose().popPose();
 
-        RenderSystem.disableScissor();
+        graphics.disableScissor();
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        scissorWithPose(pose, x, y, width, height);
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        scissorWithPose(graphics, x, y, width, height);
 
-        pose.pushPose();
-        pose.translate(x, (int)getContentYOffset(), 0);
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, (int)getContentYOffset(), 0);
         mouseX -= x;
         mouseY -= (int)getContentYOffset();
         for (MyGuiComponent component : children) {
             if (component.is_visible) {
-                component.renderForeground(pose, partialTick, mouseX, mouseY);
+                component.renderForeground(graphics, partialTick, mouseX, mouseY);
             }
         }
-        pose.popPose();
+        graphics.pose().popPose();
 
-        RenderSystem.disableScissor();
+        graphics.disableScissor();
 
         int extraHeight = (getContentHeight() + border) - height;
         if (extraHeight > 0) {
@@ -74,27 +73,27 @@ public class ScrolledListPanel extends MyGuiComponent {
             }
 
             int barLeft = x + width - barWidth;
-            GuiComponent.fill(pose, barLeft, y, barLeft + barWidth, y+height, barBgColor);
-            GuiComponent.fill(pose, barLeft, barTop, barLeft + barWidth, barTop + barHeight, barColor);
-            GuiComponent.fill(pose, barLeft, barTop, barLeft + barWidth - 1, barTop + barHeight - 1, barBorderColor);
+            graphics.fill(barLeft, y, barLeft + barWidth, y+height, barBgColor);
+            graphics.fill(barLeft, barTop, barLeft + barWidth, barTop + barHeight, barColor);
+            graphics.fill(barLeft, barTop, barLeft + barWidth - 1, barTop + barHeight - 1, barBorderColor);
         }
     }
 
     @Override
-    public void renderOverlay(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderOverlay(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (!isInside(mouseX, mouseY))
             return;
 
-        pose.pushPose();
-        pose.translate(x, (int)getContentYOffset(), 0);
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, (int)getContentYOffset(), 0);
         mouseX -= x;
         mouseY -= (int)getContentYOffset();
         for (MyGuiComponent component : children) {
             if (component.is_visible) {
-                component.renderOverlay(pose, partialTick, mouseX, mouseY);
+                component.renderOverlay(graphics, partialTick, mouseX, mouseY);
             }
         }
-        pose.popPose();
+        graphics.pose().popPose();
     }
 
     @Override
@@ -193,12 +192,12 @@ public class ScrolledListPanel extends MyGuiComponent {
     /**
      * Scissor with respect to GUI-Scale and current offset.
      */
-    private void scissorWithPose(PoseStack pose, int x, int y, int width, int height) {
+    private void scissorWithPose(GuiGraphics graphics, int x, int y, int width, int height) {
         double scale = minecraft.getWindow().getGuiScale();
         Vector4f scissorPos = new Vector4f(x, y, 0, 1);
-        scissorPos.transform(pose.last().pose());
-        RenderSystem.enableScissor((int)(scissorPos.x() * scale), (int)(minecraft.getWindow().getHeight() - ((scissorPos.y() + height) * scale)),
-            (int)(width * scale), (int)(height * scale));
+        scissorPos = graphics.pose().last().pose().transform(scissorPos);
+        graphics.enableScissor((int)(scissorPos.x()), (int)(scissorPos.y()),
+                (int)(scissorPos.x() + width), (int)(scissorPos.y() + height));
     }
 
     private int getContentHeight() {

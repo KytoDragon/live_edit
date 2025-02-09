@@ -43,9 +43,7 @@ public class LootTableItemReplacer {
             i++;
         }
         LootItemFunction[] functions = ((LootTableMixin)loot_table).live_edit_mixin_getFunctions();
-        LootTable result = LootTableMixin.create(loot_table.getParamSet(), new_pools, functions);
-        //noinspection DataFlowIssue
-        result.setLootTableId(loot_table.getLootTableId());
+        LootTable result = LootTableMixin.create(loot_table.getParamSet(), loot_table.getLootTableId(), new_pools, functions);
         return result;
     }
 

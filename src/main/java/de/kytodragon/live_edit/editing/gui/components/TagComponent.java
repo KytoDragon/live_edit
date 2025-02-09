@@ -1,9 +1,10 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import com.google.common.collect.Iterators;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector4f;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import org.joml.Vector4f;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyResult;
 import net.minecraft.ChatFormatting;
@@ -57,11 +58,13 @@ public class TagComponent extends MyGuiComponent {
         current_item = ItemStack.EMPTY;
         current_item_pos = 0;
         cycle = 0;
+        if (amount == 0)
+            amount = 1;
         tick();
     }
 
     public void setTagId(ResourceLocation id) {
-        setTag(TagKey.create(Registry.ITEM_REGISTRY, id));
+        setTag(TagKey.create(Registries.ITEM, id));
     }
 
     public ResourceLocation getTagId() {
@@ -94,8 +97,6 @@ public class TagComponent extends MyGuiComponent {
                 if (reset_tags || last_clicked_item != item)
                     current_tag_pos = 0;
                 current_tag_pos = current_tag_pos % tags.size();
-                if (amount == 0)
-                    amount = 1;
 
                 setTag(tags.get(current_tag_pos).getKey());
                 current_tag_pos++;
@@ -105,43 +106,33 @@ public class TagComponent extends MyGuiComponent {
     }
 
     @Override
-    public void renderBackground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
-        VanillaTextures.EMPTY_SLOT.draw(this, pose, x, y);
+    public void renderBackground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        VanillaTextures.EMPTY_SLOT.draw(graphics, x, y);
     }
 
     @Override
-    public void renderForeground(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderForeground(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (tag == null || current_item.isEmpty())
             return;
 
-        // Apply the translation of the current pose to the item-view-matrix
-        Vector4f itemPos = new Vector4f(0, 0, 0, 1);
-        itemPos.transform(pose.last().pose());
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.pushPose();
-        posestack.translate(itemPos.x(), itemPos.y(), 0);
-        RenderSystem.applyModelViewMatrix();
-
-        ItemRenderer itemRenderer = minecraft.getItemRenderer();
+        graphics.pose().pushPose();
         // blitOffset of 100 means the final image is rendered at z = 250 (+50 in ItemRenderer.tryRenderGuiItem, +100 in ItemRenderer.renderGuiItem)
-        itemRenderer.blitOffset = 100.0F;
-        itemRenderer.renderAndDecorateItem(current_item, x+1, y+1);
-        itemRenderer.renderGuiItemDecorations(minecraft.font, current_item, x+1, y+1);
+        graphics.pose().translate(0, 0, 100.0F);
+
+        graphics.renderItem(current_item, x+1, y+1);
+        graphics.renderItemDecorations(minecraft.font, current_item, x+1, y+1);
 
         // Undo translation
-        posestack.popPose();
-        RenderSystem.applyModelViewMatrix();
+        graphics.pose().popPose();
 
         if (isInside(mouseX, mouseY)) {
-
-            // Z of 300 is above our item at 250 and behind floating items at 350
-            fillGradient(pose, x+1, y+1, x+1 + 16, y+1 + 16, 0x80FFFFFF, 0x80FFFFFF, 300);
+            // Z of 300 (100 + 200) is above our item at 250 and behind floating items at 350
+            graphics.fillGradient(x+1, y+1, x+1 + 16, y+1 + 16, 0x80FFFFFF, 0x80FFFFFF, 200);
         }
-        itemRenderer.blitOffset = 0.0F;
     }
 
     @Override
-    public void renderOverlay(PoseStack pose, float partialTick, int mouseX, int mouseY) {
+    public void renderOverlay(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (tag == null || current_item.isEmpty())
             return;
 
@@ -163,13 +154,13 @@ public class TagComponent extends MyGuiComponent {
 
             // renderTooltip will clamp the tooltip position to the screen size before the current pose ist considered.
             // Therefore translate to the current position. TODO Will tooltips correctly flip sides on the right screen edge?
-            pose.pushPose();
-            pose.translate(x, y, 0);
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, y, 0);
             mouseX -= x;
             mouseY -= y;
             Objects.requireNonNull(minecraft.screen);
-            minecraft.screen.renderTooltip(pose, lines, image, mouseX, mouseY);
-            pose.popPose();
+            graphics.renderTooltip(minecraft.font, lines, image, mouseX, mouseY);
+            graphics.pose().popPose();
         }
     }
 
