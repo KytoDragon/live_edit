@@ -173,7 +173,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
                     } else {
                         continue;
                     }
-                    keyPrefix = PotionUtils.getPotion(result_potion).getName(keyPrefix);
+                    keyPrefix = keyPrefix + ResourceLocation.tryParse(result_potion.getTag().getString("Potion")).getPath()/*PotionUtils.getPotion(result_potion).getName(keyPrefix)*/;
                     String keyName = keyPrefix;
 
                     Integer index = keyIndices.get(keyPrefix);

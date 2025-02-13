@@ -22,9 +22,11 @@ import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.storage.loot.LootDataId;
 import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITagManager;
@@ -58,26 +60,7 @@ public class VanillaIntegration implements Integration {
         MyRecipe.result_deserializers.put("experience", MyResult.ExperienceResult::fromJson);
         MyRecipe.result_deserializers.put("tag", MyResult.TagResult::fromJson);
 
-        RecipeEditingGui.ingredientMapper.put(MyIngredient.ItemIngredient.class, ItemOrTagInput::new);
-        RecipeEditingGui.ingredientMapper.put(MyIngredient.TagIngredient.class, ItemOrTagInput::new);
-        RecipeEditingGui.ingredientMapper.put(MyIngredient.TimeIngredient.class, TimeInput::new);
-
-        RecipeEditingGui.resultMapper.put(MyResult.ItemResult.class, ItemInput::new);
-        RecipeEditingGui.resultMapper.put(MyResult.ExperienceResult.class, ExperienceInput::new);
-        RecipeEditingGui.resultMapper.put(MyResult.TimeResult.class, TimeInput::new);
-        RecipeEditingGui.resultMapper.put(MyResult.ChanceResult.class, ChanceInput::new);
-
-        RecipeEditingGui.recipeMapper.put(RecipeType.CRAFTING, CraftingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.SMELTING, SmeltingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.CAMPFIRE_COOKING, SmeltingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.SMOKING, SmeltingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.BLASTING, SmeltingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.STONECUTTING, StoneCuttingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.SMITHING, SmithingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.BURN_TIME, BurnTimeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.COMPOSTING, ComposterInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.BREWING, BrewingRecipeInput::new);
-        RecipeEditingGui.recipeMapper.put(RecipeType.TAGS, TagAssignmentInput::new);
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> VanillaUIIntegration::registerClientGui);
 
         // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
         // This makes shure we do not delete recipes we do not know about.

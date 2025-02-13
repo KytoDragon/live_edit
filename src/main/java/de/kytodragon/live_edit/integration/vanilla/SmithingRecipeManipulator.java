@@ -48,6 +48,8 @@ public class SmithingRecipeManipulator extends StandardRecipeManipulator<Smithin
 
     @Override
     public MyRecipe encodeRecipe(SmithingRecipe recipe) {
+        if (!(recipe instanceof SmithingTransformRecipe))
+            return null;
         UpgradeRecipeMixin upgrade = (UpgradeRecipeMixin) recipe;
 
         MyIngredient base = encodeIngredient(upgrade.live_edit_mixin_getBase());
