@@ -4,12 +4,10 @@ import de.kytodragon.live_edit.editing.EditCommandPacket;
 import de.kytodragon.live_edit.editing.gui.GuiCommon;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import de.kytodragon.live_edit.LiveEditMod;
 import de.kytodragon.live_edit.editing.MyIngredient;
@@ -21,9 +19,9 @@ import de.kytodragon.live_edit.recipe.RecipeType;
 
 import java.util.*;
 
+@OnlyIn(Dist.CLIENT)
 public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
 
-    private static final ResourceLocation MENU_TYPE_ID = new ResourceLocation(LiveEditMod.MODID, "recipe_editing_menu");
     public static final Map<Class<? extends MyIngredient>, IngredientInputFactory> ingredientMapper = new HashMap<>();
     public static final Map<Class<? extends MyResult>, ResultInputFactory> resultMapper = new HashMap<>();
     public static final Map<RecipeType, RecipeInputFactory> recipeMapper = new HashMap<>();
@@ -40,19 +38,12 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
         content.addChild(new Button(100, 80, 30, 12, "Save", this::sendRecipeToServer));
     }
 
-    public static void clientSetup(RegisterEvent event) {
-        if (event.getRegistryKey() == ForgeRegistries.MENU_TYPES.getRegistryKey()) {
-            ForgeRegistries.MENU_TYPES.register(MENU_TYPE_ID, RecipeEditingMenu.MENU_TYPE);
-            MenuScreens.register(RecipeEditingMenu.MENU_TYPE, RecipeEditingGui::new);
-        }
-    }
-
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         super.renderLabels(graphics, mouseX, mouseY);
-        if (menu.recipe_slot.id != null) {
-            //graphics.drawString(this.font, menu.recipe_slot.id.toString(), 10, 20, 0x404040);
-        }
+        /*if (menu.recipe_slot.id != null) {
+            graphics.drawString(this.font, menu.recipe_slot.id.toString(), 10, 20, 0x404040);
+        }*/
     }
 
     @Override

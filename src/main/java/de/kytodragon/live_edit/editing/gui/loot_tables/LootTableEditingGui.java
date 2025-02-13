@@ -5,13 +5,13 @@ import de.kytodragon.live_edit.editing.*;
 import de.kytodragon.live_edit.editing.gui.GuiCommon;
 import de.kytodragon.live_edit.editing.gui.components.Button;
 import de.kytodragon.live_edit.integration.PacketRegistry;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
 
     private static final ResourceLocation MENU_TYPE_ID = new ResourceLocation(LiveEditMod.MODID, "loot_table_editing_menu");
@@ -27,13 +27,6 @@ public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
 
         content.addChild(loot_table_editor);
         content.addChild(new Button(100, this.inventoryLabelY - 2, 30, 12, "Save", this::sendLootTableToServer));
-    }
-
-    public static void clientSetup(RegisterEvent event) {
-        if (event.getRegistryKey() == ForgeRegistries.MENU_TYPES.getRegistryKey()) {
-            ForgeRegistries.MENU_TYPES.register(MENU_TYPE_ID, LootTableEditingMenu.MENU_TYPE);
-            MenuScreens.register(LootTableEditingMenu.MENU_TYPE, LootTableEditingGui::new);
-        }
     }
 
     @Override

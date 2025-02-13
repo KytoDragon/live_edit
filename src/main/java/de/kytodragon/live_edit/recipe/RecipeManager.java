@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 
+import java.nio.file.Path;
 import java.util.*;
 
 import static de.kytodragon.live_edit.LiveEditMod.LOGGER;
@@ -24,6 +25,7 @@ public class RecipeManager {
     public HashMap<RecipeType, IRecipeManipulator<ResourceLocation, ?, ?>> manipulators = new HashMap<>();
     public List<Integration> integrations = new ArrayList<>();
     public GeneralManipulationData data;
+    public Path data_path;
 
     public void markRecipeForDeletion(RecipeType type, ResourceLocation recipeKey) {
         manipulators.get(type).markRecipeForDeletion(recipeKey);
