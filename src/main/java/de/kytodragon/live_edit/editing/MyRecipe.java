@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class MyRecipe implements IJsonProvider {
+public class MyRecipe implements IRecipe {
 
     public static final Map<String, Function<JsonObject, MyIngredient>> ingredient_deserializers = new HashMap<>();
     public static final Map<String, Function<JsonObject, MyResult>> result_deserializers = new HashMap<>();
@@ -83,7 +83,7 @@ public class MyRecipe implements IJsonProvider {
     }
 
     @Override
-    public JsonElement toJson() {
+    public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.addProperty("type", type.name());
         json.addProperty("id", id.toString());
@@ -95,6 +95,35 @@ public class MyRecipe implements IJsonProvider {
         JsonHelper.addArrayToJson(json, "results", results);
 
         return json;
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    @Override
+    public boolean containsItem(Item item) {
+
+        if (results != null) {
+            for (MyResult result : results) {
+                if (result instanceof MyResult.ItemResult itemResult) {
+                    if (itemResult.item.getItem() == item) {
+                        return true;
+                    }
+                }
+            }
+        }
+        if (ingredients != null) {
+            for (MyIngredient ingredient : ingredients) {
+                if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
+                    if (itemIngredient.item.getItem() == item) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public String toJsonString() {

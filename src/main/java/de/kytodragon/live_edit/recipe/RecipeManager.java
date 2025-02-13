@@ -1,11 +1,9 @@
 package de.kytodragon.live_edit.recipe;
 
+import com.google.gson.JsonObject;
 import de.kytodragon.live_edit.editing.EditCommandPacket;
-import de.kytodragon.live_edit.editing.MyLootTable;
-import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.integration.LiveEditPacket;
-import de.kytodragon.live_edit.integration.vanilla.LootTableManipulator;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 
@@ -22,7 +20,7 @@ public class RecipeManager {
 
     public static final RecipeManager instance = new RecipeManager();
 
-    public HashMap<RecipeType, IRecipeManipulator<ResourceLocation, ?, ?>> manipulators = new HashMap<>();
+    public HashMap<RecipeType, IRecipeManipulator<?, ?, ?>> manipulators = new HashMap<>();
     public List<Integration> integrations = new ArrayList<>();
     public GeneralManipulationData data;
     public Path data_path;
@@ -31,16 +29,8 @@ public class RecipeManager {
         manipulators.get(type).markRecipeForDeletion(recipeKey);
     }
 
-    public void markRecipeForAddition(RecipeType type, ResourceLocation recipeKey, MyRecipe recipe) {
+    public void markRecipeForAddition(RecipeType type, ResourceLocation recipeKey, JsonObject recipe) {
         manipulators.get(type).markRecipeForAddition(recipeKey, recipe);
-    }
-
-    public void markRecipeForReplacement(RecipeType type, ResourceLocation recipeKey, MyRecipe recipe) {
-        manipulators.get(type).markRecipeForReplacement(recipeKey, recipe);
-    }
-
-    public void markLootTableForReplacement(ResourceLocation lootTableKey, MyLootTable recipe) {
-        ((LootTableManipulator)manipulators.get(RecipeType.LOOT_TABLE)).markLootTableForReplacement(lootTableKey, recipe);
     }
 
     public void markItemForReplacement(Item item, Item replacement) {
@@ -52,7 +42,7 @@ public class RecipeManager {
         integration.registerManipulators(this);
     }
 
-    public <I extends Integration> void addRecipeManipulator(I integration, RecipeType type, IRecipeManipulator<ResourceLocation, ?, I> manipulator) {
+    public <I extends Integration> void addRecipeManipulator(I integration, RecipeType type, IRecipeManipulator<?, ?, I> manipulator) {
         manipulator.setIntegration(integration);
         manipulator.setRecipeType(type);
         // Remove dummy manipulators. Just a put is not enough, as the recipe type in the key will still be set to "Dummy".
@@ -60,43 +50,34 @@ public class RecipeManager {
         manipulators.put(type, manipulator);
     }
 
-    public void manipulateAllRecipesAndReload() {
-
+    public void loadAllRecipes() {
         try {
-            integrations.forEach(Integration::prepareReload);
+            manipulators.values().forEach(m -> m.loadRecipes(data_path));
         } catch (Exception e) {
-            LOGGER.error("Failed to prepare recipe replacement: ", e);
+            LOGGER.error("Failed to load recipes: ", e);
             return;
         }
+    }
 
+    public void saveAllRecipes() {
         try {
-            manipulators.values().forEach(m -> m.manipulateRecipesAndPrepareReload(data));
+            manipulators.values().forEach(m -> m.saveRecipes(data_path));
         } catch (Exception e) {
-            LOGGER.error("Failed to replace recipes: ", e);
-            return;
-        }
-
-        try {
-            integrations.forEach(Integration::reload);
-        } catch (Exception e) {
-            LOGGER.error("Failed to prepare recipe replacement: ", e);
+            LOGGER.error("Failed to save recipes: ", e);
             return;
         }
     }
 
     public void initServer(MinecraftServer server) {
         data = new GeneralManipulationData();
-        integrations.forEach(i -> i.initServer(server));
+        integrations.forEach(i -> i.initServer(server, data_path));
     }
 
     public void shutdownServer() {
+        saveAllRecipes();
         manipulators.forEach((k, s) -> s.shutdownServer());
-        integrations.forEach(Integration::shutdownServer);
+        integrations.forEach(i -> i.shutdownServer(data_path));
         data = null;
-    }
-
-    public void handleClientPacket(LiveEditPacket packet) {
-        integrations.forEach(integration -> integration.acceptClientPacket(packet));
     }
 
     public void handleServerPacket(LiveEditPacket packet, ServerPlayer player) {
@@ -108,9 +89,5 @@ public class RecipeManager {
             player.server.getCommands().performPrefixedCommand(commandsourcestack, command);
             return;
         }
-    }
-
-    public void informNewPlayer(ServerPlayer player) {
-        integrations.forEach(integration -> integration.informNewPlayer(player));
     }
 }

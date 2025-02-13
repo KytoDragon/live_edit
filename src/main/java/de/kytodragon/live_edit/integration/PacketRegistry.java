@@ -22,16 +22,6 @@ public class PacketRegistry {
     );
     public static int PACKET_ID = 1;
 
-    public static <T extends LiveEditPacket> void registerClientPacket(Class<T> clazz, Supplier<T> constuctor) {
-        PacketRegistry.INSTANCE.registerMessage(PacketRegistry.PACKET_ID++, clazz,
-            PacketRegistry::encodeMessage, (buf) -> {
-                T packet = constuctor.get();
-                packet.decode(buf);
-                return packet;
-            },
-            PacketRegistry::handleClientMessage, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-    }
-
     public static <T extends LiveEditPacket> void registerServerPacket(Class<T> clazz, Supplier<T> constuctor) {
         PacketRegistry.INSTANCE.registerMessage(PacketRegistry.PACKET_ID++, clazz,
             PacketRegistry::encodeMessage, (buf) -> {
@@ -44,13 +34,6 @@ public class PacketRegistry {
 
     public static void encodeMessage(LiveEditPacket packet, FriendlyByteBuf buf) {
         packet.encode(buf);
-    }
-
-    public static void handleClientMessage(LiveEditPacket packet, Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> {
-            RecipeManager.instance.handleClientPacket(packet);
-        });
-        context.get().setPacketHandled(true);
     }
 
     public static void handleServerMessage(LiveEditPacket packet, Supplier<NetworkEvent.Context> context) {

@@ -1,11 +1,9 @@
 package de.kytodragon.live_edit.command;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import de.kytodragon.live_edit.editing.MyIngredient;
-import de.kytodragon.live_edit.editing.MyLootTable;
-import de.kytodragon.live_edit.editing.MyRecipe;
-import de.kytodragon.live_edit.editing.MyResult;
+import de.kytodragon.live_edit.editing.*;
 import de.kytodragon.live_edit.editing.gui.loot_tables.LootTableEditingMenu;
 import de.kytodragon.live_edit.editing.gui.recipes.RecipeEditingMenu;
 import de.kytodragon.live_edit.recipe.*;
@@ -34,8 +32,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.kytodragon.live_edit.LiveEditMod.LOGGER;
-
 public class Command {
 
     private static final int COMMAND_PERMISSION = 0;
@@ -61,9 +57,9 @@ public class Command {
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> reloadCommand() {
-        return Commands.literal("reload")
+        return Commands.literal("save")
             .executes(ctx -> {
-                RecipeManager.instance.manipulateAllRecipesAndReload();
+                RecipeManager.instance.saveAllRecipes();
                 return 1;
             });
     }
@@ -76,7 +72,7 @@ public class Command {
                     .executes(ctx -> {
                         Item item = ItemArgument.getItem(ctx, "item").getItem();
 
-                        Stream<IRecipeManipulator<ResourceLocation, ?, ?>> manipulators = RecipeManager.instance.manipulators.values().stream().filter(IRecipeManipulator::isRealImplementation);
+                        Stream<IRecipeManipulator<?, ?, ?>> manipulators = RecipeManager.instance.manipulators.values().stream().filter(IRecipeManipulator::isRealImplementation);
                         Stream<Pair<RecipeType, ResourceLocation>> matching_recipes = manipulators.flatMap(manipulator -> findItem(manipulator, item));
                         String list = matching_recipes.map(pair -> "\n\u2022 " + pair.getLeft().name() + " " + pair.getRight().toString())
                                             .collect(Collectors.joining());
@@ -126,15 +122,9 @@ public class Command {
                     .executes(ctx -> {
                         RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
                         ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
-                        if (type == RecipeType.LOOT_TABLE) {
-                            MyLootTable table = getEncodedLootTable(RecipeManager.instance.manipulators.get(type), recipe_key);
-                            if (table != null)
-                                ctx.getSource().sendSuccess(() -> Component.literal(table.toJsonString()), false);
-                        } else {
-                            MyRecipe recipe = getEncodedRecipe(RecipeManager.instance.manipulators.get(type), recipe_key);
-                            if (recipe != null)
-                                ctx.getSource().sendSuccess(() -> Component.literal(recipe.toJsonString()), false);
-                        }
+                        IRecipe recipe = getEncodedRecipe(RecipeManager.instance.manipulators.get(type), recipe_key);
+                        if (recipe != null)
+                            ctx.getSource().sendSuccess(() -> Component.literal(recipe.toJson().toString()), false);
                         return 1;
                     })
                 )
@@ -158,30 +148,16 @@ public class Command {
                 )
             )
             .then(Commands.literal("recipe")
-                .then(Commands.literal(RecipeType.LOOT_TABLE.name())
-                    .then(Commands.argument("loot_able", new RecipeArgument())
-                        .then(Commands.argument("replacement", new LootTableJsonArgument())
-                            .executes(ctx -> {
-                                ResourceLocation loot_table_key = RecipeArgument.getRecipe(ctx, RecipeType.LOOT_TABLE, "loot_able");
-                                MyLootTable loot_table = LootTableJsonArgument.getLootTable(ctx, "replacement");
-
-                                RecipeManager.instance.markLootTableForReplacement(loot_table_key, loot_table);
-
-                                ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.loot_table.marked_for_replacement", loot_table_key.toString()), false);
-                                return 1;
-                            })
-                        )
-                    )
-                )
                 .then(Commands.argument("type", new RecipeTypeArgument())
                     .then(Commands.argument("recipe", new RecipeArgument())
                         .then(Commands.argument("replacement", new RecipeJsonArgument())
                             .executes(ctx -> {
                                 RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
                                 ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
-                                MyRecipe recipe = RecipeJsonArgument.getRecipe(ctx, "replacement");
+                                JsonObject recipe = RecipeJsonArgument.getRecipe(ctx, "replacement");
 
-                                RecipeManager.instance.markRecipeForReplacement(type, recipe_key, recipe);
+                                RecipeManager.instance.markRecipeForDeletion(type, recipe_key);
+                                RecipeManager.instance.markRecipeForAddition(type, recipe_key, recipe);
 
                                 ctx.getSource().sendSuccess(() -> Component.translatable("live_edit.commands.recipe.marked_for_replacement", recipe_key.toString()), false);
                                 return 1;
@@ -201,7 +177,7 @@ public class Command {
                             .executes(ctx -> {
                                 RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
                                 ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
-                                MyRecipe recipe = RecipeJsonArgument.getRecipe(ctx, "replacement");
+                                JsonObject recipe = RecipeJsonArgument.getRecipe(ctx, "replacement");
 
                                 RecipeManager.instance.markRecipeForAddition(type, recipe_key, recipe);
 
@@ -214,52 +190,17 @@ public class Command {
             );
     }
 
-    private static <T> Stream<Pair<RecipeType, ResourceLocation>> findItem(IRecipeManipulator<ResourceLocation, T, ?> manipulator, Item item) {
-        return manipulator.getCurrentRecipes().stream().map(manipulator::encodeRecipe).filter(recipe -> {
-            if (recipe == null)
-                return false;
-
-            if (recipe.results != null) {
-                for (MyResult result : recipe.results) {
-                    if (result instanceof MyResult.ItemResult itemResult) {
-                        if (itemResult.item.getItem() == item) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            if (recipe.ingredients != null) {
-                for (MyIngredient ingredient : recipe.ingredients) {
-                    if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
-                        if (itemIngredient.item.getItem() == item) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }).map(recipe -> Pair.of(recipe.type, recipe.id));
+    private static <T> Stream<Pair<RecipeType, ResourceLocation>> findItem(IRecipeManipulator<T, ?, ?> manipulator, Item item) {
+        return manipulator.getCurrentRecipes().stream().map(manipulator::encodeRecipe).filter(recipe -> recipe.containsItem(item))
+                .map(recipe -> Pair.of(manipulator.getRecipeType(), recipe.getId()));
     }
 
-    private static <T> MyRecipe getEncodedRecipe(IRecipeManipulator<ResourceLocation, T, ?> manipulator, ResourceLocation key) {
+    private static <T> IRecipe getEncodedRecipe(IRecipeManipulator<T, ?, ?> manipulator, ResourceLocation key) {
         Optional<T> recipe = manipulator.getRecipe(key);
         if (recipe.isEmpty())
             return null;
 
         return manipulator.encodeRecipe(recipe.get());
-    }
-
-    private static <T> MyLootTable getEncodedLootTable(IRecipeManipulator<ResourceLocation, T, ?> manipulator, ResourceLocation key) {
-        Optional<T> table = manipulator.getRecipe(key);
-        if (table.isEmpty())
-            return null;
-
-        try {
-            return LootTableConverter.convertLootTable((LootTable) table.get());
-        } catch (UnsupportedOperationException e) {
-            LOGGER.error("Failed to convert loot table: ", e);
-            return null;
-        }
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> openGUICommand() {
@@ -318,23 +259,12 @@ public class Command {
             );
     }
 
-    private static <R> List<ResourceLocation> testAllRecipesOfType(RecipeType type, IRecipeManipulator<ResourceLocation, R, ?> manipulator) {
+    private static <R> List<ResourceLocation> testAllRecipesOfType(RecipeType type, IRecipeManipulator<R, ?, ?> manipulator) {
         Collection<R> currentRecipes = manipulator.getCurrentRecipes();
         List<ResourceLocation> failures = new ArrayList<>();
-        if (type == RecipeType.LOOT_TABLE) {
-            for (R table : currentRecipes) {
-                try {
-                    LootTableConverter.convertLootTable((LootTable) table);
-                } catch (UnsupportedOperationException e) {
-                    failures.add(manipulator.getKey(table));
-                }
-            }
-
-        } else {
-            for (R recipe : currentRecipes) {
-                if (manipulator.encodeRecipe(recipe) == null) {
-                    failures.add(manipulator.getKey(recipe));
-                }
+        for (R recipe : currentRecipes) {
+            if (manipulator.encodeRecipe(recipe) == null) {
+                failures.add(manipulator.getKey(recipe));
             }
         }
         return failures;

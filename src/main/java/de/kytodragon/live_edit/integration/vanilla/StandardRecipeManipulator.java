@@ -1,5 +1,6 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
+import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -8,7 +9,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.Collection;
 import java.util.Optional;
 
-public abstract class StandardRecipeManipulator <T extends Recipe<C>, C extends Container> extends IRecipeManipulator<ResourceLocation, T, VanillaIntegration> {
+public abstract class StandardRecipeManipulator <T extends Recipe<C>, C extends Container> extends IRecipeManipulator<T, MyRecipe, VanillaIntegration> {
 
     public net.minecraft.world.item.crafting.RecipeType<T> type;
 
@@ -26,10 +27,5 @@ public abstract class StandardRecipeManipulator <T extends Recipe<C>, C extends 
     @SuppressWarnings("unchecked")
     public Optional<T> getRecipe(ResourceLocation key) {
         return (Optional<T>)integration.vanilla_recipe_manager.byKey(key);
-    }
-
-    @Override
-    public void prepareReload(Collection<T> recipes) {
-        integration.addNewRecipes(recipes);
     }
 }

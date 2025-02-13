@@ -56,7 +56,7 @@ public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
         MyLootTable new_loot_table = loot_table_editor.getLootTable();
 
         EditCommandPacket packet = new EditCommandPacket();
-        packet.command = "replace loot_table " + new_loot_table.id.toString() + " " + new_loot_table.toJsonString();
+        packet.command = "replace loot_table " + new_loot_table.id.toString() + " " + new_loot_table.toJson().toString();
         PacketRegistry.INSTANCE.sendToServer(packet);
 
         onClose();

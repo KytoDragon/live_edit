@@ -3,11 +3,8 @@ package de.kytodragon.live_edit.integration.vanilla;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.recipe.GeneralManipulationData;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
-import de.kytodragon.live_edit.recipe.IngredientReplacer;
 import de.kytodragon.live_edit.recipe.RecipeType;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +24,7 @@ import java.util.stream.Stream;
 
 import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
 
-public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocation, IBrewingRecipe, VanillaIntegration> {
+public class BrewingRecipeManipulator extends IRecipeManipulator<IBrewingRecipe, MyRecipe, VanillaIntegration> {
 
     private static final ResourceLocation vanilla_potions = new ResourceLocation("minecraft", "vanilla_potions");
 
@@ -39,28 +36,6 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
             return brew.getKey();
         }
         return null;
-    }
-
-    @Override
-    public IBrewingRecipe manipulate(IBrewingRecipe recipe, GeneralManipulationData data) {
-        if (recipe instanceof MyBrewingRecipe brew) {
-            Ingredient input = brew.getInput();
-            Ingredient additive = brew.getIngredient();
-            ItemStack resultItem = brew.getOutput();
-            boolean inputToReplace = IngredientReplacer.isToReplace(input, data);
-            boolean additiveToReplace = IngredientReplacer.isToReplace(additive, data);
-            boolean resultToReplace = IngredientReplacer.isToReplace(resultItem, data);
-            if (inputToReplace)
-                input = IngredientReplacer.replace(input, data);
-            if (additiveToReplace)
-                additive = IngredientReplacer.replace(additive, data);
-            if (resultToReplace)
-                resultItem = IngredientReplacer.replace(resultItem, data);
-            if (inputToReplace || additiveToReplace || resultToReplace) {
-                return new MyBrewingRecipe(brew.getKey(), input, additive, resultItem);
-            }
-        }
-        return recipe;
     }
 
     @Override
@@ -87,11 +62,6 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
     }
 
     @Override
-    public void prepareReload(Collection<IBrewingRecipe> recipes) {
-        integration.addNewPotions(recipes);
-    }
-
-    @Override
     public MyRecipe encodeRecipe(IBrewingRecipe recipe) {
         if (recipe instanceof MyBrewingRecipe brew) {
             MyIngredient input = encodeIngredient(brew.getInput());
@@ -108,13 +78,6 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
             return result;
         }
         return null;
-    }
-
-    @Override
-    public IBrewingRecipe decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
-        NonNullList<Ingredient> ingredients = decodeIngredients(recipe.ingredients);
-        return new MyBrewingRecipe(recipe.id, ingredients.get(0), ingredients.get(1), result);
     }
 
     /**
@@ -173,7 +136,7 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<ResourceLocatio
                     } else {
                         continue;
                     }
-                    keyPrefix = keyPrefix + ResourceLocation.tryParse(result_potion.getTag().getString("Potion")).getPath()/*PotionUtils.getPotion(result_potion).getName(keyPrefix)*/;
+                    keyPrefix = keyPrefix + ResourceLocation.tryParse(result_potion.getTag().getString("Potion")).getPath();
                     String keyName = keyPrefix;
 
                     Integer index = keyIndices.get(keyPrefix);

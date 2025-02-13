@@ -37,7 +37,7 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
     }
 
     public static ResourceLocation getRecipe(CommandContext<CommandSourceStack> ctx, RecipeType type, String name) throws CommandSyntaxException {
-        IRecipeManipulator<ResourceLocation, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
+        IRecipeManipulator<?, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
         ResourceLocation resourcelocation = ctx.getArgument(name, ResourceLocation.class);
         manipulator.getRecipe(resourcelocation).orElseThrow(() -> {
             return ERROR_UNKNOWN_RECIPE.create(resourcelocation);
@@ -46,7 +46,7 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
     }
 
     public static ResourceLocation getRecipeOrNull(CommandContext<CommandSourceStack> ctx, RecipeType type, String name) {
-        IRecipeManipulator<ResourceLocation, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
+        IRecipeManipulator<?, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
         ResourceLocation resourcelocation = ctx.getArgument(name, ResourceLocation.class);
         if (manipulator.getRecipe(resourcelocation).isEmpty()) {
             resourcelocation = null;
@@ -63,7 +63,7 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> ctx, SuggestionsBuilder builder) {
 
         RecipeType type = ctx.getArgument("type", RecipeType.class);
-        Stream<IRecipeManipulator<ResourceLocation, ?, ?>> manipulators;
+        Stream<IRecipeManipulator<?, ?, ?>> manipulators;
         if (type == RecipeType.ALL) {
             manipulators = RecipeManager.instance.manipulators.values().stream();
         } else {
@@ -74,7 +74,7 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
         return SharedSuggestionProvider.suggestResource(recipes, builder);
     }
 
-    private static <T> Stream<ResourceLocation> getRecipes(IRecipeManipulator<ResourceLocation, T, ?> manipulator) {
+    private static <T> Stream<ResourceLocation> getRecipes(IRecipeManipulator<T, ?, ?> manipulator) {
         return manipulator.getCurrentRecipes().stream().map(manipulator::getKey).filter(Objects::nonNull);
     }
 

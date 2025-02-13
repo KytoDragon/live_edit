@@ -3,12 +3,10 @@ package de.kytodragon.live_edit.integration.vanilla;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.recipe.GeneralManipulationData;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,18 +15,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class CompostManipulator extends IRecipeManipulator<ResourceLocation, CompostChance, VanillaIntegration> {
+public class CompostManipulator extends IRecipeManipulator<CompostChance, MyRecipe, VanillaIntegration> {
     @Override
     public ResourceLocation getKey(CompostChance recipe) {
         return ForgeRegistries.ITEMS.getKey(recipe.item());
-    }
-
-    @Override
-    public CompostChance manipulate(CompostChance recipe, GeneralManipulationData data) {
-        if (data.itemsToReplace.containsKey(recipe.item())) {
-            recipe = new CompostChance(data.itemsToReplace.get(recipe.item()), recipe.compastChance());
-        }
-        return recipe;
     }
 
     @Override
@@ -54,11 +44,6 @@ public class CompostManipulator extends IRecipeManipulator<ResourceLocation, Com
     }
 
     @Override
-    public void prepareReload(Collection<CompostChance> recipes) {
-        integration.addNewCompostables(recipes);
-    }
-
-    @Override
     public MyRecipe encodeRecipe(CompostChance recipe) {
         MyRecipe result = new MyRecipe();
         result.id = getKey(recipe);
@@ -66,12 +51,5 @@ public class CompostManipulator extends IRecipeManipulator<ResourceLocation, Com
         result.results = List.of(new MyResult.ChanceResult(recipe.compastChance()));
         result.type = RecipeType.COMPOSTING;
         return result;
-    }
-
-    @Override
-    public CompostChance decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
-        float compost_chance = ((MyResult.ChanceResult)recipe.results.get(0)).output_chance;
-        return new CompostChance(result.getItem(), compost_chance);
     }
 }

@@ -3,10 +3,14 @@ package de.kytodragon.live_edit.editing;
 import com.google.gson.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-public class MyLootTable implements IJsonProvider {
+public class MyLootTable implements IRecipe {
 
     public ResourceLocation id;
     public List<ResourceLocation> requiredParams; // TODO are these neccesary?
@@ -32,6 +36,11 @@ public class MyLootTable implements IJsonProvider {
     }
 
     @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    @Override
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.addProperty("id", id.toString());
@@ -43,7 +52,18 @@ public class MyLootTable implements IJsonProvider {
         return json;
     }
 
-    public String toJsonString() {
-        return new Gson().toJson(toJson());
+    @Override
+    public boolean containsItem(Item item) {
+        if (pools != null) {
+            ResourceLocation item_id = ForgeRegistries.ITEMS.getKey(item);
+            for (MyLootPool pool : pools) {
+                for (MyLootEntry entry : pool.entries) {
+                    if (entry.containsItem(item_id))
+                        return true;
+                }
+            }
+        }
+        return false;
     }
+
 }

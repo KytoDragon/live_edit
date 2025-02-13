@@ -1,6 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.recipes;
 
-import de.kytodragon.live_edit.editing.MyRecipe;
+import de.kytodragon.live_edit.editing.IRecipe;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
@@ -23,11 +23,11 @@ public class RecipeIDSlot extends Slot {
         super(new RecipeWrapper(null), slot_id, 5000, 5000);
     }
 
-    public MyRecipe getRecipe() {
+    public IRecipe getRecipe() {
         return genericsHelper(RecipeManager.instance.manipulators.get(type));
     }
 
-    private <T> MyRecipe genericsHelper(IRecipeManipulator<ResourceLocation, T, ?> manipulator) {
+    private <T> IRecipe genericsHelper(IRecipeManipulator<T, ?, ?> manipulator) {
         if (manipulator == null)
             return null;
 

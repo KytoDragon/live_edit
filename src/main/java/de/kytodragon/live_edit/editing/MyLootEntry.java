@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
 import java.util.List;
@@ -58,5 +59,16 @@ public class MyLootEntry implements IJsonProvider {
         JsonHelper.addArrayToJson(json, "children", children);
         JsonHelper.addArrayToJson(json, "functions", functions);
         return json;
+    }
+
+    public boolean containsItem(ResourceLocation item_id) {
+        if (type == LootPoolEntries.ITEM && id.equals(item_id)) {
+            return true;
+        }
+        for (MyLootEntry entry : children) {
+            if (entry.containsItem(item_id))
+                return true;
+        }
+        return false;
     }
 }

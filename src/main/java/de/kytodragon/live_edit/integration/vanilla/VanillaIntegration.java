@@ -3,34 +3,25 @@ package de.kytodragon.live_edit.integration.vanilla;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.editing.gui.modules.*;
-import de.kytodragon.live_edit.editing.gui.recipes.*;
 import de.kytodragon.live_edit.integration.Integration;
-import de.kytodragon.live_edit.integration.LiveEditPacket;
-import de.kytodragon.live_edit.integration.PacketRegistry;
-import de.kytodragon.live_edit.mixins.BrewingRecipeRegistryMixin;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.*;
-import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.storage.loot.LootDataId;
 import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITagManager;
 
+import java.nio.file.Path;
 import java.util.*;
 
 public class VanillaIntegration implements Integration {
@@ -40,9 +31,6 @@ public class VanillaIntegration implements Integration {
 
     private Registry<Item> vanilla_item_registry;
     private MinecraftServer server;
-
-    private NewServerData server_data;
-    private VanillaUpdatePacket last_client_packet;
 
     private Map<Item, Integer> current_burn_times;
 
@@ -69,10 +57,10 @@ public class VanillaIntegration implements Integration {
         }
 
         manager.addRecipeManipulator(this, RecipeType.CRAFTING, new CraftingRecipeManipulator());
-        manager.addRecipeManipulator(this, RecipeType.SMELTING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.SMELTING, SmeltingRecipe::new));
-        manager.addRecipeManipulator(this, RecipeType.BLASTING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.BLASTING, BlastingRecipe::new));
-        manager.addRecipeManipulator(this, RecipeType.SMOKING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.SMOKING, SmokingRecipe::new));
-        manager.addRecipeManipulator(this, RecipeType.CAMPFIRE_COOKING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.CAMPFIRE_COOKING, CampfireCookingRecipe::new));
+        manager.addRecipeManipulator(this, RecipeType.SMELTING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.SMELTING));
+        manager.addRecipeManipulator(this, RecipeType.BLASTING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.BLASTING));
+        manager.addRecipeManipulator(this, RecipeType.SMOKING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.SMOKING));
+        manager.addRecipeManipulator(this, RecipeType.CAMPFIRE_COOKING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.CAMPFIRE_COOKING));
         manager.addRecipeManipulator(this, RecipeType.STONECUTTING, new StoneCuttingRecipeManipulator());
         manager.addRecipeManipulator(this, RecipeType.SMITHING, new SmithingRecipeManipulator());
 
@@ -84,13 +72,11 @@ public class VanillaIntegration implements Integration {
         manager.addRecipeManipulator(this, RecipeType.COMPOSTING, new CompostManipulator());
 
         MinecraftForge.EVENT_BUS.addListener(this::onFuelBurnTimeRequest);
-
-        //PacketRegistry.registerClientPacket(VanillaUpdatePacket.class, VanillaUpdatePacket::new);
     }
 
     @Override
     @SuppressWarnings({"deprecation"})
-    public void initServer(MinecraftServer server) {
+    public void initServer(MinecraftServer server, Path data_path) {
         this.server = server;
         vanilla_recipe_manager = server.getRecipeManager();
         vanilla_item_registry = BuiltInRegistries.ITEM;
@@ -100,11 +86,9 @@ public class VanillaIntegration implements Integration {
     }
 
     @Override
-    public void shutdownServer() {
+    public void shutdownServer(Path data_path) {
 
         current_burn_times = null;
-        server_data = null;
-        last_client_packet = null;
 
         forge_tag_manager = null;
         vanilla_item_registry = null;
@@ -123,85 +107,12 @@ public class VanillaIntegration implements Integration {
         }
     }
 
-    @Override
-    public void prepareReload() {
-        server_data = new NewServerData();
-        Ingredient.invalidateAll();
-    }
-
-    @Override
-    public void reload() {
-
-        // TODO write data pack
-
-        server_data = null;
-    }
-
-    @Override
-    public void acceptClientPacket(LiveEditPacket o) {
-        if (o instanceof VanillaUpdatePacket packet) {
-
-            Map<Item, Integer> burn_time = new HashMap<>();
-            packet.new_burn_times.forEach(burn -> burn_time.put(burn.item(), burn.burn_time()));
-            current_burn_times = burn_time;
-
-            ComposterBlock.COMPOSTABLES.clear();
-            packet.new_compostables.forEach(compost -> ComposterBlock.COMPOSTABLES.put(compost.item(), compost.compastChance()));
-
-            List<IBrewingRecipe> brewingRecipes = BrewingRecipeRegistryMixin.live_edit_mixin_getRecipes();
-            Objects.requireNonNull(brewingRecipes);
-            brewingRecipes.clear();
-            brewingRecipes.addAll(packet.new_potions);
-        }
-    }
-
-    @Override
-    public void informNewPlayer(ServerPlayer player) {
-        VanillaUpdatePacket client_packet = last_client_packet;
-        if (client_packet != null) {
-            PacketRegistry.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), client_packet);
-        }
-    }
-
-    public void addNewRecipes(Collection<? extends Recipe<?>> recipes) {
-        server_data.new_recipes.addAll(recipes);
-    }
-
-    public void addNewTags(Collection<Tag<Item>> tags) {
-        server_data.new_tags.addAll(tags);
-    }
-
-    public void addNewBurnTimes(Collection<BurnTime> burnTimes) {
-        server_data.new_burn_times.addAll(burnTimes);
-    }
-
-    public void addNewCompostables(Collection<CompostChance> compostables) {
-        server_data.new_compostables.addAll(compostables);
-    }
-
-    public void addNewPotions(Collection<IBrewingRecipe> potions) {
-        server_data.new_potions.addAll(potions);
-    }
-
-    public void addLootTables(Collection<LootTable> tables) {
-        tables.forEach(table -> server_data.new_tables.put(table.getLootTableId(), table));
-    }
-
     public Map<ResourceLocation, LootTable> getCurrentLootTables() {
         Map<ResourceLocation, LootTable> tables = new HashMap<>();
         server.getLootData().typeKeys.get(LootDataType.TABLE).forEach(id -> {
-            tables.put(id, server.getLootData().getElement(new LootDataId<LootTable>(LootDataType.TABLE, id)));
+            tables.put(id, server.getLootData().getElement(new LootDataId<>(LootDataType.TABLE, id)));
         });
         return tables;
     }
 
-    private static class NewServerData {
-
-        private final List<Recipe<?>> new_recipes = new ArrayList<>();
-        private final List<Tag<Item>> new_tags = new ArrayList<>();
-        private final List<BurnTime> new_burn_times = new ArrayList<>();
-        private final List<CompostChance> new_compostables = new ArrayList<>();
-        private final List<IBrewingRecipe> new_potions = new ArrayList<>();
-        private final Map<ResourceLocation, LootTable> new_tables = new HashMap<>();
-    }
 }

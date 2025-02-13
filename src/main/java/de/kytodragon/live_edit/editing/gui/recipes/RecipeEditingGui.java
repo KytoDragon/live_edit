@@ -51,7 +51,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
 
         try {
             if (recipe == null) {
-                recipe = menu.recipe_slot.getRecipe();
+                recipe = (MyRecipe) menu.recipe_slot.getRecipe();
 
                 if (recipe != null) {
                     RecipeInputFactory factory = recipeMapper.get(recipe.type);

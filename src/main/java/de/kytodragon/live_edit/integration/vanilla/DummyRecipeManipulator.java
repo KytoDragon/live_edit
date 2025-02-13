@@ -1,7 +1,6 @@
 package de.kytodragon.live_edit.integration.vanilla;
 
 import de.kytodragon.live_edit.editing.MyRecipe;
-import de.kytodragon.live_edit.recipe.GeneralManipulationData;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -10,7 +9,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.Collection;
 import java.util.Optional;
 
-public class DummyRecipeManipulator<T extends Recipe<?>> extends IRecipeManipulator<ResourceLocation, T, VanillaIntegration> {
+public class DummyRecipeManipulator<T extends Recipe<?>> extends IRecipeManipulator<T, MyRecipe, VanillaIntegration> {
 
     private final net.minecraft.world.item.crafting.RecipeType<T> vanilla_type;
 
@@ -21,11 +20,6 @@ public class DummyRecipeManipulator<T extends Recipe<?>> extends IRecipeManipula
     @Override
     public ResourceLocation getKey(T recipe) {
         return recipe.getId();
-    }
-
-    @Override
-    public T manipulate(T recipe, GeneralManipulationData data) {
-        return recipe;
     }
 
     @Override
@@ -50,17 +44,7 @@ public class DummyRecipeManipulator<T extends Recipe<?>> extends IRecipeManipula
     }
 
     @Override
-    public void prepareReload(Collection<T> recipes) {
-        integration.addNewRecipes(recipes);
-    }
-
-    @Override
     public MyRecipe encodeRecipe(T recipe) {
         return null;
-    }
-
-    @Override
-    public T decodeRecipe(MyRecipe recipe) {
-        throw new IllegalStateException("Can not instantiate dummy recipe type " + vanilla_type.toString());
     }
 }

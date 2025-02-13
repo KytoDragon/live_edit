@@ -21,24 +21,6 @@ public class StoneCuttingRecipeManipulator extends StandardRecipeManipulator<Sto
     }
 
     @Override
-    public StonecutterRecipe manipulate(StonecutterRecipe recipe, GeneralManipulationData data) {
-        ItemStack resultStack = recipe.getResultItem(null);
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        boolean resultNeedsReplacement = isToReplace(resultStack, data);
-        boolean ingredientsNeedReplacement = isToReplace(ingredients, data);
-        if (resultNeedsReplacement)
-            resultStack = replace(resultStack, data);
-        if (ingredientsNeedReplacement)
-            ingredients = replace(ingredients, data);
-
-        if (resultNeedsReplacement || ingredientsNeedReplacement) {
-
-            return new StonecutterRecipe(recipe.getId(), recipe.getGroup(), ingredients.get(0), resultStack);
-        }
-        return recipe;
-    }
-
-    @Override
     public MyRecipe encodeRecipe(StonecutterRecipe recipe) {
 
         List<MyIngredient> ingredients = encodeIngredients(recipe.getIngredients());
@@ -52,11 +34,5 @@ public class StoneCuttingRecipeManipulator extends StandardRecipeManipulator<Sto
         result.results = List.of(new MyResult.ItemResult(recipe.getResultItem(null)));
         result.type = RecipeType.STONECUTTING;
         return result;
-    }
-
-    @Override
-    public StonecutterRecipe decodeRecipe(MyRecipe recipe) {
-        ItemStack result = ((MyResult.ItemResult)recipe.results.get(0)).item;
-        return new StonecutterRecipe(recipe.id, recipe.group, decodeIngredient(recipe.ingredients.get(0)), result);
     }
 }
