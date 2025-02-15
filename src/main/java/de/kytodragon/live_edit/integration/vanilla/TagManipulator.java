@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
 
 public class TagManipulator extends IRecipeManipulator<Tag<Item>, MyRecipe, VanillaIntegration> {
 
+    protected TagManipulator() {
+        super(MyRecipe::fromJson);
+    }
+
     @Override
     public ResourceLocation getKey(Tag<Item> tag) {
         return tag.key.location();
@@ -40,6 +44,16 @@ public class TagManipulator extends IRecipeManipulator<Tag<Item>, MyRecipe, Vani
         result.results = List.of(new MyResult.TagResult(tag.key));
         result.type = RecipeType.TAGS;
         return result;
+    }
+
+    @Override
+    protected void exportDeleted(StringBuilder sb, ResourceLocation id) {
+        // TODO
+    }
+
+    @Override
+    protected void exportAdded(StringBuilder sb, MyRecipe recipe) {
+        // TODO
     }
 
     private Tag<Item> createTag(TagKey<Item> key) {

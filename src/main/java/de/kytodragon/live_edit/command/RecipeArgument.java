@@ -37,11 +37,20 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
     }
 
     public static ResourceLocation getRecipe(CommandContext<CommandSourceStack> ctx, RecipeType type, String name) throws CommandSyntaxException {
-        IRecipeManipulator<?, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
         ResourceLocation resourcelocation = ctx.getArgument(name, ResourceLocation.class);
+        IRecipeManipulator<?, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
         manipulator.getRecipe(resourcelocation).orElseThrow(() -> {
             return ERROR_UNKNOWN_RECIPE.create(resourcelocation);
         });
+        return resourcelocation;
+    }
+
+    public static ResourceLocation getNewRecipe(CommandContext<CommandSourceStack> ctx, RecipeType type, String name) throws CommandSyntaxException {
+        ResourceLocation resourcelocation = ctx.getArgument(name, ResourceLocation.class);
+        IRecipeManipulator<?, ?, ?> manipulator = RecipeManager.instance.manipulators.get(type);
+        if (manipulator.getRecipe(resourcelocation).isPresent()) {
+            throw ERROR_UNKNOWN_RECIPE.create(resourcelocation);
+        }
         return resourcelocation;
     }
 

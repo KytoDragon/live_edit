@@ -20,7 +20,6 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.network.NetworkHooks;
 import org.apache.commons.lang3.tuple.Pair;
@@ -173,10 +172,24 @@ public class Command {
             .then(Commands.literal("recipe")
                 .then(Commands.argument("type", new RecipeTypeArgument())
                     .then(Commands.argument("recipe", new RecipeArgument())
+                        .executes(ctx -> {
+                            RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
+                            ResourceLocation recipe_key = RecipeArgument.getNewRecipe(ctx, type, "recipe");
+                            ServerPlayer serverPlayer = ctx.getSource().getPlayer();
+                            if (serverPlayer != null) {
+                                NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                                        (int containerId, Inventory inventory, Player player) -> {
+                                            return new RecipeEditingMenu(containerId, inventory, type, recipe_key);
+                                        },
+                                        Component.translatable("live_edit.commands.recipe.menu_title", recipe_key.toString())
+                                ));
+                            }
+                            return 0;
+                        })
                         .then(Commands.argument("replacement", new RecipeJsonArgument())
                             .executes(ctx -> {
                                 RecipeType type = RecipeTypeArgument.getRecipeType(ctx, "type");
-                                ResourceLocation recipe_key = RecipeArgument.getRecipe(ctx, type, "recipe");
+                                ResourceLocation recipe_key = RecipeArgument.getNewRecipe(ctx, type, "recipe");
                                 JsonObject recipe = RecipeJsonArgument.getRecipe(ctx, "replacement");
 
                                 RecipeManager.instance.markRecipeForAddition(type, recipe_key, recipe);
@@ -245,10 +258,10 @@ public class Command {
                     if (type == RecipeType.ALL) {
                         failures = new ArrayList<>();
                         for (RecipeType actual_type : RecipeManager.instance.manipulators.keySet()) {
-                            failures.addAll(testAllRecipesOfType(actual_type, RecipeManager.instance.manipulators.get(actual_type)));
+                            failures.addAll(testAllRecipesOfType(RecipeManager.instance.manipulators.get(actual_type)));
                         }
                     } else {
-                        failures = testAllRecipesOfType(type, RecipeManager.instance.manipulators.get(type));
+                        failures = testAllRecipesOfType(RecipeManager.instance.manipulators.get(type));
                     }
                     String list = failures.stream().map(key -> "\n\u2022 " + key.toString())
                         .collect(Collectors.joining());
@@ -259,7 +272,7 @@ public class Command {
             );
     }
 
-    private static <R> List<ResourceLocation> testAllRecipesOfType(RecipeType type, IRecipeManipulator<R, ?, ?> manipulator) {
+    private static <R> List<ResourceLocation> testAllRecipesOfType(IRecipeManipulator<R, ?, ?> manipulator) {
         Collection<R> currentRecipes = manipulator.getCurrentRecipes();
         List<ResourceLocation> failures = new ArrayList<>();
         for (R recipe : currentRecipes) {

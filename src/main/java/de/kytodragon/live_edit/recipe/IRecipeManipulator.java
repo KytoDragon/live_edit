@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import de.kytodragon.live_edit.editing.IRecipe;
 import de.kytodragon.live_edit.integration.Integration;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
@@ -13,7 +14,6 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Function;
 
@@ -21,10 +21,16 @@ public abstract class IRecipeManipulator<R, C extends IRecipe, I extends Integra
 
     protected RecipeType my_type;
     protected I integration;
-    protected Function<JsonObject, C> json_parser;
+    private final Function<JsonObject, C> json_parser;
+
+    protected static final RegistryAccess NULL_ACCESS = RegistryAccess.EMPTY;
 
     private final HashMap<ResourceLocation, C> recipes_to_add = new HashMap<>();
     private final HashSet<ResourceLocation> recipes_to_delete = new HashSet<>();
+
+    protected IRecipeManipulator(Function<JsonObject, C> json_parser) {
+        this.json_parser = json_parser;
+    }
 
     public abstract ResourceLocation getKey(R recipe);
 
@@ -85,7 +91,7 @@ public abstract class IRecipeManipulator<R, C extends IRecipe, I extends Integra
             } else {
                 JsonObject root = new JsonObject();
                 root.add("data", json);
-                Files.writeString(path, json.toString(), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+                Files.writeString(path, root.toString(), StandardCharsets.UTF_8);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -116,6 +122,28 @@ public abstract class IRecipeManipulator<R, C extends IRecipe, I extends Integra
             } else {
                 return new JsonArray();
             }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    protected abstract void exportDeleted(StringBuilder sb, ResourceLocation id);
+    protected abstract void exportAdded(StringBuilder sb, C recipe);
+
+    public void exportRecipes(Path script_path) throws UncheckedIOException {
+        Path script_file = script_path.resolve(my_type.name() + ".zs");
+        try {
+            StringBuilder sb = new StringBuilder();
+            recipes_to_delete.forEach(id -> {
+                exportDeleted(sb, id);
+                sb.append("\n");
+            });
+            sb.append("\n");
+            recipes_to_add.forEach((id, recipe) -> {
+                exportAdded(sb, recipe);
+                sb.append("\n");
+            });
+            Files.writeString(script_file, sb.toString(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

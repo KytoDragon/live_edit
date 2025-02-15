@@ -43,7 +43,7 @@ public class CraftingRecipeInput extends MyGuiComponent implements IRecipeInput 
             }
             ingredients[index].setIngredient(recipe.ingredients.get(i));
         }
-        result.setResult(recipe.results.get(0));
+        result.setResult(safeIndex(recipe.results, 0));
         shaped.value = recipe.shaped_width > 0;
     }
 

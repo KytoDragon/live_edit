@@ -6,6 +6,7 @@ import de.kytodragon.live_edit.editing.gui.components.ItemComponent;
 import de.kytodragon.live_edit.editing.gui.components.MyGuiComponent;
 import de.kytodragon.live_edit.editing.gui.components.TagComponent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
 
@@ -95,7 +96,11 @@ public class ItemOrTagInput extends MyGuiComponent implements IIngredientInput {
     public void setIngredient(MyIngredient ingredient) {
         children.remove(item);
         children.remove(tag);
-        if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
+        if (ingredient == null) {
+            is_tag = false;
+            item.itemstack = ItemStack.EMPTY.copy();
+            addChild(item);
+        } else if (ingredient instanceof MyIngredient.ItemIngredient itemIngredient) {
             is_tag = false;
             item.itemstack = itemIngredient.item.copy();
             addChild(item);

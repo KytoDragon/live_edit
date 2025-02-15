@@ -50,12 +50,6 @@ public class VanillaIntegration implements Integration {
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> VanillaUIIntegration::registerClientGui);
 
-        // Deal with recipe types in the standard recipe manager that are not beeing handled by a manipulator.
-        // This makes shure we do not delete recipes we do not know about.
-        for (net.minecraft.world.item.crafting.RecipeType<?> recipeType : ForgeRegistries.RECIPE_TYPES.getValues()) {
-            manager.addRecipeManipulator(this, new RecipeType("Dummy", recipeType), new DummyRecipeManipulator<>(recipeType));
-        }
-
         manager.addRecipeManipulator(this, RecipeType.CRAFTING, new CraftingRecipeManipulator());
         manager.addRecipeManipulator(this, RecipeType.SMELTING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.SMELTING));
         manager.addRecipeManipulator(this, RecipeType.BLASTING, new CoockingRecipeManipulator<>(net.minecraft.world.item.crafting.RecipeType.BLASTING));

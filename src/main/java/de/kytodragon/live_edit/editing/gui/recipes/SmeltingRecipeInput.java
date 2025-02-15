@@ -37,10 +37,10 @@ public class SmeltingRecipeInput extends MyGuiComponent implements IRecipeInput 
 
     @Override
     public void setRecipe(MyRecipe recipe) {
-        ingredient.setIngredient(recipe.ingredients.get(0));
-        processing_time.setIngredient(recipe.ingredients.get(1));
-        result.setResult(recipe.results.get(0));
-        experience.setResult(recipe.results.get(1));
+        ingredient.setIngredient(safeIndex(recipe.ingredients, 0));
+        processing_time.setIngredient(safeIndex(recipe.ingredients, 1));
+        result.setResult(safeIndex(recipe.results, 0));
+        experience.setResult(safeIndex(recipe.results, 1));
     }
 
     @Override

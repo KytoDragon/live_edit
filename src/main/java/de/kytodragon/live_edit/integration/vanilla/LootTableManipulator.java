@@ -10,6 +10,10 @@ import java.util.*;
 
 public class LootTableManipulator extends IRecipeManipulator<LootTable, MyLootTable, VanillaIntegration> {
 
+    protected LootTableManipulator() {
+        super(MyLootTable::fromJson);
+    }
+
     @Override
     public ResourceLocation getKey(LootTable table) {
         return table.getLootTableId();
@@ -34,5 +38,15 @@ public class LootTableManipulator extends IRecipeManipulator<LootTable, MyLootTa
     @Override
     public MyLootTable encodeRecipe(LootTable loot_table) {
         return LootTableConverter.convertLootTable(loot_table);
+    }
+
+    @Override
+    protected void exportDeleted(StringBuilder sb, ResourceLocation id) {
+        // TODO
+    }
+
+    @Override
+    protected void exportAdded(StringBuilder sb, MyLootTable recipe) {
+        // TODO
     }
 }

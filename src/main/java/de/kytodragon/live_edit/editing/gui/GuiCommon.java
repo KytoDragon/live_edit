@@ -34,29 +34,34 @@ public abstract class GuiCommon<T extends MenuCommon> extends AbstractContainerS
         content.x = this.leftPos;
         content.y = this.topPos;
 
-        RenderSystem.disableDepthTest();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        super.renderBackground(graphics);
-        super.render(graphics, mouseX, mouseY, partialTick);
+        try {
+            RenderSystem.disableDepthTest();
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            super.renderBackground(graphics);
+            super.render(graphics, mouseX, mouseY, partialTick);
 
-        RenderSystem.disableDepthTest();
-        content.renderForeground(graphics, partialTick, mouseX, mouseY);
+            RenderSystem.disableDepthTest();
+            content.renderForeground(graphics, partialTick, mouseX, mouseY);
 
-        super.renderTooltip(graphics, mouseX, mouseY);
+            super.renderTooltip(graphics, mouseX, mouseY);
 
-        content.renderOverlay(graphics, partialTick, mouseX, mouseY);
+            content.renderOverlay(graphics, partialTick, mouseX, mouseY);
 
-        if (MyGuiComponent.popup != null) {
-            graphics.pose().pushPose();
-            // Text with shadow gets draw slightly above the current Z, translate to make sure the popup is above them.
-            graphics.pose().translate(0, 0, 1);
-            MyGuiComponent.popup.renderBackground(graphics, partialTick, mouseX, mouseY);
-            MyGuiComponent.popup.renderForeground(graphics, partialTick, mouseX, mouseY);
-            MyGuiComponent.popup.renderOverlay(graphics, partialTick, mouseX, mouseY);
-            graphics.pose().popPose();
+            if (MyGuiComponent.popup != null) {
+                graphics.pose().pushPose();
+                // Text with shadow gets draw slightly above the current Z, translate to make sure the popup is above them.
+                graphics.pose().translate(0, 0, 1);
+                MyGuiComponent.popup.renderBackground(graphics, partialTick, mouseX, mouseY);
+                MyGuiComponent.popup.renderForeground(graphics, partialTick, mouseX, mouseY);
+                MyGuiComponent.popup.renderOverlay(graphics, partialTick, mouseX, mouseY);
+                graphics.pose().popPose();
+            }
+            RenderSystem.enableDepthTest();
+        } catch (Exception e) {
+            LiveEditMod.LOGGER.error("Cought error in main GUI render-Method", e);
+            onClose();
         }
-        RenderSystem.enableDepthTest();
     }
 
     @Override

@@ -220,4 +220,10 @@ public abstract class MyGuiComponent {
         children.add(child);
         child.parent = this;
     }
+
+    public <T> T safeIndex(List<T> list, int index) {
+        if (index > list.size())
+            return null;
+        return list.get(index);
+    }
 }

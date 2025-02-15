@@ -28,6 +28,10 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<IBrewingRecipe,
 
     private static final ResourceLocation vanilla_potions = new ResourceLocation("minecraft", "vanilla_potions");
 
+    protected BrewingRecipeManipulator() {
+        super(MyRecipe::fromJson);
+    }
+
     @Override
     public ResourceLocation getKey(IBrewingRecipe recipe) {
         if (recipe instanceof VanillaBrewingRecipe) {
@@ -78,6 +82,16 @@ public class BrewingRecipeManipulator extends IRecipeManipulator<IBrewingRecipe,
             return result;
         }
         return null;
+    }
+
+    @Override
+    protected void exportDeleted(StringBuilder sb, ResourceLocation id) {
+        // TODO brewing.removeRecipe(<potion:minecraft:thick>, <item:minecraft:glowstone_dust>, <potion:minecraft:water>);
+    }
+
+    @Override
+    protected void exportAdded(StringBuilder sb, MyRecipe recipe) {
+        // TODO brewing.addRecipe(<item:minecraft:dirt>, <item:minecraft:apple>, <item:minecraft:arrow>);
     }
 
     /**

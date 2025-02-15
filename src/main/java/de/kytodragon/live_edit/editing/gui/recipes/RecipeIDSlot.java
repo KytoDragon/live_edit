@@ -1,6 +1,7 @@
 package de.kytodragon.live_edit.editing.gui.recipes;
 
 import de.kytodragon.live_edit.editing.IRecipe;
+import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.recipe.IRecipeManipulator;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class RecipeIDSlot extends Slot {
@@ -32,8 +34,14 @@ public class RecipeIDSlot extends Slot {
             return null;
 
         Optional<T> recipe = manipulator.getRecipe(id);
-        if (recipe.isEmpty())
-            return null;
+        if (recipe.isEmpty()) {
+            MyRecipe result = new MyRecipe();
+            result.type = type;
+            result.ingredients = new ArrayList<>();
+            result.results = new ArrayList<>();
+            result.id = id;
+            return result;
+        }
 
         return manipulator.encodeRecipe(recipe.get());
     }

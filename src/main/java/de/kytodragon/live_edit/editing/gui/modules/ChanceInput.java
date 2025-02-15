@@ -38,7 +38,9 @@ public class ChanceInput extends MyGuiComponent implements IResultInput {
 
     @Override
     public void setResult(MyResult result) {
-        if (result instanceof MyResult.ChanceResult chanceResult) {
+        if (result == null)
+            input.setValue(0);
+        else if (result instanceof MyResult.ChanceResult chanceResult) {
             input.setValue(chanceResult.output_chance * 100);
         }
     }

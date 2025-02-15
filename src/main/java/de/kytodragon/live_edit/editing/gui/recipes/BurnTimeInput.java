@@ -29,8 +29,8 @@ public class BurnTimeInput extends MyGuiComponent implements IRecipeInput {
 
     @Override
     public void setRecipe(MyRecipe recipe) {
-        ingredient.setIngredient(recipe.ingredients.get(0));
-        processing_time.setResult(recipe.results.get(0));
+        ingredient.setIngredient(safeIndex(recipe.ingredients, 0));
+        processing_time.setResult(safeIndex(recipe.results, 0));
     }
 
     @Override
@@ -53,9 +53,12 @@ public class BurnTimeInput extends MyGuiComponent implements IRecipeInput {
         super.renderForeground(graphics, partialTick, mouseX, mouseY);
 
         Texture texture = VanillaTextures.BURN_FILLED;
-        int height = texture.height() * progress / processing_time.getValue();
-        if (height > texture.height())
-            height = texture.height();
+        int height = texture.height();
+        if (processing_time.getValue() > 0) {
+            height = height * progress / processing_time.getValue();
+            if (height > texture.height())
+                height = texture.height();
+        }
         graphics.blit(texture.texture_id(), x+70, y+13 + height, texture.startX(), texture.startY() + height, texture.width(), texture.height() - height);
     }
 }

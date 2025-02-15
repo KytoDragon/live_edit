@@ -67,7 +67,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                         for (MyIngredient ingredient : recipe.ingredients) {
                             IngredientInputFactory inputFactory = ingredientMapper.get(ingredient.getClass());
                             if (inputFactory == null) {
-                                LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for ingredient class " + ingredient.getClass());
+                                LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for ingredient class {}", ingredient.getClass());
                                 onClose();
                                 return;
                             }
@@ -84,7 +84,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
                         for (MyResult result : recipe.results) {
                             ResultInputFactory inputFactory = resultMapper.get(result.getClass());
                             if (inputFactory == null) {
-                                LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for result class " + result.getClass());
+                                LiveEditMod.LOGGER.error("Recipe editor: Could not find GUI-component for result class {}", result.getClass());
                                 onClose();
                                 return;
                             }
@@ -110,6 +110,7 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
     private void sendRecipeToServer() {
         if (recipe == null)
             return;
+        boolean was_new_recipe = recipe.results.isEmpty() && recipe.ingredients.isEmpty();
 
         MyRecipe new_recipe;
         if (recipe_editor != null) {
@@ -136,7 +137,11 @@ public class RecipeEditingGui extends GuiCommon<RecipeEditingMenu> {
         }
 
         EditCommandPacket packet = new EditCommandPacket();
-        packet.command = "replace recipe " + new_recipe.type.name() + " " + new_recipe.id.toString() + " " + new_recipe.toJsonString();
+        if (was_new_recipe)
+            packet.command = "add";
+        else
+            packet.command = "replace";
+        packet.command += " recipe " + new_recipe.type.name() + " " + new_recipe.id.toString() + " " + new_recipe.toJsonString();
         PacketRegistry.INSTANCE.sendToServer(packet);
 
         onClose();

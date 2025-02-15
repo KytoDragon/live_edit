@@ -55,7 +55,9 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
 
     @Override
     public void setIngredient(MyIngredient ingredient) {
-        if (ingredient instanceof MyIngredient.TimeIngredient timeIngredient) {
+        if (ingredient == null)
+            input.setValue(0);
+        else if (ingredient instanceof MyIngredient.TimeIngredient timeIngredient) {
             input.setValue(timeIngredient.processing_time);
         }
     }
@@ -67,7 +69,9 @@ public class TimeInput extends MyGuiComponent implements IIngredientInput, IResu
 
     @Override
     public void setResult(MyResult result) {
-        if (result instanceof MyResult.TimeResult timeResult) {
+        if (result == null)
+            input.setValue(0);
+        else if (result instanceof MyResult.TimeResult timeResult) {
             input.setValue(timeResult.processing_time);
         }
     }

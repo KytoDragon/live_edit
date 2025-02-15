@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class CompostManipulator extends IRecipeManipulator<CompostChance, MyRecipe, VanillaIntegration> {
+
+    protected CompostManipulator() {
+        super(MyRecipe::fromJson);
+    }
+
     @Override
     public ResourceLocation getKey(CompostChance recipe) {
         return ForgeRegistries.ITEMS.getKey(recipe.item());
@@ -51,5 +56,21 @@ public class CompostManipulator extends IRecipeManipulator<CompostChance, MyReci
         result.results = List.of(new MyResult.ChanceResult(recipe.compastChance()));
         result.type = RecipeType.COMPOSTING;
         return result;
+    }
+
+    @Override
+    protected void exportDeleted(StringBuilder sb, ResourceLocation id) {
+        sb.append("composter.setValue(<item:");
+        sb.append(id);
+        sb.append(">, 0);");
+    }
+
+    @Override
+    protected void exportAdded(StringBuilder sb, MyRecipe recipe) {
+        sb.append("composter.setValue(");
+        recipe.ingredients.get(0).export(sb);
+        sb.append(", ");
+        recipe.results.get(0).export(sb);
+        sb.append(");");
     }
 }

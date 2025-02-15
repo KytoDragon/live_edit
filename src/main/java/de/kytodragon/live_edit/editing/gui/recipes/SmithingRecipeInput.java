@@ -32,9 +32,9 @@ public class SmithingRecipeInput extends MyGuiComponent implements IRecipeInput 
 
     @Override
     public void setRecipe(MyRecipe recipe) {
-        base.setIngredient(recipe.ingredients.get(0));
-        addition.setIngredient(recipe.ingredients.get(1));
-        result.setResult(recipe.results.get(0));
+        base.setIngredient(safeIndex(recipe.ingredients, 0));
+        addition.setIngredient(safeIndex(recipe.ingredients, 1));
+        result.setResult(safeIndex(recipe.results, 0));
     }
 
     @Override

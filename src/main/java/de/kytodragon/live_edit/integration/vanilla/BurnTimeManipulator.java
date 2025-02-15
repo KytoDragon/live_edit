@@ -18,6 +18,10 @@ import java.util.Optional;
 
 public class BurnTimeManipulator extends IRecipeManipulator<BurnTime, MyRecipe, VanillaIntegration> {
 
+    protected BurnTimeManipulator() {
+        super(MyRecipe::fromJson);
+    }
+
     @Override
     public ResourceLocation getKey(BurnTime burnTime) {
         return ForgeRegistries.ITEMS.getKey(burnTime.item());
@@ -51,5 +55,20 @@ public class BurnTimeManipulator extends IRecipeManipulator<BurnTime, MyRecipe, 
         result.results = List.of(new MyResult.TimeResult(recipe.burn_time()));
         result.type = RecipeType.BURN_TIME;
         return result;
+    }
+
+    @Override
+    protected void exportDeleted(StringBuilder sb, ResourceLocation id) {
+        sb.append("<item:");
+        sb.append(id);
+        sb.append(">.burnTime = 0;");
+    }
+
+    @Override
+    protected void exportAdded(StringBuilder sb, MyRecipe recipe) {
+        recipe.ingredients.get(0).export(sb);
+        sb.append(".burnTime = ");
+        recipe.results.get(0).export(sb);
+        sb.append(";");
     }
 }

@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -24,6 +25,7 @@ public class RecipeManager {
     public List<Integration> integrations = new ArrayList<>();
     public GeneralManipulationData data;
     public Path data_path;
+    public Path script_path;
 
     public void markRecipeForDeletion(RecipeType type, ResourceLocation recipeKey) {
         manipulators.get(type).markRecipeForDeletion(recipeKey);
@@ -61,7 +63,20 @@ public class RecipeManager {
 
     public void saveAllRecipes() {
         try {
+            if (!Files.exists(data_path))
+                Files.createDirectory(data_path);
             manipulators.values().forEach(m -> m.saveRecipes(data_path));
+        } catch (Exception e) {
+            LOGGER.error("Failed to save recipes: ", e);
+            return;
+        }
+    }
+
+    public void exportAllRecipes() {
+        try {
+            if (!Files.exists(script_path))
+                Files.createDirectory(script_path);
+            manipulators.values().forEach(m -> m.exportRecipes(script_path));
         } catch (Exception e) {
             LOGGER.error("Failed to save recipes: ", e);
             return;
@@ -71,6 +86,7 @@ public class RecipeManager {
     public void initServer(MinecraftServer server) {
         data = new GeneralManipulationData();
         integrations.forEach(i -> i.initServer(server, data_path));
+        loadAllRecipes();
     }
 
     public void shutdownServer() {
@@ -89,5 +105,10 @@ public class RecipeManager {
             player.server.getCommands().performPrefixedCommand(commandsourcestack, command);
             return;
         }
+    }
+
+    public void setPaths(Path root_path) {
+        data_path = root_path.resolve("live_edit");
+        script_path = root_path.resolve("scripts/live_edit");
     }
 }

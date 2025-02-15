@@ -27,7 +27,7 @@ minecraft {
         configureEach {
             workingDirectory project.file('run')
 
-            jvmArg "-XX:+AllowEnhancedClassRedefinition"
+            //jvmArg "-XX:+AllowEnhancedClassRedefinition"
 
             // "SCAN": For mods scan.
             // "REGISTRIES": For firing of registry events.
@@ -92,6 +92,9 @@ dependencies {
     compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"))
     // at runtime, use the full JEI jar for Forge
     runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
+
+    // CraftTweaker 14.0.56
+    runtimeOnly(fg.deobf("curse.maven:crafttweaker-239197:6169378"))
 }
 
 tasks.named('processResources', ProcessResources).configure {

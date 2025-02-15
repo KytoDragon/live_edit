@@ -71,7 +71,9 @@ public class ExperienceInput extends MyGuiComponent implements IResultInput {
 
     @Override
     public void setResult(MyResult result) {
-        if (result instanceof MyResult.ExperienceResult experienceResult) {
+        if (result == null)
+            input.setValue(0);
+        else if (result instanceof MyResult.ExperienceResult experienceResult) {
             input.setValue(experienceResult.experience);
         }
     }

@@ -22,6 +22,7 @@ public abstract class MyIngredient implements IJsonProvider {
     // int custom_amount;
 
     public abstract JsonElement toJson();
+    public abstract void export(StringBuilder sb);
 
     public static class ItemIngredient extends MyIngredient {
         public ItemStack item;
@@ -54,6 +55,15 @@ public abstract class MyIngredient implements IJsonProvider {
             result.setTag(tag);
             return new ItemIngredient(result);
         }
+
+        public void export(StringBuilder sb) {
+            ResourceLocation item_id = ForgeRegistries.ITEMS.getKey(item.getItem());
+            Objects.requireNonNull(item_id);
+
+            sb.append("<item:");
+            sb.append(item_id);
+            sb.append(">");
+        }
     }
 
     public static class TagIngredient extends MyIngredient {
@@ -76,6 +86,12 @@ public abstract class MyIngredient implements IJsonProvider {
             TagKey<Item> tag = JsonHelper.getItemTag(json, "tag");
             int amount = GsonHelper.getAsInt(json, "amount", 1);
             return new TagIngredient(tag, amount);
+        }
+
+        public void export(StringBuilder sb) {
+            sb.append("<tag:");
+            sb.append(tag.location());
+            sb.append(">");
         }
     }
 
@@ -101,6 +117,15 @@ public abstract class MyIngredient implements IJsonProvider {
             int amount = GsonHelper.getAsInt(json, "amount");
             return new FluidIngredient(fluid, amount);
         }
+
+        public void export(StringBuilder sb) {
+            ResourceLocation fluid_id = ForgeRegistries.FLUIDS.getKey(fluid);
+            Objects.requireNonNull(fluid_id);
+
+            sb.append("<fluid:");
+            sb.append(fluid_id);
+            sb.append(">");
+        }
     }
 
     public static class TimeIngredient extends MyIngredient {
@@ -118,6 +143,10 @@ public abstract class MyIngredient implements IJsonProvider {
         public static TimeIngredient fromJson(JsonObject json) {
             int time = GsonHelper.getAsInt(json, "time");
             return new TimeIngredient(time);
+        }
+
+        public void export(StringBuilder sb) {
+            sb.append(processing_time);
         }
     }
 
@@ -148,6 +177,22 @@ public abstract class MyIngredient implements IJsonProvider {
             }
 
             return result;
+        }
+
+        public void export(StringBuilder sb) {
+            boolean first = true;
+            for (ItemStack item : item_list) {
+                if (!first)
+                    sb.append(" | ");
+                first = false;
+
+                ResourceLocation item_id = ForgeRegistries.ITEMS.getKey(item.getItem());
+                Objects.requireNonNull(item_id);
+
+                sb.append("<item:");
+                sb.append(item_id);
+                sb.append(">");
+            }
         }
     }
 }

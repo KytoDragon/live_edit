@@ -31,8 +31,8 @@ public class ComposterInput extends MyGuiComponent implements IRecipeInput {
 
     @Override
     public void setRecipe(MyRecipe recipe) {
-        ingredient.setIngredient(recipe.ingredients.get(0));
-        compost_chance.setResult(recipe.results.get(0));
+        ingredient.setIngredient(safeIndex(recipe.ingredients, 0));
+        compost_chance.setResult(safeIndex(recipe.results, 0));
     }
 
     @Override

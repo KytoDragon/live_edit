@@ -26,8 +26,8 @@ public class StoneCuttingRecipeInput extends MyGuiComponent implements IRecipeIn
 
     @Override
     public void setRecipe(MyRecipe recipe) {
-        ingredient.setIngredient(recipe.ingredients.get(0));
-        result.setResult(recipe.results.get(0));
+        ingredient.setIngredient(safeIndex(recipe.ingredients, 0));
+        result.setResult(safeIndex(recipe.results, 0));
     }
 
     @Override

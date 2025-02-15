@@ -17,6 +17,7 @@ import java.util.Objects;
 public abstract class MyResult implements IJsonProvider {
 
     public abstract JsonElement toJson();
+    public abstract void export(StringBuilder sb);
 
     public static class ItemResult extends MyResult {
         public ItemStack item;
@@ -49,6 +50,15 @@ public abstract class MyResult implements IJsonProvider {
             result.setTag(tag);
             return new ItemResult(result);
         }
+
+        public void export(StringBuilder sb) {
+            ResourceLocation item_id = ForgeRegistries.ITEMS.getKey(item.getItem());
+            Objects.requireNonNull(item_id);
+
+            sb.append("<item:");
+            sb.append(item_id);
+            sb.append(">");
+        }
     }
 
     public static class TimeResult extends MyResult {
@@ -66,6 +76,10 @@ public abstract class MyResult implements IJsonProvider {
         public static TimeResult fromJson(JsonObject json) {
             int amount = GsonHelper.getAsInt(json, "time");
             return new TimeResult(amount);
+        }
+
+        public void export(StringBuilder sb) {
+            sb.append(processing_time);
         }
     }
 
@@ -85,6 +99,10 @@ public abstract class MyResult implements IJsonProvider {
             float experience = GsonHelper.getAsFloat(json, "experience");
             return new ExperienceResult(experience);
         }
+
+        public void export(StringBuilder sb) {
+            sb.append(experience);
+        }
     }
 
     public static class ChanceResult extends MyResult {
@@ -102,6 +120,10 @@ public abstract class MyResult implements IJsonProvider {
         public static ChanceResult fromJson(JsonObject json) {
             float chance = GsonHelper.getAsFloat(json, "chance");
             return new ChanceResult(chance);
+        }
+
+        public void export(StringBuilder sb) {
+            sb.append(output_chance);
         }
     }
 
@@ -125,6 +147,12 @@ public abstract class MyResult implements IJsonProvider {
             TagKey<Item> tag = JsonHelper.getItemTag(json, "tag");
             int amount = GsonHelper.getAsInt(json, "amount", 1);
             return new TagResult(tag, amount);
+        }
+
+        public void export(StringBuilder sb) {
+            sb.append("<tag:");
+            sb.append(tag.location());
+            sb.append(">");
         }
     }
 }
