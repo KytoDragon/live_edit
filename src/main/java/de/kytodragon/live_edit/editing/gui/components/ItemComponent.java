@@ -1,10 +1,7 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
-import org.joml.Vector4f;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;

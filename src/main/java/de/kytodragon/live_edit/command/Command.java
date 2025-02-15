@@ -71,7 +71,7 @@ public class Command {
                     .executes(ctx -> {
                         Item item = ItemArgument.getItem(ctx, "item").getItem();
 
-                        Stream<IRecipeManipulator<?, ?, ?>> manipulators = RecipeManager.instance.manipulators.values().stream().filter(IRecipeManipulator::isRealImplementation);
+                        Stream<IRecipeManipulator<?, ?, ?>> manipulators = RecipeManager.instance.manipulators.values().stream();
                         Stream<Pair<RecipeType, ResourceLocation>> matching_recipes = manipulators.flatMap(manipulator -> findItem(manipulator, item));
                         String list = matching_recipes.map(pair -> "\n\u2022 " + pair.getLeft().name() + " " + pair.getRight().toString())
                                             .collect(Collectors.joining());

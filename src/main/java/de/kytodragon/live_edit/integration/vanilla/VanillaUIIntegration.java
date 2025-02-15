@@ -5,8 +5,6 @@ import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.editing.gui.modules.*;
 import de.kytodragon.live_edit.editing.gui.recipes.*;
 import de.kytodragon.live_edit.recipe.RecipeType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class VanillaUIIntegration {
 

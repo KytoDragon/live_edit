@@ -6,15 +6,12 @@ import de.kytodragon.live_edit.editing.gui.GuiCommon;
 import de.kytodragon.live_edit.editing.gui.components.Button;
 import de.kytodragon.live_edit.integration.PacketRegistry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LootTableEditingGui extends GuiCommon<LootTableEditingMenu> {
-
-    private static final ResourceLocation MENU_TYPE_ID = new ResourceLocation(LiveEditMod.MODID, "loot_table_editing_menu");
 
     private MyLootTable loot_table;
 

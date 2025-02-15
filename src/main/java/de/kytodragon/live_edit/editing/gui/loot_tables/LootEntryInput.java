@@ -3,19 +3,14 @@ package de.kytodragon.live_edit.editing.gui.loot_tables;
 import de.kytodragon.live_edit.editing.MyLootEntry;
 import de.kytodragon.live_edit.editing.gui.components.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
 import java.util.List;
-import java.util.Locale;
 
 public class LootEntryInput extends VerticalList {
 

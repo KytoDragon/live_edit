@@ -40,10 +40,6 @@ public abstract class IRecipeManipulator<R, C extends IRecipe, I extends Integra
 
     public abstract C encodeRecipe(R recipe);
 
-    public boolean isRealImplementation() {
-        return true;
-    }
-
     public void setIntegration(I integration) {
         this.integration = integration;
     }

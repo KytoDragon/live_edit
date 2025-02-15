@@ -2,15 +2,9 @@ package de.kytodragon.live_edit.editing.gui.components;
 
 import com.google.common.collect.Iterators;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import org.joml.Vector4f;
-import de.kytodragon.live_edit.editing.MyIngredient;
-import de.kytodragon.live_edit.editing.MyResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;

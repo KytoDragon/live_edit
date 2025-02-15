@@ -27,10 +27,6 @@ public class MyRecipe implements IRecipe {
 
     public List<MyResult> results;
 
-    public static MyRecipe fromJsonString(String json) {
-        return fromJson(JsonParser.parseString(json).getAsJsonObject());
-    }
-
     public static MyRecipe fromJson(JsonObject json) {
         MyRecipe recipe = new MyRecipe();
 

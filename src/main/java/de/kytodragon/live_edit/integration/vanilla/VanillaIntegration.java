@@ -6,8 +6,6 @@ import de.kytodragon.live_edit.editing.MyResult;
 import de.kytodragon.live_edit.integration.Integration;
 import de.kytodragon.live_edit.recipe.RecipeManager;
 import de.kytodragon.live_edit.recipe.RecipeType;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
@@ -29,7 +27,6 @@ public class VanillaIntegration implements Integration {
     public net.minecraft.world.item.crafting.RecipeManager vanilla_recipe_manager;
     public ITagManager<Item> forge_tag_manager;
 
-    private Registry<Item> vanilla_item_registry;
     private MinecraftServer server;
 
     private Map<Item, Integer> current_burn_times;
@@ -69,11 +66,9 @@ public class VanillaIntegration implements Integration {
     }
 
     @Override
-    @SuppressWarnings({"deprecation"})
     public void initServer(MinecraftServer server, Path data_path) {
         this.server = server;
         vanilla_recipe_manager = server.getRecipeManager();
-        vanilla_item_registry = BuiltInRegistries.ITEM;
 
         forge_tag_manager = ForgeRegistries.ITEMS.tags();
         Objects.requireNonNull(forge_tag_manager);
@@ -85,7 +80,6 @@ public class VanillaIntegration implements Integration {
         current_burn_times = null;
 
         forge_tag_manager = null;
-        vanilla_item_registry = null;
         vanilla_recipe_manager = null;
         server = null;
     }

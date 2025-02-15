@@ -1,6 +1,5 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.vertex.*;
 import org.joml.Vector4f;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -193,7 +192,6 @@ public class ScrolledListPanel extends MyGuiComponent {
      * Scissor with respect to GUI-Scale and current offset.
      */
     private void scissorWithPose(GuiGraphics graphics, int x, int y, int width, int height) {
-        double scale = minecraft.getWindow().getGuiScale();
         Vector4f scissorPos = new Vector4f(x, y, 0, 1);
         scissorPos = graphics.pose().last().pose().transform(scissorPos);
         graphics.enableScissor((int)(scissorPos.x()), (int)(scissorPos.y()),

@@ -3,7 +3,6 @@ package de.kytodragon.live_edit.recipe;
 import de.kytodragon.live_edit.editing.*;
 import de.kytodragon.live_edit.editing.MyLootCondition.Condition;
 import de.kytodragon.live_edit.editing.MyLootFunction.Function;
-import de.kytodragon.live_edit.mixins.loot_tables.*;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +35,7 @@ public class LootTableConverter {
         result.pools = new ArrayList<>();
         result.requiredParams = new ArrayList<>();
         result.optionalParams = new ArrayList<>();
-        for (LootPool pool : ((LootTableMixin)table).live_edit_mixin_getPools()) {
+        for (LootPool pool : table.pools) {
             result.pools.add(convertPool(pool));
         }
         for (LootContextParam<?> param : table.getParamSet().getAllowed()) {
@@ -47,7 +46,7 @@ public class LootTableConverter {
             }
         }
         result.functions = new ArrayList<>();
-        for (LootItemFunction function : ((LootTableMixin)table).live_edit_mixin_getFunctions()) {
+        for (LootItemFunction function : table.functions) {
             result.functions.add(convertFunction(function));
         }
 
@@ -59,13 +58,13 @@ public class LootTableConverter {
         result.entries = new ArrayList<>();
         result.conditions = new ArrayList<>();
         result.functions = new ArrayList<>();
-        for (LootPoolEntryContainer entry : ((LootPoolMixin)pool).live_edit_mixin_getEntries()) {
+        for (LootPoolEntryContainer entry : pool.entries) {
             result.entries.add(convertEntry(entry));
         }
-        for (LootItemCondition condition : ((LootPoolMixin)pool).live_edit_mixin_getConditions()) {
+        for (LootItemCondition condition : pool.conditions) {
             result.conditions.add(convertCondition(condition));
         }
-        for (LootItemFunction function : ((LootPoolMixin)pool).live_edit_mixin_getFunctions()) {
+        for (LootItemFunction function : pool.functions) {
             result.functions.add(convertFunction(function));
         }
         FloatPair rolls = convertNumberGenerator(pool.getRolls());
@@ -85,42 +84,42 @@ public class LootTableConverter {
 
         } else if (condition.getType() == LootItemConditions.RANDOM_CHANCE) {
             result.type = Condition.RANDOM;
-            result.base_chance = ((LootItemRandomChanceConditionMixin)condition).live_edit_mixin_getProbability();
+            result.base_chance = ((LootItemRandomChanceCondition)condition).probability;
 
         } else if (condition.getType() == LootItemConditions.RANDOM_CHANCE_WITH_LOOTING) {
             result.type = Condition.RANDOM_WITH_LOOTING;
-            result.base_chance = ((LootItemRandomChanceWithLootingConditionMixin)condition).live_edit_mixin_getPercent();
-            result.additional_chance = ((LootItemRandomChanceWithLootingConditionMixin)condition).live_edit_mixin_getLootingMultiplier();
+            result.base_chance = ((LootItemRandomChanceWithLootingCondition)condition).percent;
+            result.additional_chance = ((LootItemRandomChanceWithLootingCondition)condition).lootingMultiplier;
 
         } else if (condition.getType() == LootItemConditions.ENTITY_PROPERTIES) {
-            LootContext.EntityTarget target = ((LootItemEntityPropertyConditionMixin)condition).live_edit_mixin_getTarget();
-            EntityPredicateMixin predicate = (EntityPredicateMixin) ((LootItemEntityPropertyConditionMixin) condition).live_edit_mixin_getPredicate();
+            LootContext.EntityTarget target = ((LootItemEntityPropertyCondition)condition).entityTarget;
+            EntityPredicate predicate = ((LootItemEntityPropertyCondition) condition).predicate;
             int num_predicates = 0;
-            if (predicate.live_edit_mixin_getDistanceToPlayer() != DistancePredicate.ANY)
+            if (predicate.distanceToPlayer != DistancePredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getEffects() != MobEffectsPredicate.ANY)
+            if (predicate.effects != MobEffectsPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getEntityType() != EntityTypePredicate.ANY)
+            if (predicate.entityType != EntityTypePredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getEquipment() != EntityEquipmentPredicate.ANY)
+            if (predicate.equipment != EntityEquipmentPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getFlags() != EntityFlagsPredicate.ANY)
+            if (predicate.flags != EntityFlagsPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getLocation() != LocationPredicate.ANY)
+            if (predicate.location != LocationPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getNbt() != NbtPredicate.ANY)
+            if (predicate.nbt != NbtPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getPassenger() != EntityPredicate.ANY)
+            if (predicate.passenger != EntityPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getVehicle() != EntityPredicate.ANY)
+            if (predicate.vehicle != EntityPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getTargetedEntity() != EntityPredicate.ANY)
+            if (predicate.targetedEntity != EntityPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getSubPredicate() != EntitySubPredicate.ANY)
+            if (predicate.subPredicate != EntitySubPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getSteppingOnLocation() != LocationPredicate.ANY)
+            if (predicate.steppingOnLocation != LocationPredicate.ANY)
                 num_predicates++;
-            if (predicate.live_edit_mixin_getTeam() != null) {
+            if (predicate.team != null) {
                 throw new UnsupportedOperationException("Entity loot condition with team");
             }
             if (num_predicates > 1) {
@@ -128,41 +127,41 @@ public class LootTableConverter {
             }
             if (num_predicates == 0) {
                 result.type = Condition.DESTROYED_BY_ENTITY;
-            } else if (target == LootContext.EntityTarget.THIS && predicate.live_edit_mixin_getFlags() != EntityFlagsPredicate.ANY) {
-                EntityFlagsPredicateMixin flags = (EntityFlagsPredicateMixin) predicate.live_edit_mixin_getFlags();
-                if (flags.live_edit_mixin_getIsBaby() != null || flags.live_edit_mixin_getIsCrouching() != null
-                    || flags.live_edit_mixin_getIsSprinting() != null || flags.live_edit_mixin_getIsSwimming() != null
-                    || flags.live_edit_mixin_getIsOnFire() != Boolean.TRUE) {
+            } else if (target == LootContext.EntityTarget.THIS && predicate.flags != EntityFlagsPredicate.ANY) {
+                EntityFlagsPredicate flags = predicate.flags;
+                if (flags.isBaby != null || flags.isCrouching != null
+                    || flags.isSprinting != null || flags.isSwimming != null
+                    || flags.isOnFire != Boolean.TRUE) {
                     throw new UnsupportedOperationException("unsupported entity flag condition");
                 }
                 result.type = Condition.ENTITY_IS_ON_FIRE;
-            } else if (predicate.live_edit_mixin_getSubPredicate() != EntitySubPredicate.ANY) {
-                if (predicate.live_edit_mixin_getSubPredicate().type() == EntitySubPredicate.Types.SLIME) {
-                    SlimePredicateMixin slime = (SlimePredicateMixin) predicate.live_edit_mixin_getSubPredicate();
+            } else if (predicate.subPredicate != EntitySubPredicate.ANY) {
+                if (predicate.subPredicate.type() == EntitySubPredicate.Types.SLIME) {
+                    SlimePredicate slime = (SlimePredicate) predicate.subPredicate;
                     result.type = Condition.SLIME_SIZE;
-                    Integer minValue = slime.live_edit_mixin_getSize().getMin();
+                    Integer minValue = slime.size.getMin();
                     if (minValue != null)
                         result.slime_size_min = minValue.intValue();
-                    Integer maxValue = slime.live_edit_mixin_getSize().getMax();
+                    Integer maxValue = slime.size.getMax();
                     if (maxValue != null)
                         result.slime_size_max = maxValue.intValue();
 
-                } else if (predicate.live_edit_mixin_getSubPredicate().type() == EntitySubPredicate.Types.FISHING_HOOK) {
+                } else if (predicate.subPredicate.type() == EntitySubPredicate.Types.FISHING_HOOK) {
                     result.type = Condition.FISHING_IN_OPEN_WATER;
 
                 } else {
                     throw new UnsupportedOperationException("unsupported entity flag condition");
                 }
 
-            } else if (predicate.live_edit_mixin_getEntityType() != EntityTypePredicate.ANY) {
-                if (predicate.live_edit_mixin_getEntityType().serializeToJson().getAsString().startsWith("#")) {
+            } else if (predicate.entityType != EntityTypePredicate.ANY) {
+                if (predicate.entityType.serializeToJson().getAsString().startsWith("#")) {
                     result.type = Condition.KILLED_BY_ENTITY_IN_TAG;
-                    TagPredicateMixin type = (TagPredicateMixin) predicate.live_edit_mixin_getEntityType();
-                    result.id = type.live_edit_mixin_getTag().location();
+                    EntityTypePredicate.TagPredicate type = (EntityTypePredicate.TagPredicate) predicate.entityType;
+                    result.id = type.tag.location();
                 } else {
                     result.type = Condition.KILLED_BY_ENTITY_OF_TYPE;
-                    TypePredicateMixin type = (TypePredicateMixin) predicate.live_edit_mixin_getEntityType();
-                    result.id = EntityType.getKey(type.live_edit_mixin_getType());
+                    EntityTypePredicate.TypePredicate type = (EntityTypePredicate.TypePredicate) predicate.entityType;
+                    result.id = EntityType.getKey(type.type);
                 }
 
             } else {
@@ -171,12 +170,12 @@ public class LootTableConverter {
 
         } else if (condition.getType() == LootItemConditions.INVERTED) {
             result.type = Condition.INVERTED_CONDITION;
-            result.inverted = convertCondition(((InvertedLootItemConditionMixin)condition).live_edit_mixin_getTerm());
+            result.inverted = convertCondition(((InvertedLootItemCondition)condition).term);
 
         } else if (condition.getType() == LootItemConditions.ANY_OF) {
             result.type = Condition.ALTERNATIVES;
             result.alternatives = new ArrayList<>();
-            for (LootItemCondition alternative : ((AlternativeLootItemConditionMixin)condition).live_edit_mixin_getTerms()) {
+            for (LootItemCondition alternative : ((AnyOfCondition)condition).terms) {
                 result.alternatives.add(convertCondition(alternative));
             }
 
@@ -293,31 +292,31 @@ public class LootTableConverter {
         MyLootEntry result = new MyLootEntry();
         result.type = entry.getType();
         result.conditions = new ArrayList<>();
-        for (LootItemCondition condition : ((LootPoolEntryContainerMixin)entry).live_edit_mixin_getConditions()) {
+        for (LootItemCondition condition : entry.conditions) {
             result.conditions.add(convertCondition(condition));
         }
 
         if (entry instanceof CompositeEntryBase composite) {
             result.children = new ArrayList<>();
-            for (LootPoolEntryContainer child : ((CompositeEntryBaseMixin)composite).live_edit_mixin_getChildren()) {
+            for (LootPoolEntryContainer child : composite.children) {
                 result.children.add(convertEntry(child));
             }
 
         } else if (entry instanceof LootPoolSingletonContainer singleton) {
             result.functions = new ArrayList<>();
-            result.weight = ((LootPoolSingletonContainerMixin)singleton).live_edit_mixin_getWeight();
-            result.quality = ((LootPoolSingletonContainerMixin)singleton).live_edit_mixin_getQuality();
-            for (LootItemFunction function : ((LootPoolSingletonContainerMixin)singleton).live_edit_mixin_getFunctions()) {
+            result.weight = singleton.weight;
+            result.quality = singleton.quality;
+            for (LootItemFunction function : singleton.functions) {
                 result.functions.add(convertFunction(function));
             }
             if (result.type == LootPoolEntries.ITEM) {
-                result.id = ForgeRegistries.ITEMS.getKey(((LootItemMixin)singleton).live_edit_mixin_getItem());
+                result.id = ForgeRegistries.ITEMS.getKey(((LootItem)singleton).item);
             } else if (result.type == LootPoolEntries.TAG) {
-                result.id = ((TagEntryMixin)singleton).live_edit_mixin_getTag().location();
-                result.drop_all_items_from_tag = !((TagEntryMixin)singleton).live_edit_mixin_getExpand();
+                result.id = ((TagEntry)singleton).tag.location();
+                result.drop_all_items_from_tag = !((TagEntry)singleton).expand;
             } else if (result.type == LootPoolEntries.EMPTY) {
             } else if (result.type == LootPoolEntries.REFERENCE) {
-                result.id = ((LootTableReferenceMixin)singleton).live_edit_mixin_getName();
+                result.id = ((LootTableReference)singleton).name;
             } else {
                 throw new UnsupportedOperationException("unknown loot entry type");
             }
@@ -329,6 +328,7 @@ public class LootTableConverter {
         return result;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private static MyLootFunction convertFunction(LootItemFunction function) {
         MyLootFunction result = new MyLootFunction();
 
@@ -465,11 +465,11 @@ public class LootTableConverter {
         float min;
         float max;
         if (number instanceof UniformGenerator uniform) {
-            if (((UniformGeneratorMixin)uniform).live_edit_mixin_getMin() instanceof ConstantValue constMin) {
+            if (uniform.min instanceof ConstantValue constMin) {
                 min = (int)constMin.getFloat(null);
             } else
                 throw new UnsupportedOperationException("unknown number generator in uniform");
-            if (((UniformGeneratorMixin)uniform).live_edit_mixin_getMax() instanceof ConstantValue constMax) {
+            if (uniform.max instanceof ConstantValue constMax) {
                 max = (int)constMax.getFloat(null);
             } else
                 throw new UnsupportedOperationException("unknown number generator in uniform");

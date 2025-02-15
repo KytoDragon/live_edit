@@ -1,6 +1,5 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 

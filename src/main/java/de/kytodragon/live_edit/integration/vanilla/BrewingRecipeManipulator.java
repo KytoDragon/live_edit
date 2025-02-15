@@ -22,7 +22,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
+import static de.kytodragon.live_edit.recipe.IngredientEncoder.*;
 
 public class BrewingRecipeManipulator extends IRecipeManipulator<IBrewingRecipe, MyRecipe, VanillaIntegration> {
 

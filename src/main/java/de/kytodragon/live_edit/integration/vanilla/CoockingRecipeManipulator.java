@@ -9,7 +9,7 @@ import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 
 import java.util.List;
 
-import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
+import static de.kytodragon.live_edit.recipe.IngredientEncoder.*;
 
 public class CoockingRecipeManipulator <T extends AbstractCookingRecipe> extends StandardRecipeManipulator<T, Container> {
 

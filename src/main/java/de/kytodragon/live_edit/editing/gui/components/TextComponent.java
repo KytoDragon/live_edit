@@ -1,7 +1,6 @@
 package de.kytodragon.live_edit.editing.gui.components;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.font.FontSet;
 
 public class TextComponent extends MyGuiComponent {
 

@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -61,9 +60,7 @@ public class RecipeTypeArgument implements ArgumentType<RecipeType> {
     }
 
     private Stream<RecipeType> getRealRecipeTypes() {
-        Stream<RecipeType> result = RecipeManager.instance.manipulators.entrySet().stream()
-                .filter(s -> s.getValue().isRealImplementation())
-                .map(Map.Entry::getKey);
+        Stream<RecipeType> result = RecipeManager.instance.manipulators.keySet().stream();
 
         if (allow_all) {
             result = Stream.concat(Stream.of(RecipeType.ALL), result);

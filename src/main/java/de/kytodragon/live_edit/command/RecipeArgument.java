@@ -79,7 +79,7 @@ public class RecipeArgument implements ArgumentType<ResourceLocation> {
             manipulators = Stream.of(RecipeManager.instance.manipulators.get(type));
         }
 
-        Stream<ResourceLocation> recipes = manipulators.filter(IRecipeManipulator::isRealImplementation).flatMap(RecipeArgument::getRecipes);
+        Stream<ResourceLocation> recipes = manipulators.flatMap(RecipeArgument::getRecipes);
         return SharedSuggestionProvider.suggestResource(recipes, builder);
     }
 

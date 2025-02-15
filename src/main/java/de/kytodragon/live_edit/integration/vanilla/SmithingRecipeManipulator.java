@@ -3,7 +3,6 @@ package de.kytodragon.live_edit.integration.vanilla;
 import de.kytodragon.live_edit.editing.MyIngredient;
 import de.kytodragon.live_edit.editing.MyRecipe;
 import de.kytodragon.live_edit.editing.MyResult;
-import de.kytodragon.live_edit.mixins.UpgradeRecipeMixin;
 import de.kytodragon.live_edit.recipe.CraftTweakerUtils;
 import de.kytodragon.live_edit.recipe.RecipeType;
 import net.minecraft.world.Container;
@@ -12,7 +11,7 @@ import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 
 import java.util.List;
 
-import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
+import static de.kytodragon.live_edit.recipe.IngredientEncoder.*;
 
 public class SmithingRecipeManipulator extends StandardRecipeManipulator<SmithingRecipe, Container> {
 
@@ -22,12 +21,11 @@ public class SmithingRecipeManipulator extends StandardRecipeManipulator<Smithin
 
     @Override
     public MyRecipe encodeRecipe(SmithingRecipe recipe) {
-        if (!(recipe instanceof SmithingTransformRecipe))
+        if (!(recipe instanceof SmithingTransformRecipe upgrade))
             return null;
-        UpgradeRecipeMixin upgrade = (UpgradeRecipeMixin) recipe;
 
-        MyIngredient base = encodeIngredient(upgrade.live_edit_mixin_getBase());
-        MyIngredient addition = encodeIngredient(upgrade.live_edit_mixin_getAddition());
+        MyIngredient base = encodeIngredient(upgrade.base);
+        MyIngredient addition = encodeIngredient(upgrade.addition);
         if (base == null || addition == null) {
             return null;
         }

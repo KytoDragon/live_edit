@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.*;
 
 import java.util.List;
 
-import static de.kytodragon.live_edit.recipe.IngredientReplacer.*;
+import static de.kytodragon.live_edit.recipe.IngredientEncoder.*;
 
 public class CraftingRecipeManipulator extends StandardRecipeManipulator<CraftingRecipe, CraftingContainer> {
 
